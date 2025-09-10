@@ -1,0 +1,44 @@
+{
+	"name": "TrackLab Container",
+	"build": { 
+		"context": "..",
+		"dockerfile": "Dockerfile"
+	},
+
+	"runArgs": [
+		"--gpus=all",
+		"--shm-size=10g",
+		"--network", "host"
+	  ],
+
+	"containerEnv": {
+		"http_proxy": "${localEnv:http_proxy}",
+		"https_proxy": "${localEnv:https_proxy}",
+		"no_proxy": "${localEnv:no_proxy}"
+	  },
+
+	"postCreateCommand": "export UV_HTTP_TIMEOUT=300 && uv venv --clear --python python3  && uv pip install torch==2.6 torchvision==0.21 torchaudio --index-url https://pypi.tuna.tsinghua.edu.cn/simple && uv pip install -e . --index-url https://pypi.tuna.tsinghua.edu.cn/simple && echo 'source /workspaces/tracklab/.venv/bin/activate' >> ~/.bashrc && git config --global user.email ornot2008@yahoo.com && git config --global user.name ornot-devcontainer",
+
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-toolsai.jupyter",
+				"shd101wyy.markdown-preview-enhanced",
+				"yzhang.markdown-all-in-one",
+				"bierner.markdown-checkbox",
+				"bierner.markdown-mermaid",
+				"DavidAnson.vscode-markdownlint",
+				"ms-python.vscode-pylance",
+				"ms-python.python",
+				"ms-python.debugpy",
+				"ms-python.vscode-python-envs",
+				"marp-team.marp-vscode",
+				"ms-python.black-formatter",
+				"mhutchie.git-graph",
+				"RSIP-Vision.nvidia-smi-plus",
+				"ms-azuretools.vscode-containers",
+				"ms-toolsai.datawrangler"
+			]
+		}
+	}
+}
