@@ -4,13 +4,17 @@ version = "1.0.2"
 description = ""
 authors = ["Victor Joos <victor.joos@uclouvain.be>"]
 packages = [
-    {include = "sn_calibration_baseline"},
+    {include = "nbjw_calib"},
     {include = "tvcalib"},
+    {include = "sn_calibration_baseline"},
+    {include = "pnlcalib"},
 ]
 
 [tool.poetry.dependencies]
 python = "^3.10"
 kornia = "0.6.3"
+lsq-ellipse = ">=2.2.1"
+
 
 
 [build-system]
