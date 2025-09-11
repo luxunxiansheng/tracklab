@@ -142,3 +142,4 @@ dmypy.json
 .pyre/
 .idea/
 .DS_Store
+uv.lock
