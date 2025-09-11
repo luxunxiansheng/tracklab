@@ -41,6 +41,8 @@ dependencies = [
     "scipy",
     "yacs",
     "scikit-image",
+    "torchreid @ git+https://github.com/victorjoos/keypoint_promptable_reidentification",
+    "tensorboard",
 ]
 
 [dependency-groups]
