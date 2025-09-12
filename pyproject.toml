@@ -43,6 +43,7 @@ dependencies = [
     "scikit-image",
     "torchreid @ git+https://github.com/victorjoos/keypoint_promptable_reidentification",
     "tensorboard",
+    "prtreid",
 ]
 
 [dependency-groups]
@@ -71,3 +72,6 @@ exclude = []
 
 [tool.uv]
 no-build-isolation-package = ["chumpy"]
+
+[tool.uv.sources]
+prtreid = { git = "https://github.com/VlSomers/prtreid.git" }
