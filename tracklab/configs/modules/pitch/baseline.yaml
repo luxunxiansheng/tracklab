@@ -1,4 +1,4 @@
-_target_: sn_gamestate.calibration.pitch.BaselinePitch
+_target_: tracklab.wrappers.calibration.sn_calibration_baseline_pitch_api.BaselinePitch
 mean_file: ${model_dir}/calibration/mean.npy
 std_file: ${model_dir}/calibration/std.npy
 model_weights: ${model_dir}/calibration/soccer_pitch_segmentation.pth
