@@ -1,4 +1,4 @@
-_target_: sn_gamestate.reid.prtreid_api.PRTReId
+_target_: tracklab.wrappers.reid.prtreid_api.PRTReId
 
 defaults:
   - dataset: prtreid_dataset
