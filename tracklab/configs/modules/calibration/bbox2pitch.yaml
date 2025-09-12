@@ -1,2 +1,2 @@
-_target_: sn_gamestate.calibration.bbox2pitch.Bbox2Pitch
+_target_: tracklab.wrappers.calibration.sn_calibration_baseline_bbox2pitch_api.Bbox2Pitch
 batch_size: 16

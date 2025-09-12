@@ -1,4 +1,4 @@
-_target_: sn_gamestate.calibration.tvcalib.TVCalib
+_target_: tracklab.wrappers.calibration.tvcalib_api.TVCalib
 image_width: 1920
 image_height: 1080
 lens_dist: False
