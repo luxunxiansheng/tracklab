@@ -2,9 +2,12 @@ import functools
 from typing import Callable, Any, Tuple, Dict, Union
 
 from hydra._internal.instantiate import _instantiate2
-from hydra._internal.instantiate._instantiate2 import (_extract_pos_args,
-                                                       _convert_target_to_string,
-                                                       InstantiationException, _locate)
+from hydra._internal.instantiate._instantiate2 import (
+    _extract_pos_args,
+    _convert_target_to_string,
+)
+from hydra.errors import InstantiationException
+from hydra._internal.utils import _locate
 from omegaconf import OmegaConf
 
 
@@ -51,6 +54,7 @@ def new_call_target(
     else:
         return _target_(*args, **kwargs)
 
+
 def new_resolve_target(
     target: Union[str, type, Callable[..., Any]], full_key: str
 ) -> Union[type, Callable[..., Any]]:
@@ -67,3 +71,39 @@ def new_resolve_target(
 
 _instantiate2._call_target = new_call_target
 _instantiate2._resolve_target = new_resolve_target
+
+# Monkeypatch torch.load to handle weights_only issue
+try:
+    import torch
+
+    original_torch_load = torch.load
+
+    def patched_torch_load(
+        fpath, map_location=None, pickle_module=None, *, weights_only=None, **kwargs
+    ):
+        try:
+            return original_torch_load(
+                fpath,
+                map_location=map_location,
+                pickle_module=pickle_module,
+                weights_only=weights_only,
+                **kwargs,
+            )
+        except Exception as e:
+            if "Weights only load failed" in str(e) or "WeightsUnpickler error" in str(
+                e
+            ):
+                # Retry with weights_only=False for trusted checkpoints
+                if str(fpath).endswith(".pth.tar") or "prtreid" in str(fpath):
+                    return original_torch_load(
+                        fpath,
+                        map_location=map_location,
+                        pickle_module=pickle_module,
+                        weights_only=False,
+                        **kwargs,
+                    )
+            raise
+
+    torch.load = patched_torch_load
+except ImportError:
+    pass
