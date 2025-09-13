@@ -1,48 +1,51 @@
 {
-	"name": "TrackLab Container",
-	"build": { 
+	"name": "TrackLab Container (Python 3.9 + UV)",
+	"build": {
 		"context": "..",
 		"dockerfile": "Dockerfile"
 	},
-
 	"runArgs": [
 		"--gpus=all",
 		"--shm-size=10g",
-		"--network", "host"
-	  ],
-
+		"--network=host"
+	],
 	"containerEnv": {
 		"http_proxy": "${localEnv:http_proxy}",
 		"https_proxy": "${localEnv:https_proxy}",
-		"no_proxy": "${localEnv:no_proxy}"
-	  },
-	
-	  "mounts": [
-		"source=/home/li/data,target=/workspaces/${localWorkspaceFolderBasename}/data,type=bind,consistency=cached"
+		"no_proxy": "${localEnv:no_proxy}",
+		"UV_HTTP_TIMEOUT": "300",
+		"UV_INDEX_URL": "https://pypi.tuna.tsinghua.edu.cn/simple"
+	},
+	"mounts": [
+		"source=${localEnv:HOME}/data,target=/workspaces/${localWorkspaceFolderBasename}/data,type=bind,consistency=cached"
 	],
-
-	"postCreateCommand": "export UV_HTTP_TIMEOUT=300 && uv venv --clear --python 3.12  && uv pip install torch==2.6 torchvision==0.21 torchaudio --index-url https://pypi.tuna.tsinghua.edu.cn/simple && uv pip install -e . --index-url https://pypi.tuna.tsinghua.edu.cn/simple --extra-index-url https://pypi.org/simple && echo 'source /workspaces/tracklab/.venv/bin/activate' >> ~/.bashrc && git config --global user.email ornot2008@yahoo.com && git config --global user.name ornot-devcontainer",
-
+	"postCreateCommand": "uv sync && echo 'source .venv/bin/activate' >> ~/.bashrc",
 	"customizations": {
 		"vscode": {
 			"extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-python.debugpy",
+				"ms-python.black-formatter",
+				"ms-python.vscode-python-envs",
 				"ms-toolsai.jupyter",
+				"ms-toolsai.datawrangler",
 				"shd101wyy.markdown-preview-enhanced",
 				"yzhang.markdown-all-in-one",
 				"bierner.markdown-checkbox",
 				"bierner.markdown-mermaid",
 				"DavidAnson.vscode-markdownlint",
-				"ms-python.vscode-pylance",
-				"ms-python.python",
-				"ms-python.debugpy",
-				"ms-python.vscode-python-envs",
 				"marp-team.marp-vscode",
-				"ms-python.black-formatter",
 				"mhutchie.git-graph",
 				"RSIP-Vision.nvidia-smi-plus",
-				"ms-azuretools.vscode-containers",
-				"ms-toolsai.datawrangler"
-			]
+				"ms-azuretools.vscode-containers"
+			],
+			"settings": {
+				"python.defaultInterpreterPath": "/workspaces/tracklab/.venv/bin/python",
+				"python.terminal.activateEnvironment": true,
+				"python.analysis.autoImportCompletions": true,
+				"python.analysis.typeCheckingMode": "basic"
+			}
 		}
 	}
 }

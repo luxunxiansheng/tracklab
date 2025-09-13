@@ -9,15 +9,15 @@ authors = [
     { name = "Vladimir Somers", email = "vladimir.somers@uclouvain.be"},
 ]
 
-requires-python = ">=3.9"
+requires-python = ">=3.9,<3.10"
 dependencies = [
     "hydra-core",
     "lightning",
     "pytorch_lightning",
-    "numpy<2.0",
+    "numpy>=1.21.0,<2.0.0",
     "ultralytics",
     "filterpy",
-    "torch==1.13.1",
+    "torch>=1.12.0,<2.0.0",
     "torchvision",
     "soccernet==0.1.55",
     "yt-dlp",
@@ -41,9 +41,9 @@ dependencies = [
     "scipy",
     "yacs",
     "scikit-image",
-    "torchreid",
+    # "torchreid",  # commenting out due to tb-nightly dependency issues
     "tensorboard",
-    "prtreid",
+    # "prtreid",  # commenting out due to tb-nightly dependency issues
     "calibration",
     "mmocr==1.0.1",
     "lightning==2.0.9",
@@ -78,6 +78,7 @@ exclude = []
 
 [tool.uv]
 no-build-isolation-package = ["chumpy"]
+environments = ["sys_platform == 'linux'"]
 
 [tool.uv.sources]
 prtreid = { git = "https://github.com/VlSomers/prtreid.git" }

@@ -1,54 +1,62 @@
 FROM nvidia/cuda:12.4.1-runtime-ubuntu22.04
 
-# Switch to root for installation and setup
 USER root
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Install required system dependencies for matplotlib, OpenCV, and H.264 codec support
+# Install system dependencies and Python 3.9
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    software-properties-common \
+    && add-apt-repository ppa:deadsnakes/ppa \
+    && sed -i 's| main restricted| main restricted universe multiverse|g' /etc/apt/sources.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+    # Build tools
     build-essential \
     pkg-config \
+    curl \
+    git \
+    # Python 3.9
+    python3.9 \
+    python3.9-venv \
+    python3.9-dev \
+    python3.9-distutils \
+    python3-pip \
+    # Image processing libraries
     libfreetype6-dev \
     libpng-dev \
+    libjpeg-dev \
+    libtiff-dev \
     libqhull-dev \
     libagg-dev \
     libcairo2-dev \
     libffi-dev \
-    # H.264 codec and video processing dependencies
+    # Video processing and codecs
     libx264-dev \
     libx265-dev \
     libvpx-dev \
     libfdk-aac-dev \
     libmp3lame-dev \
     libopus-dev \
-    # FFmpeg with H.264 support
     ffmpeg \
     libavcodec-dev \
     libavformat-dev \
     libavutil-dev \
     libswscale-dev \
     libswresample-dev \
-    # Additional video processing libraries
+    # OpenCV and GTK dependencies
     libgstreamer1.0-dev \
     libgstreamer-plugins-base1.0-dev \
     libgtk-3-dev \
-    libjpeg-dev \
-    libpng-dev \
-    libtiff-dev \
     libdc1394-dev \
-    curl \
-    git \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    # Install uv
-    && curl -LsSf https://astral.sh/uv/install.sh | sh \
-    && ln -s /root/.local/bin/uv /usr/local/bin/uv
+    && rm -rf /var/lib/apt/lists/*
 
-ENV PATH="/root/.local/bin:/root/.cargo/bin:$PATH"
+# Install uv and set up Python
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh \
+    && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 1
 
-# Set working directory
+ENV PATH="/root/.local/bin:$PATH"
 WORKDIR /workspaces/tracklab
-
-# No need to copy, as workspace is mounted
 
 
 
