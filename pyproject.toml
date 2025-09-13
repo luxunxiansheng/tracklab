@@ -76,7 +76,7 @@ no-build-isolation-package = ["chumpy"]
 
 [tool.uv.sources]
 prtreid = { git = "https://github.com/VlSomers/prtreid.git" }
-tracklab-calibration = { workspace = true, editable = true }
+calibration = { workspace = true, editable = true }
 
 [tool.uv.workspace]
 members = [
