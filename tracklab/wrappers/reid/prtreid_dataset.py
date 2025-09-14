@@ -14,6 +14,7 @@ from tqdm import tqdm
 
 from tracklab.datastruct import EngineDatapipe
 from tracklab.datastruct import TrackingDataset
+
 # FIXME this should be removed and use KeypointsSeriesAccessor and KeypointsFrameAccessor
 from tracklab.utils.coordinates import rescale_keypoints
 
@@ -82,12 +83,14 @@ class ReidDataset(ImageDataset):
         role_mapping,
         pose_model=None,
         masks_dir="",
-        **kwargs
+        **kwargs,
     ):
         # Init
         self.tracking_dataset = tracking_dataset
         self.reid_config = reid_config
-        self.pose_model = pose_model  #  can be used to generate pseudo labels for the reid dataset
+        self.pose_model = (
+            pose_model  #  can be used to generate pseudo labels for the reid dataset
+        )
         self.dataset_path = Path(self.tracking_dataset.dataset_path)
         self.role_mapping = role_mapping
         self.masks_dir = masks_dir
@@ -178,7 +181,11 @@ class ReidDataset(ImageDataset):
         log.info("Loading {} set...".format(split))
 
         # Precompute all paths
-        reid_path = Path(self.dataset_path, self.reid_dir, masks_mode) if self.reid_config.enable_human_parsing_labels else Path(self.dataset_path, self.reid_dir)
+        reid_path = (
+            Path(self.dataset_path, self.reid_dir, masks_mode)
+            if self.reid_config.enable_human_parsing_labels
+            else Path(self.dataset_path, self.reid_dir)
+        )
         reid_img_path = reid_path / self.reid_images_dir / split
         reid_mask_path = reid_path / self.reid_masks_dir / split
         reid_fig_path = reid_path / self.reid_fig_dir / split
@@ -231,7 +238,7 @@ class ReidDataset(ImageDataset):
                 mode=masks_mode,
             )
         else:
-            detections["masks_path"] = ''
+            detections["masks_path"] = ""
 
         # Add 0-based pid column (for Torchreid compatibility) to sampled detections
         self.ad_pid_column(detections)
@@ -370,12 +377,8 @@ class ReidDataset(ImageDataset):
 
                     # save image crop metadata
                     gt_dets.at[det_metadata.id, "reid_crop_path"] = str(abs_filepath)
-                    gt_dets.at[det_metadata.id, "reid_crop_width"] = img_crop.shape[
-                        0
-                    ]
-                    gt_dets.at[det_metadata.id, "reid_crop_height"] = img_crop.shape[
-                        1
-                    ]
+                    gt_dets.at[det_metadata.id, "reid_crop_width"] = img_crop.shape[0]
+                    gt_dets.at[det_metadata.id, "reid_crop_height"] = img_crop.shape[1]
                     pbar.update(1)
 
         log.info(
@@ -588,7 +591,9 @@ class ReidDataset(ImageDataset):
         column_mapping["role"] = self.role_mapping
         for col in self.reid_config.columns:
             if col not in column_mapping:
-                unique_values = {element for df in dataframes for element in df[col].unique()}
+                unique_values = {
+                    element for df in dataframes for element in df[col].unique()
+                }
                 unique_values.discard(None)
                 ordered_unique_values = list(unique_values)
                 ordered_unique_values.sort()
@@ -609,12 +614,23 @@ class ReidDataset(ImageDataset):
             # 'RuntimeError: torch.cat(): input types can't be cast to the desired output type Long' in collate.py
             # -> still has to be fixed
             data_list = sorted_df[
-                ["pid", "camid", "img_path", "masks_path", "visibility", "image_id", "video_id"] + self.reid_config.columns
+                [
+                    "pid",
+                    "camid",
+                    "img_path",
+                    "masks_path",
+                    "visibility",
+                    "image_id",
+                    "video_id",
+                ]
+                + self.reid_config.columns
             ]
             # factorize all columns, i.e. replace string values with 0-based increasing ids
             for col in self.reid_config.columns:
                 data_list[col] = data_list[col].map(column_mapping[col])
-                self.column_mapping[col] = {value: key for key, value in column_mapping[col].items()}
+                self.column_mapping[col] = {
+                    value: key for key, value in column_mapping[col].items()
+                }
 
             data_list = data_list.to_dict("records")
             results.append(data_list)

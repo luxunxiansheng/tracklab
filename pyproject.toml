@@ -12,12 +12,12 @@ authors = [
 requires-python = ">=3.9,<3.10"
 dependencies = [
     "hydra-core",
-    "lightning",
+    "lightning==2.0.9",
     "pytorch_lightning",
-    "numpy>=1.21.0,<2.0.0",
+    "numpy<2.0",
     "ultralytics",
     "filterpy",
-    "torch>=1.12.0,<2.0.0",
+    "torch==1.13.1",
     "torchvision",
     "soccernet==0.1.55",
     "yt-dlp",
@@ -41,15 +41,18 @@ dependencies = [
     "scipy",
     "yacs",
     "scikit-image",
-    # "torchreid",  # commenting out due to tb-nightly dependency issues
     "tensorboard",
-    # "prtreid",  # commenting out due to tb-nightly dependency issues
-    "calibration",
-    "mmocr==1.0.1",
-    "lightning==2.0.9",
     "easyocr==1.7.1",
+    "mmcv>=2.0.0,<2.1.0",  # required for mmocr compatibility
+    "mmengine",  # required for mmocr
+    "mmocr==1.0.1",
     "mmdet~=3.1.0",
     "openmim==0.3.9",
+    "albumentations==1.2.1",  # required for prtreid compatibility
+    # Note: prtreid installed manually due to tb-nightly dependency issues
+    # Command: pip install git+https://github.com/VlSomers/prtreid.git
+    # "torchreid @ git+https://github.com/VlSomers/bpbreid",  # commenting out due to tb-nightly dependency issues
+    "calibration",
 ]
 
 [dependency-groups]
@@ -81,8 +84,8 @@ no-build-isolation-package = ["chumpy"]
 environments = ["sys_platform == 'linux'"]
 
 [tool.uv.sources]
-prtreid = { git = "https://github.com/VlSomers/prtreid.git" }
-torchreid = { git = "https://github.com/VlSomers/bpbreid" }
+# prtreid = { git = "https://github.com/VlSomers/prtreid.git" }  # will install manually
+# torchreid = { git = "https://github.com/VlSomers/bpbreid.git" }  # commented out due to tb-nightly issues
 calibration = { workspace = true, editable = true }
 
 [tool.uv.workspace]

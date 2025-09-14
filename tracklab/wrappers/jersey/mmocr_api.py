@@ -1,18 +1,11 @@
 import pandas as pd
 import torch
 import numpy as np
-
-# Apply MMCV patch before importing MMOCR to handle missing _ext module
-from tracklab.utils.mmcv_patch import patch_mmcv_ext
-
-patch_mmcv_ext()
-
-from mmocr.apis import MMOCRInferencer
-
-# from mmengine.infer.infer import BaseInferencer
-from mmocr.apis import TextDetInferencer, TextRecInferencer
-from mmocr.utils import ConfigType, bbox2poly, crop_img, poly2bbox
 import logging
+
+# MMOCR imports - these require working MMCV with compiled extensions
+from mmocr.apis import MMOCRInferencer, TextDetInferencer, TextRecInferencer
+from mmocr.utils import ConfigType, bbox2poly, crop_img, poly2bbox
 
 from tracklab.utils.collate import default_collate, Unbatchable
 from tracklab.pipeline.detectionlevel_module import DetectionLevelModule
@@ -29,6 +22,7 @@ class MMOCR(DetectionLevelModule):
 
     def __init__(self, batch_size, device, tracking_dataset=None):
         super().__init__(batch_size=batch_size)
+
         self.ocr = MMOCRInferencer(det="dbnet_resnet18_fpnc_1200e_icdar2015", rec="SAR")
         self.batch_size = batch_size
 

@@ -17,11 +17,11 @@ visualizers:
   frame_counter:
     _target_: tracklab.visualization.FrameCount
   pitch:
-    _target_: sn_gamestate.visualization.Pitch
+    _target_: tracklab.visualization.pitch.Pitch
   players:
-    _target_: sn_gamestate.visualization.CompletePlayerEllipse
+    _target_: tracklab.visualization.players.CompletePlayerEllipse
   radar:
-    _target_: sn_gamestate.visualization.Radar
+    _target_: tracklab.visualization.pitch.Radar
 
 # Color settings for visualization.
 colors:
