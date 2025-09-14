@@ -30,8 +30,8 @@ dependencies = [
     "lap",
     "distinctipy",
     "rtmlib",
-    "transformers",
-    "accelerate",
+    "transformers<4.30.0",  # compatible with PyTorch 1.13.1 (newer versions require torch.compiler)
+    "accelerate<0.20.0",  # compatible with older transformers and PyTorch
     "huggingface-hub",
     "opencv-python",
     "tqdm",
