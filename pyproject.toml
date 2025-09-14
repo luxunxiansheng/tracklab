@@ -18,7 +18,7 @@ dependencies = [
     "ultralytics",
     "filterpy",
     "torch==1.13.1",
-    "torchvision",
+    "torchvision==0.14.1",
     "soccernet==0.1.55",
     "yt-dlp",
     "gdown",
@@ -30,8 +30,8 @@ dependencies = [
     "lap",
     "distinctipy",
     "rtmlib",
-    "transformers<4.30.0",  # compatible with PyTorch 1.13.1 (newer versions require torch.compiler)
-    "accelerate<0.20.0",  # compatible with older transformers and PyTorch
+    "transformers==4.29.2",  # compatible with PyTorch 1.13.1 (newer versions require torch.compiler)
+    "accelerate==0.19.0",  # compatible with older transformers and PyTorch
     "huggingface-hub",
     "opencv-python",
     "tqdm",
@@ -41,14 +41,14 @@ dependencies = [
     "scipy",
     "yacs",
     "scikit-image",
-    "tensorboard",
+    "tensorboard==2.20.0",  # compatible with PyTorch 1.13.1
     "easyocr==1.7.1",
     "mmcv>=2.0.0,<2.1.0",  # required for mmocr compatibility
     "mmengine",  # required for mmocr
     "mmocr==1.0.1",
     "mmdet~=3.1.0",
     "openmim==0.3.9",
-    "albumentations==1.2.1",  # required for prtreid compatibility
+    "albumentations==0.5.2",  # downgraded for prtreid compatibility (no is_check_shapes parameter)
     # Note: prtreid installed manually due to tb-nightly dependency issues
     # Command: pip install git+https://github.com/VlSomers/prtreid.git
     # "torchreid @ git+https://github.com/VlSomers/bpbreid",  # commenting out due to tb-nightly dependency issues

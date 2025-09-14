@@ -56,6 +56,7 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh \
     && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 1
 
 ENV PATH="/root/.local/bin:$PATH"
+
 WORKDIR /workspaces/tracklab
 
 

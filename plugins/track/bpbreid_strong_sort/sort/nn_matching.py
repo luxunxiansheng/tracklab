@@ -28,7 +28,7 @@ def _pdist(a, b):
     a, b = np.asarray(a), np.asarray(b)
     if len(a) == 0 or len(b) == 0:
         return np.zeros((len(a), len(b)))
-    a2, b2 = np.square(a).sum(axis=1), np.square(b).sum(axis=1)
+    a2, b2 = np.square(a).sum(dim=1), np.square(b).sum(dim=1)
     r2 = -2.0 * np.dot(a, b.T) + a2[:, None] + b2[None, :]
     r2 = np.clip(r2, 0.0, float(np.inf))
     return r2
@@ -52,8 +52,8 @@ def _cosine_distance(a, b, data_is_normalized=False):
         contains the squared distance between `a[i]` and `b[j]`.
     """
     if not data_is_normalized:
-        a = np.asarray(a) / np.linalg.norm(a, axis=1, keepdims=True)
-        b = np.asarray(b) / np.linalg.norm(b, axis=1, keepdims=True)
+        a = np.asarray(a) / np.linalg.norm(a, dim=1, keepdims=True)
+        b = np.asarray(b) / np.linalg.norm(b, dim=1, keepdims=True)
     return 1.0 - np.dot(a, b.T)
 
 
@@ -71,8 +71,8 @@ def _nn_euclidean_distance(x, y):
         A vector of length M that contains for each entry in `y` the
         smallest Euclidean distance to a sample in `x`.
     """
-    x_ = torch.from_numpy(np.asarray(x) / np.linalg.norm(x, axis=1, keepdims=True))
-    y_ = torch.from_numpy(np.asarray(y) / np.linalg.norm(y, axis=1, keepdims=True))
+    x_ = torch.from_numpy(np.asarray(x) / np.linalg.norm(x, dim=1, keepdims=True))
+    y_ = torch.from_numpy(np.asarray(y) / np.linalg.norm(y, dim=1, keepdims=True))
     distances = compute_distance_matrix(x_, y_, metric="euclidean")
     return np.maximum(0.0, torch.min(distances, dim=0)[0].numpy())
 
@@ -95,7 +95,7 @@ def _nn_cosine_distance(x, y):
     y_ = torch.from_numpy(np.asarray(y))
     distances = compute_distance_matrix(x_, y_, metric="cosine")
     distances = distances.cpu().detach().numpy()
-    return distances.min(axis=0)
+    return distances.min(dim=0)
 
 
 def _nn_part_based(y, x, normalize_features=True):
