@@ -185,6 +185,28 @@ uv pip install git+https://github.com/VlSomers/prtreid.git
 uv pip install git+https://github.com/VlSomers/bpbreid.git
 ```
 
+#### 🐳 Dev Container (Recommended for Development)
+
+For the most reliable and reproducible development environment, use the provided Dev Container configuration:
+
+1. **Prerequisites**: Docker and VS Code with the Dev Containers extension
+2. **Open in Dev Container**: VS Code will prompt to reopen in container, or use Command Palette: "Dev Containers: Reopen in Container"
+3. **Automatic Setup**: The container will automatically:
+   - Install Python 3.9 with CUDA 11.8 support
+   - Set up virtual environment with uv
+   - Install all dependencies from `pyproject.toml` and `uv.lock`
+   - Install PyTorch 2.0.1+cu118 and torchvision 0.15.2+cu118
+   - Install git-based packages (prtreid, bpbreid)
+   - Configure the development environment
+
+**Environment Reproducibility**: The current working environment is captured in:
+- `uv.lock`: Exact dependency versions managed by uv
+- `current_working_environment.txt`: Backup of exact package versions
+- `requirements-working.txt`: Human-readable known working configuration
+- `.devcontainer/`: Complete container configuration
+
+This ensures anyone building the container will get the exact same working environment.
+
 #### Workspace Structure
 - Main project: `pyproject.toml`
 - Plugins: `plugins/*/pyproject.toml`

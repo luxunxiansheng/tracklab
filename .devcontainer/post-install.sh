@@ -6,9 +6,9 @@ echo "🔧 TrackLab post-install setup..."
 # Activate virtual environment
 source .venv/bin/activate
 
-# Install PyTorch with CUDA support
+# Install PyTorch with CUDA support (matching current working environment)
 echo "📦 Installing PyTorch with CUDA..."
-pip install torch==2.8.0+cu124 torchvision==0.23.0+cu124 --index-url https://download.pytorch.org/whl/cu124 -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install torch==2.0.1+cu118 torchvision==0.15.2+cu118 --index-url https://download.pytorch.org/whl/cu118 -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # Install prtreid (only if not already installed)
 echo "🔧 Installing prtreid..."
@@ -162,4 +162,4 @@ chmod +x /workspaces/tracklab/fix_albumentations.sh
 
 echo "✅ Setup complete! Run: tracklab run -cn=./tracklab/configs/gamestate.yaml"
 echo "💡 If you get 'is_check_shapes' error, run: ./fix_albumentations.sh"
-echo "📦 PyTorch 2.8.0 with CUDA 12.4 installed"
+echo "📦 PyTorch 2.0.1 with CUDA 11.8 installed"
