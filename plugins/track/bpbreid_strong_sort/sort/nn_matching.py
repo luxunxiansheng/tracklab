@@ -1,13 +1,15 @@
 # vim: expandtab:ts=4:sw=4
 import numpy as np
 import torch
+
 try:
-    from torchreid.metrics import compute_distance_matrix
-    from torchreid.metrics.distance import compute_distance_matrix_using_bp_features
+    from prtreid.metrics import compute_distance_matrix
+    from prtreid.metrics.distance import compute_distance_matrix_using_bp_features
 except ImportError:
-    torchreid = None
+    prtreid = None
 
 from torch.nn import functional as F
+
 
 def _pdist(a, b):
     """Compute pair-wise squared distance between points in `a` and `b`.
@@ -27,8 +29,8 @@ def _pdist(a, b):
     if len(a) == 0 or len(b) == 0:
         return np.zeros((len(a), len(b)))
     a2, b2 = np.square(a).sum(axis=1), np.square(b).sum(axis=1)
-    r2 = -2. * np.dot(a, b.T) + a2[:, None] + b2[None, :]
-    r2 = np.clip(r2, 0., float(np.inf))
+    r2 = -2.0 * np.dot(a, b.T) + a2[:, None] + b2[None, :]
+    r2 = np.clip(r2, 0.0, float(np.inf))
     return r2
 
 
@@ -52,11 +54,11 @@ def _cosine_distance(a, b, data_is_normalized=False):
     if not data_is_normalized:
         a = np.asarray(a) / np.linalg.norm(a, axis=1, keepdims=True)
         b = np.asarray(b) / np.linalg.norm(b, axis=1, keepdims=True)
-    return 1. - np.dot(a, b.T)
+    return 1.0 - np.dot(a, b.T)
 
 
 def _nn_euclidean_distance(x, y):
-    """ Helper function for nearest neighbor distance metric (Euclidean).
+    """Helper function for nearest neighbor distance metric (Euclidean).
     Parameters
     ----------
     x : ndarray
@@ -71,12 +73,12 @@ def _nn_euclidean_distance(x, y):
     """
     x_ = torch.from_numpy(np.asarray(x) / np.linalg.norm(x, axis=1, keepdims=True))
     y_ = torch.from_numpy(np.asarray(y) / np.linalg.norm(y, axis=1, keepdims=True))
-    distances = compute_distance_matrix(x_, y_, metric='euclidean')
-    return np.maximum(0.0, torch.min(distances, axis=0)[0].numpy())
+    distances = compute_distance_matrix(x_, y_, metric="euclidean")
+    return np.maximum(0.0, torch.min(distances, dim=0)[0].numpy())
 
 
 def _nn_cosine_distance(x, y):
-    """ Helper function for nearest neighbor distance metric (cosine).
+    """Helper function for nearest neighbor distance metric (cosine).
     Parameters
     ----------
     x : ndarray
@@ -91,13 +93,13 @@ def _nn_cosine_distance(x, y):
     """
     x_ = torch.from_numpy(np.asarray(x))
     y_ = torch.from_numpy(np.asarray(y))
-    distances = compute_distance_matrix(x_, y_, metric='cosine')
+    distances = compute_distance_matrix(x_, y_, metric="cosine")
     distances = distances.cpu().detach().numpy()
     return distances.min(axis=0)
 
 
 def _nn_part_based(y, x, normalize_features=True):
-    """ Helper function for nearest neighbor distance metric (cosine).
+    """Helper function for nearest neighbor distance metric (cosine).
 
     Parameters
     ----------
@@ -113,26 +115,30 @@ def _nn_part_based(y, x, normalize_features=True):
         smallest cosine distance to a sample in `x`.
 
     """
-    x_features = torch.from_numpy(x['reid_features'])
-    x_visibility_scores = torch.from_numpy(x['visibility_scores'])
-    y_features = torch.from_numpy(y[-1]['reid_features'])
-    y_visibility_scores = torch.from_numpy(y[-1]['visibility_scores'])
+    x_features = torch.from_numpy(x["reid_features"])
+    x_visibility_scores = torch.from_numpy(x["visibility_scores"])
+    y_features = torch.from_numpy(y[-1]["reid_features"])
+    y_visibility_scores = torch.from_numpy(y[-1]["visibility_scores"])
     if normalize_features:
         """Features are normalized here, which is not the most efficient since a given tracklet features will be normalized multiple times.
         It is not done before because we want to do the exponential moving average (EMA) aggregation of tracklets features on the un-normalized features
-        and then normalize after. If normalization was done before EMA, the averaged features would not be normalized 
-        anymore and we would therefore pass un-normalized features to 'compute_distance_matrix_using_bp_features'."""
+        and then normalize after. If normalization was done before EMA, the averaged features would not be normalized
+        anymore and we would therefore pass un-normalized features to 'compute_distance_matrix_using_bp_features'.
+        """
         x_features = F.normalize(x_features, p=2, dim=-1)
         y_features = F.normalize(y_features, p=2, dim=-1)
-    distances = compute_distance_matrix_using_bp_features(y_features.unsqueeze(0),
-                                                          x_features,
-                                                          y_visibility_scores.unsqueeze(0),
-                                                          x_visibility_scores,
-                                                          use_gpu=False,
-                                                          )
-    distances = distances[0] / 2    # When feature are normalized, the above function returns distances within [0, 2]
+    distances = compute_distance_matrix_using_bp_features(
+        y_features.unsqueeze(0),
+        x_features,
+        y_visibility_scores.unsqueeze(0),
+        x_visibility_scores,
+        use_gpu=False,
+    )
+    distances = (
+        distances[0] / 2
+    )  # When feature are normalized, the above function returns distances within [0, 2]
     # TODO handle invalid distances
-    return distances.mean(axis=0)
+    return distances.mean(dim=0)
 
 
 class NearestNeighborDistanceMetric(object):
@@ -164,8 +170,7 @@ class NearestNeighborDistanceMetric(object):
         elif metric == "part_based":
             self._metric = _nn_part_based
         else:
-            raise ValueError(
-                "Invalid metric; must be either 'euclidean' or 'cosine'")
+            raise ValueError("Invalid metric; must be either 'euclidean' or 'cosine'")
         self.matching_threshold = matching_threshold
         self.budget = budget
         self.samples = {}
@@ -183,10 +188,16 @@ class NearestNeighborDistanceMetric(object):
             A list of targets that are currently present in the scene, i.e. confirmed tracks.
         """
         for feature, target in zip(features, targets):
-            self.samples.setdefault(target, []).append(feature)  # in our case, only one feature per track
+            self.samples.setdefault(target, []).append(
+                feature
+            )  # in our case, only one feature per track
             if self.budget is not None:
-                self.samples[target] = self.samples[target][-self.budget:]  # for each track, keep only the last 'budget' reid features
-        self.samples = {k: self.samples[k] for k in active_targets}  # keep only confirmed tracks
+                self.samples[target] = self.samples[target][
+                    -self.budget :
+                ]  # for each track, keep only the last 'budget' reid features
+        self.samples = {
+            k: self.samples[k] for k in active_targets
+        }  # keep only confirmed tracks
 
     def distance(self, features, targets):
         """Compute distance between features and targets.
@@ -203,7 +214,7 @@ class NearestNeighborDistanceMetric(object):
             element (i, j) contains the closest squared distance between
             `targets[i]` and `features[j]`.
         """
-        cost_matrix = np.zeros((len(targets), len(features['reid_features'])))
+        cost_matrix = np.zeros((len(targets), len(features["reid_features"])))
         for i, target in enumerate(targets):
             cost_matrix[i, :] = self._metric(self.samples[target], features)
         return cost_matrix
