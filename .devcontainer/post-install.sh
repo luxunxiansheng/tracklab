@@ -8,7 +8,7 @@ source .venv/bin/activate
 
 # Install PyTorch with CUDA support
 echo "📦 Installing PyTorch with CUDA..."
-pip install torch==1.13.1+cu117 torchvision==0.14.1+cu117 --index-url https://download.pytorch.org/whl/cu117 -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install torch==2.8.0+cu124 torchvision==0.23.0+cu124 --index-url https://download.pytorch.org/whl/cu124 -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # Install prtreid (only if not already installed)
 echo "🔧 Installing prtreid..."
@@ -17,6 +17,15 @@ if python -c "import prtreid" 2>/dev/null; then
 else
     pip install git+https://github.com/VlSomers/prtreid.git --no-deps -i https://pypi.tuna.tsinghua.edu.cn/simple || \
     pip install git+https://github.com/VlSomers/prtreid.git --no-deps -i https://pypi.tuna.tsinghua.edu.cn/simple
+fi
+
+# Install bpbreid (only if not already installed)
+echo "🔧 Installing bpbreid..."
+if python -c "import torchreid" 2>/dev/null; then
+    echo "  ✅ bpbreid already installed, skipping"
+else
+    pip install git+https://github.com/VlSomers/bpbreid.git --no-deps -i https://pypi.tuna.tsinghua.edu.cn/simple || \
+    pip install git+https://github.com/VlSomers/bpbreid.git --no-deps -i https://pypi.tuna.tsinghua.edu.cn/simple
 fi
 
 # Install optional dependencies to avoid warnings
@@ -114,7 +123,7 @@ find . -name "nn_matching.py" -path "*/sort/*" -exec sed -i 's/import torchreid/
 echo "🧪 Verifying setup..."
 python -c "
 try:
-    import torch, torchvision, prtreid, albumentations
+    import torch, torchvision, prtreid, torchreid, albumentations
     print('✅ Core modules imported successfully')
     print(f'PyTorch {torch.__version__} (CUDA: {torch.cuda.is_available()})')
 except Exception as e:
@@ -153,3 +162,4 @@ chmod +x /workspaces/tracklab/fix_albumentations.sh
 
 echo "✅ Setup complete! Run: tracklab run -cn=./tracklab/configs/gamestate.yaml"
 echo "💡 If you get 'is_check_shapes' error, run: ./fix_albumentations.sh"
+echo "📦 PyTorch 2.8.0 with CUDA 12.4 installed"

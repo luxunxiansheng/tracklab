@@ -2,7 +2,20 @@
 
 <div align="center">
 
-[[CAMELTrack](https://github.com/TrackingLaboratory/CAMELTrack)] [[Soccernet-Gamestate](https://github.com/SoccerNet/sn-gamestate)] [[MOT-Taxonomy](https://github.com/VlSomers/multi-object-tracking-taxonomy)]
+[[CAMELTrack](https:#### Manual Packages
+Some packages require manual installation due to Git dependencies. **In the dev container, these are installed automatically during setup:**
+
+```bash
+# These are installed automatically in .devcontainer/post-install.sh
+pip install git+https://github.com/VlSomers/prtreid.git --no-deps
+pip install git+https://github.com/VlSomers/bpbreid.git --no-deps
+```
+
+If you're not using the dev container, install them manually:
+```bash
+pip install git+https://github.com/VlSomers/prtreid.git --no-deps
+pip install git+https://github.com/VlSomers/bpbreid.git --no-deps
+```rackingLaboratory/CAMELTrack)] [[Soccernet-Gamestate](https://github.com/SoccerNet/sn-gamestate)] [[MOT-Taxonomy](https://github.com/VlSomers/multi-object-tracking-taxonomy)]
 	
 </div>
 
@@ -131,7 +144,55 @@ Some optional advanced modules and datasets require additional setup :
 - For [BPBReID](https://github.com/VlSomers/bpbreid) and [KPReID](https://github.com/VlSomers/keypoint_promptable_reidentification): install using `[uv] pip install "torchreid@git+https://github.com/victorjoos/keypoint_promptable_reidentification"`.
 - Get the **SoccerNet Tracking** dataset [here](https://github.com/SoccerNet/sn-tracking), rename the root folder as `SoccerNetMOT` and put it under the global dataset directory (specified under the `data_dir` config as explained below). Otherwise, you can modify the `dataset_path` config in [soccernet_mot.yaml](tracklab/configs/dataset/soccernet_mot.yaml) with your custom SoccerNet dataset directory.
 
-### 🔨 Setup
+### � Package Management for Developers
+
+TrackLab uses `uv` for fast and reliable dependency management. The project is structured as a workspace with plugins.
+
+#### Installing Dependencies
+```bash
+# Clone the repository
+git clone https://github.com/TrackingLaboratory/tracklab.git
+cd tracklab
+
+# Sync all dependencies (main project + plugins)
+uv sync
+
+# For development, install in editable mode
+uv sync --dev
+```
+
+#### Upgrading Dependencies
+```bash
+# Upgrade all dependencies to latest compatible versions
+uv lock --upgrade
+
+# Sync after upgrading
+uv sync
+```
+
+#### Manual Packages
+Some packages require manual installation due to Git dependencies. **In the dev container, these are installed automatically during setup:**
+
+```bash
+# These are installed automatically in .devcontainer/post-install.sh
+pip install git+https://github.com/VlSomers/prtreid.git
+pip install git+https://github.com/VlSomers/bpbreid.git
+```
+
+If you're not using the dev container, install them manually:
+```bash
+uv pip install git+https://github.com/VlSomers/prtreid.git
+uv pip install git+https://github.com/VlSomers/bpbreid.git
+```
+
+#### Workspace Structure
+- Main project: `pyproject.toml`
+- Plugins: `plugins/*/pyproject.toml`
+- All managed via `uv` workspace in `pyproject.toml`
+
+For troubleshooting, use `uv tree` to visualize dependencies or `uv sync --dry-run` to preview changes.
+
+### �🔨 Setup
 
 You will need to set up some variables before running the code : 
 
