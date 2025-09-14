@@ -17,8 +17,8 @@ dependencies = [
     "numpy<2.0",
     "ultralytics",
     "filterpy",
-    "torch>=2.0,<3.0",
-    "torchvision>=0.15,<1.0",
+    "torch==2.0.1",
+    "torchvision==0.15.2",
     "soccernet==0.1.55",
     "yt-dlp",
     "gdown",
@@ -47,9 +47,6 @@ dependencies = [
     "mmengine",  # required for some modules
     "openmim==0.3.9",
     "albumentations>=0.5.2,<2.0",  # downgraded for prtreid compatibility (no is_check_shapes parameter)
-    # Note: prtreid and torchreid installed manually due to git/network issues with uv
-    # Command: pip install git+https://github.com/VlSomers/prtreid.git
-    # pip install git+https://github.com/VlSomers/bpbreid.git
     "calibration",
 ]
 
@@ -81,9 +78,15 @@ exclude = []
 no-build-isolation-package = ["chumpy"]
 environments = ["sys_platform == 'linux'"]
 
+[[tool.uv.index]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu118"
+explicit = true
+
 [tool.uv.sources]
-# prtreid = { git = "https://github.com/VlSomers/prtreid.git" }  # git clone issues
-# torchreid = { git = "https://github.com/VlSomers/bpbreid.git" }  # commented out due to tb-nightly issues
+# PyTorch packages need to use the official PyTorch index for CUDA versions
+torch = { index = "pytorch" }
+torchvision = { index = "pytorch" }
 calibration = { workspace = true, editable = true }
 
 [tool.uv.workspace]

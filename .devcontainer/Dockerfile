@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     pkg-config \
     curl \
+    wget \
     git \
     # Python 3.9
     python3.9 \
@@ -53,9 +54,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Install uv and set up Python
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh \
-    && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 1
+    && ln -sf /root/.local/bin/uv /usr/local/bin/uv \
+    && /usr/local/bin/uv --version \
+    && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 1 \
+    && python3 --version
 
-ENV PATH="/root/.local/bin:$PATH"
+ENV PATH="/root/.local/bin:/usr/local/bin:$PATH"
 
 WORKDIR /workspaces/tracklab
 
