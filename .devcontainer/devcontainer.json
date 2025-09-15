@@ -36,7 +36,7 @@
 				"marp-team.marp-vscode",
 				"mhutchie.git-graph",
 				"RSIP-Vision.nvidia-smi-plus",
-				"ms-azuretools.vscode-containers"
+				
 			],
 			"settings": {
 				"python.defaultInterpreterPath": "/workspaces/tracklab/.venv/bin/python",
