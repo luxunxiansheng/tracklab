@@ -13,7 +13,7 @@ cfg:
     - "HOTA"
     - "Identity"
   eval:  # mapped to trackeval/eval.py
-    USE_PARALLEL: True
+    USE_PARALLEL: False  # Disable parallel processing to avoid pickling issues
     NUM_PARALLEL_CORES: ${num_cores}
     BREAK_ON_ERROR: False  # Raises exception and exits with error
     PRINT_RESULTS: True

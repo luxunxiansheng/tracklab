@@ -46,7 +46,7 @@ data_dir: "${project_dir}/data"
 model_dir: "${project_dir}/pretrained_models"
 
 # Machine configuration
-num_cores: 4
+num_cores: 1  # Set to 1 to avoid multiprocessing pickling issues
 use_wandb: False
 use_rich: True
 

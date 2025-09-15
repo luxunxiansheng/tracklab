@@ -143,6 +143,15 @@ class TrackEvalEvaluator(EvaluatorBase):
 
         # Log results
         results = output_res[dataset.get_name()][tracker_name]
+        if results is None:
+            log.error(
+                f"Evaluation failed for tracker '{tracker_name}' on dataset '{dataset.get_name()}'"
+            )
+            log.error(
+                "This is likely due to a multiprocessing/pickling issue. Try setting USE_PARALLEL: False in your eval config."
+            )
+            return
+
         # if the dataset has the process_trackeval_results method, use it to process the results
         if hasattr(self.tracking_dataset, "process_trackeval_results"):
             self.tracking_dataset.process_trackeval_results(
