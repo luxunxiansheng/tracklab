@@ -37,8 +37,8 @@ dependencies = [
     { name = "psutil", marker = "sys_platform == 'linux'" },
     { name = "pyyaml", marker = "sys_platform == 'linux'" },
     { name = "safetensors", marker = "sys_platform == 'linux'" },
-    { name = "torch", version = "2.0.1", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
-    { name = "torch", version = "2.0.1+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
+    { name = "torch", version = "2.0.1", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "torch", version = "2.0.1+cu117", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/4d/82/5712c44a5a5ef7c4d375363b179a099e834491221ece02e81a1209b08233/accelerate-0.34.2.tar.gz", hash = "sha256:98c1ebe1f5a45c0a3af02dc60b5bb8b7d58d60c3326a326a06ce6d956b18ca5b", size = 328806, upload-time = "2024-09-05T16:45:20.816Z" }
 wheels = [
@@ -278,10 +278,10 @@ dependencies = [
     { name = "opencv-python", marker = "sys_platform == 'linux'" },
     { name = "pandas", marker = "sys_platform == 'linux'" },
     { name = "rich", marker = "sys_platform == 'linux'" },
-    { name = "torch", version = "2.0.1", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
-    { name = "torch", version = "2.0.1+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
-    { name = "torchvision", version = "0.15.2", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
-    { name = "torchvision", version = "0.15.2+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
+    { name = "torch", version = "2.0.1", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "torch", version = "2.0.1+cu117", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
+    { name = "torchvision", version = "0.15.2", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "torchvision", version = "0.15.2+cu117", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
 ]
 
 [package.metadata]
@@ -294,8 +294,8 @@ requires-dist = [
     { name = "opencv-python", specifier = ">=4.11.0.86" },
     { name = "pandas", specifier = ">=2.3.2" },
     { name = "rich", specifier = ">=14.1.0" },
-    { name = "torch", specifier = ">=2.0,<3.0", index = "https://download.pytorch.org/whl/cu118" },
-    { name = "torchvision", specifier = ">=0.15,<1.0.0", index = "https://download.pytorch.org/whl/cu118" },
+    { name = "torch", specifier = ">=2.0,<3.0", index = "https://download.pytorch.org/whl/cu117" },
+    { name = "torchvision", specifier = ">=0.15,<1.0.0", index = "https://download.pytorch.org/whl/cu117" },
 ]
 
 [[package]]
@@ -460,10 +460,10 @@ dependencies = [
     { name = "scikit-image", marker = "sys_platform == 'linux'" },
     { name = "scipy", marker = "sys_platform == 'linux'" },
     { name = "shapely", marker = "sys_platform == 'linux'" },
-    { name = "torch", version = "2.0.1", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
-    { name = "torch", version = "2.0.1+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
-    { name = "torchvision", version = "0.15.2", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
-    { name = "torchvision", version = "0.15.2+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
+    { name = "torch", version = "2.0.1", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "torch", version = "2.0.1+cu117", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
+    { name = "torchvision", version = "0.15.2", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "torchvision", version = "0.15.2+cu117", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/bb/84/4a2cab0e6adde6a85e7ba543862e5fc0250c51f3ac721a078a55cdcff250/easyocr-1.7.2-py3-none-any.whl", hash = "sha256:5be12f9b0e595d443c9c3d10b0542074b50f0ec2d98b141a109cd961fd1c177c", size = 2870178, upload-time = "2024-09-24T11:34:43.554Z" },
@@ -893,8 +893,8 @@ version = "0.6.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "packaging", marker = "sys_platform == 'linux'" },
-    { name = "torch", version = "2.0.1", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
-    { name = "torch", version = "2.0.1+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
+    { name = "torch", version = "2.0.1", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "torch", version = "2.0.1+cu117", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/f8/59/4c9d986ff4fbd5b113f78fa88d73d5bf27b54c370cbeb6145be05a851c0c/kornia-0.6.3.tar.gz", hash = "sha256:0b689b5a47f55f2b08f61e6731760542cc3e3c09c3f0498164b934a3aef0bab3", size = 328889, upload-time = "2022-01-31T15:10:07.458Z" }
 wheels = [
@@ -958,8 +958,8 @@ dependencies = [
     { name = "rich", marker = "sys_platform == 'linux'" },
     { name = "starlette", marker = "sys_platform == 'linux'" },
     { name = "starsessions", marker = "sys_platform == 'linux'" },
-    { name = "torch", version = "2.0.1", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
-    { name = "torch", version = "2.0.1+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
+    { name = "torch", version = "2.0.1", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "torch", version = "2.0.1+cu117", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
     { name = "torchmetrics", marker = "sys_platform == 'linux'" },
     { name = "tqdm", marker = "sys_platform == 'linux'" },
     { name = "traitlets", marker = "sys_platform == 'linux'" },
@@ -1141,26 +1141,24 @@ wheels = [
 ]
 
 [[package]]
-name = "mmcv-lite"
+name = "mmcv"
 version = "2.0.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "addict", marker = "sys_platform == 'linux'" },
     { name = "mmengine", marker = "sys_platform == 'linux'" },
     { name = "numpy", marker = "sys_platform == 'linux'" },
+    { name = "opencv-python", marker = "sys_platform == 'linux'" },
     { name = "packaging", marker = "sys_platform == 'linux'" },
     { name = "pillow", marker = "sys_platform == 'linux'" },
     { name = "pyyaml", marker = "sys_platform == 'linux'" },
     { name = "yapf", marker = "sys_platform == 'linux'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4c/42/650e426cd22e7a7f353f9620980d478e093da3ebfac06594055f600ba3fc/mmcv-lite-2.0.1.tar.gz", hash = "sha256:40793a850293ba051e731fa857da00b37156282fba77b466a550b7360d77d980", size = 482598, upload-time = "2023-06-29T08:42:38.347Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/2b/aa/32a2e538e9b2d3fdf86e79bfbf6ca6a0e7d8a6e6ab5adcc5e43a8fccfb65/mmcv_lite-2.0.1-py2.py3-none-any.whl", hash = "sha256:7f386d8097d37128c659a492722e47256707cdd12444e173700327b09dc345d3", size = 715046, upload-time = "2023-06-29T08:41:15.244Z" },
-]
+sdist = { url = "https://files.pythonhosted.org/packages/ab/03/6c4fb70f2c547ab96cbf66a235aa4465631f77d045e57d84d941b3e66311/mmcv-2.0.1.tar.gz", hash = "sha256:2b9b2c23795b3f43cf2ebcaca46552d9b4ef7e903eacdcf7c08ee15195044071", size = 469456, upload-time = "2023-06-29T07:28:58.786Z" }
 
 [[package]]
 name = "mmdet"
-version = "3.1.0"
+version = "3.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "matplotlib", marker = "sys_platform == 'linux'" },
@@ -1171,9 +1169,9 @@ dependencies = [
     { name = "six", marker = "sys_platform == 'linux'" },
     { name = "terminaltables", marker = "sys_platform == 'linux'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ed/7f/8a07df0d2848862af78d2378997533267117c6bd131d4c1efb479d9be0bb/mmdet-3.1.0.tar.gz", hash = "sha256:858673319cfdf2e98461862f97b668e6c2e5f68160dab31a8d501fda9a58373c", size = 1117725, upload-time = "2023-06-30T07:43:26.07Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/dd/c2/a8af3485654e6fcd6c814c3998bc8dd25499b220213d38341e71c7cbd69b/mmdet-3.0.0.tar.gz", hash = "sha256:2cf1f9e23c0658c639f1a7191f75301ad43bfebe41b0285d2532609c8b4387c3", size = 944555, upload-time = "2023-04-06T07:28:00.529Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c5/ba/5e9726a4a1c5dd4df1ee8cbdabc9b255215cf94581cd1b5670c8d6c42af5/mmdet-3.1.0-py3-none-any.whl", hash = "sha256:fc3263852331698970d2b23533862806953d0cf8362bcb46cfa6e55982dfd3c5", size = 1987665, upload-time = "2023-06-30T07:43:23.69Z" },
+    { url = "https://files.pythonhosted.org/packages/2d/6a/1f97b0f476f64ed46dedc6b235ba51a5ef4c32db65702bf04d7a7de4ad51/mmdet-3.0.0-py3-none-any.whl", hash = "sha256:3573f3e771b2ec7391e6a3f20d6e2e608b26679d14e574c2f7ec7a60367edb59", size = 1707011, upload-time = "2023-04-06T07:27:58.777Z" },
 ]
 
 [[package]]
@@ -1228,6 +1226,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/25/91/3db595e51266e5a32f4a26e3b4c4212ba83b4ce649196e81565cf0dcdec2/model-index-0.1.11.tar.gz", hash = "sha256:2f9870200f3b00813881b07b90d2c67291663534e43915c75fe476b6977bf2ad", size = 20495, upload-time = "2021-03-22T14:26:30.814Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/0f/a6/4d4cbbef704f186d143e2859296a610a355992e4eae71582bd598093b36a/model_index-0.1.11-py3-none-any.whl", hash = "sha256:a2a4d4431cd44e571d31e223cc4b0432663a62689de453bdb666e56a514b0e07", size = 34393, upload-time = "2021-03-22T14:26:29.63Z" },
+]
+
+[[package]]
+name = "monai"
+version = "1.0.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy", marker = "sys_platform == 'linux'" },
+    { name = "torch", version = "2.0.1", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "torch", version = "2.0.1+cu117", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9c/ce/f16d016e360ac802000d306e46a33cf8f502dff4e838d6df800ddb4e1f9c/monai-1.0.1-202210241233-py3-none-any.whl", hash = "sha256:0465673de375c84316298c41f04fe7ff44945b50f9d90bbefff1764c4c5690b4", size = 1113879, upload-time = "2022-10-24T15:05:25.493Z" },
 ]
 
 [[package]]
@@ -1760,8 +1771,8 @@ dependencies = [
     { name = "numpy", marker = "sys_platform == 'linux'" },
     { name = "packaging", marker = "sys_platform == 'linux'" },
     { name = "pyyaml", marker = "sys_platform == 'linux'" },
-    { name = "torch", version = "2.0.1", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
-    { name = "torch", version = "2.0.1+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
+    { name = "torch", version = "2.0.1", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "torch", version = "2.0.1+cu117", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
     { name = "torchmetrics", marker = "sys_platform == 'linux'" },
     { name = "tqdm", marker = "sys_platform == 'linux'" },
     { name = "typing-extensions", marker = "sys_platform == 'linux'" },
@@ -2330,23 +2341,14 @@ wheels = [
 
 [[package]]
 name = "tokenizers"
-version = "0.22.0"
+version = "0.12.1"
 source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "huggingface-hub", marker = "sys_platform == 'linux'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/5e/b4/c1ce3699e81977da2ace8b16d2badfd42b060e7d33d75c4ccdbf9dc920fa/tokenizers-0.22.0.tar.gz", hash = "sha256:2e33b98525be8453f355927f3cab312c36cd3e44f4d7e9e97da2fa94d0a49dcb", size = 362771, upload-time = "2025-08-29T10:25:33.914Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/12/57/da0cb8e40437f88630769164a66afec8af294ff686661497b6c88bc08556/tokenizers-0.12.1.tar.gz", hash = "sha256:070746f86efa6c873db341e55cf17bb5e7bdd5450330ca8eca542f5c3dab2c66", size = 220679, upload-time = "2022-04-13T10:18:05.066Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/55/02/d10185ba2fd8c2d111e124c9d92de398aee0264b35ce433f79fb8472f5d0/tokenizers-0.22.0-cp39-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:ec5b71f668a8076802b0241a42387d48289f25435b86b769ae1837cad4172a17", size = 3254764, upload-time = "2025-08-29T10:25:12.445Z" },
-    { url = "https://files.pythonhosted.org/packages/13/89/17514bd7ef4bf5bfff58e2b131cec0f8d5cea2b1c8ffe1050a2c8de88dbb/tokenizers-0.22.0-cp39-abi3-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:ea8562fa7498850d02a16178105b58803ea825b50dc9094d60549a7ed63654bb", size = 3161654, upload-time = "2025-08-29T10:25:15.493Z" },
-    { url = "https://files.pythonhosted.org/packages/5a/d8/bac9f3a7ef6dcceec206e3857c3b61bb16c6b702ed7ae49585f5bd85c0ef/tokenizers-0.22.0-cp39-abi3-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:4136e1558a9ef2e2f1de1555dcd573e1cbc4a320c1a06c4107a3d46dc8ac6e4b", size = 3511484, upload-time = "2025-08-29T10:25:20.477Z" },
-    { url = "https://files.pythonhosted.org/packages/aa/27/9c9800eb6763683010a4851db4d1802d8cab9cec114c17056eccb4d4a6e0/tokenizers-0.22.0-cp39-abi3-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:cdf5954de3962a5fd9781dc12048d24a1a6f1f5df038c6e95db328cd22964206", size = 3712829, upload-time = "2025-08-29T10:25:17.154Z" },
-    { url = "https://files.pythonhosted.org/packages/10/e3/b1726dbc1f03f757260fa21752e1921445b5bc350389a8314dd3338836db/tokenizers-0.22.0-cp39-abi3-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:8337ca75d0731fc4860e6204cc24bb36a67d9736142aa06ed320943b50b1e7ed", size = 3408934, upload-time = "2025-08-29T10:25:18.76Z" },
-    { url = "https://files.pythonhosted.org/packages/d4/61/aeab3402c26874b74bb67a7f2c4b569dde29b51032c5384db592e7b216f4/tokenizers-0.22.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a89264e26f63c449d8cded9061adea7b5de53ba2346fc7e87311f7e4117c1cc8", size = 3345585, upload-time = "2025-08-29T10:25:22.08Z" },
-    { url = "https://files.pythonhosted.org/packages/bc/d3/498b4a8a8764cce0900af1add0f176ff24f475d4413d55b760b8cdf00893/tokenizers-0.22.0-cp39-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:790bad50a1b59d4c21592f9c3cf5e5cf9c3c7ce7e1a23a739f13e01fb1be377a", size = 9322986, upload-time = "2025-08-29T10:25:26.607Z" },
-    { url = "https://files.pythonhosted.org/packages/a2/62/92378eb1c2c565837ca3cb5f9569860d132ab9d195d7950c1ea2681dffd0/tokenizers-0.22.0-cp39-abi3-musllinux_1_2_armv7l.whl", hash = "sha256:76cf6757c73a10ef10bf06fa937c0ec7393d90432f543f49adc8cab3fb6f26cb", size = 9276630, upload-time = "2025-08-29T10:25:28.349Z" },
-    { url = "https://files.pythonhosted.org/packages/eb/f0/342d80457aa1cda7654327460f69db0d69405af1e4c453f4dc6ca7c4a76e/tokenizers-0.22.0-cp39-abi3-musllinux_1_2_i686.whl", hash = "sha256:1626cb186e143720c62c6c6b5371e62bbc10af60481388c0da89bc903f37ea0c", size = 9547175, upload-time = "2025-08-29T10:25:29.989Z" },
-    { url = "https://files.pythonhosted.org/packages/14/84/8aa9b4adfc4fbd09381e20a5bc6aa27040c9c09caa89988c01544e008d18/tokenizers-0.22.0-cp39-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:da589a61cbfea18ae267723d6b029b84598dc8ca78db9951d8f5beff72d8507c", size = 9692735, upload-time = "2025-08-29T10:25:32.089Z" },
+    { url = "https://files.pythonhosted.org/packages/60/fc/3da9736965bf6edd96e8b098984c9f4559c4a1cc5be563436cd228ad1e69/tokenizers-0.12.1-cp39-cp39-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:619728df2551bdfe6f96ff177f9ded958e7ed9e2af94c8d5ac2834d1eb06d112", size = 6636600, upload-time = "2022-04-13T10:18:00.325Z" },
+    { url = "https://files.pythonhosted.org/packages/36/52/1ac0b88e09d5b9a697a2741131a254dbd895c40c95421d3532bfb2e93d3b/tokenizers-0.12.1-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:8cea98f3f9577d1541b7bb0f7a3308a911751067e1d83e01485c9d3411bbf087", size = 6868572, upload-time = "2022-04-13T12:44:21.56Z" },
+    { url = "https://files.pythonhosted.org/packages/4a/2c/f03c5c483fbe4d0b9e7d33c20f866d5ace5477288046ed7660f707d9c1c3/tokenizers-0.12.1-cp39-cp39-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:664f36f0a0d409c24f2201d495161fec4d8bc93e091fbb78814eb426f29905a3", size = 7982560, upload-time = "2022-04-13T12:44:23.46Z" },
+    { url = "https://files.pythonhosted.org/packages/5c/fd/af2849241e3b67984dd91a5e72e41fc90f4ab5771557206a355ae1c8d6bb/tokenizers-0.12.1-cp39-cp39-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:0bf2380ad59c50222959a9b6f231339200a826fc5cb2be09ff96d8a59f65fc5e", size = 7410306, upload-time = "2022-04-13T12:44:26.038Z" },
 ]
 
 [[package]]
@@ -2361,7 +2363,7 @@ wheels = [
 [[package]]
 name = "torch"
 version = "2.0.1"
-source = { registry = "https://download.pytorch.org/whl/cu118" }
+source = { registry = "https://download.pytorch.org/whl/cu117" }
 resolution-markers = [
     "python_full_version >= '3.9.2' and platform_machine == 'aarch64' and sys_platform == 'linux'",
     "python_full_version < '3.9.2' and platform_machine == 'aarch64' and sys_platform == 'linux'",
@@ -2379,8 +2381,8 @@ wheels = [
 
 [[package]]
 name = "torch"
-version = "2.0.1+cu118"
-source = { registry = "https://download.pytorch.org/whl/cu118" }
+version = "2.0.1+cu117"
+source = { registry = "https://download.pytorch.org/whl/cu117" }
 resolution-markers = [
     "python_full_version >= '3.9.2' and platform_machine != 'aarch64' and sys_platform == 'linux'",
     "python_full_version < '3.9.2' and platform_machine != 'aarch64' and sys_platform == 'linux'",
@@ -2394,7 +2396,7 @@ dependencies = [
     { name = "typing-extensions", marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
 ]
 wheels = [
-    { url = "https://download.pytorch.org/whl/cu118/torch-2.0.1%2Bcu118-cp39-cp39-linux_x86_64.whl", hash = "sha256:eb55f29db5744eda8a96f5594e637daed0d52278273005de759970e67cfa6a5a" },
+    { url = "https://download.pytorch.org/whl/cu117/torch-2.0.1%2Bcu117-cp39-cp39-linux_x86_64.whl", hash = "sha256:e06deb28938e7468bdd79ad5a4cfda36e95113507a9144a367039b35ac73986c" },
 ]
 
 [[package]]
@@ -2405,8 +2407,8 @@ dependencies = [
     { name = "lightning-utilities", marker = "sys_platform == 'linux'" },
     { name = "numpy", marker = "sys_platform == 'linux'" },
     { name = "packaging", marker = "sys_platform == 'linux'" },
-    { name = "torch", version = "2.0.1", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
-    { name = "torch", version = "2.0.1+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
+    { name = "torch", version = "2.0.1", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "torch", version = "2.0.1+cu117", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/85/2e/48a887a59ecc4a10ce9e8b35b3e3c5cef29d902c4eac143378526e7485cb/torchmetrics-1.8.2.tar.gz", hash = "sha256:cf64a901036bf107f17a524009eea7781c9c5315d130713aeca5747a686fe7a5", size = 580679, upload-time = "2025-09-03T14:00:54.077Z" }
 wheels = [
@@ -2416,7 +2418,7 @@ wheels = [
 [[package]]
 name = "torchvision"
 version = "0.15.2"
-source = { registry = "https://download.pytorch.org/whl/cu118" }
+source = { registry = "https://download.pytorch.org/whl/cu117" }
 resolution-markers = [
     "python_full_version >= '3.9.2' and platform_machine == 'aarch64' and sys_platform == 'linux'",
     "python_full_version < '3.9.2' and platform_machine == 'aarch64' and sys_platform == 'linux'",
@@ -2425,7 +2427,7 @@ dependencies = [
     { name = "numpy", marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
     { name = "pillow", marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
     { name = "requests", marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
-    { name = "torch", version = "2.0.1", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "torch", version = "2.0.1", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
 ]
 wheels = [
     { url = "https://download.pytorch.org/whl/torchvision-0.15.2-cp39-cp39-manylinux2014_aarch64.whl", hash = "sha256:b85f98d4cc2f72452f6792ab4463a3541bc5678a8cdd3da0e139ba2fe8b56d42" },
@@ -2433,8 +2435,8 @@ wheels = [
 
 [[package]]
 name = "torchvision"
-version = "0.15.2+cu118"
-source = { registry = "https://download.pytorch.org/whl/cu118" }
+version = "0.15.2+cu117"
+source = { registry = "https://download.pytorch.org/whl/cu117" }
 resolution-markers = [
     "python_full_version >= '3.9.2' and platform_machine != 'aarch64' and sys_platform == 'linux'",
     "python_full_version < '3.9.2' and platform_machine != 'aarch64' and sys_platform == 'linux'",
@@ -2443,10 +2445,10 @@ dependencies = [
     { name = "numpy", marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
     { name = "pillow", marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
     { name = "requests", marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
-    { name = "torch", version = "2.0.1+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
+    { name = "torch", version = "2.0.1+cu117", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
 ]
 wheels = [
-    { url = "https://download.pytorch.org/whl/cu118/torchvision-0.15.2%2Bcu118-cp39-cp39-linux_x86_64.whl", hash = "sha256:f2c6f5a100bcf9020b82f5d4c87cd7e26af0409cf33b90fb797b1127dcd42de6" },
+    { url = "https://download.pytorch.org/whl/cu117/torchvision-0.15.2%2Bcu117-cp39-cp39-linux_x86_64.whl", hash = "sha256:713ec66ef09d0b0f2ae19498fabe8f480273b474f22fa288e4ee7c7290f953b3" },
 ]
 
 [[package]]
@@ -2476,10 +2478,11 @@ dependencies = [
     { name = "lightning", marker = "sys_platform == 'linux'" },
     { name = "matplotlib", marker = "sys_platform == 'linux'" },
     { name = "mmcls", marker = "sys_platform == 'linux'" },
-    { name = "mmcv-lite", marker = "sys_platform == 'linux'" },
+    { name = "mmcv", marker = "sys_platform == 'linux'" },
     { name = "mmdet", marker = "sys_platform == 'linux'" },
     { name = "mmengine", marker = "sys_platform == 'linux'" },
     { name = "mmocr", marker = "sys_platform == 'linux'" },
+    { name = "monai", marker = "sys_platform == 'linux'" },
     { name = "numpy", marker = "sys_platform == 'linux'" },
     { name = "omegaconf", marker = "sys_platform == 'linux'" },
     { name = "opencv-python", marker = "sys_platform == 'linux'" },
@@ -2495,10 +2498,10 @@ dependencies = [
     { name = "soccernet", marker = "sys_platform == 'linux'" },
     { name = "tabulate", marker = "sys_platform == 'linux'" },
     { name = "tensorboard", marker = "sys_platform == 'linux'" },
-    { name = "torch", version = "2.0.1", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
-    { name = "torch", version = "2.0.1+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
-    { name = "torchvision", version = "0.15.2", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
-    { name = "torchvision", version = "0.15.2+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
+    { name = "torch", version = "2.0.1", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "torch", version = "2.0.1+cu117", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
+    { name = "torchvision", version = "0.15.2", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "torchvision", version = "0.15.2+cu117", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
     { name = "tqdm", marker = "sys_platform == 'linux'" },
     { name = "transformers", marker = "sys_platform == 'linux'" },
     { name = "ultralytics", marker = "sys_platform == 'linux'" },
@@ -2530,10 +2533,11 @@ requires-dist = [
     { name = "lightning", specifier = "==2.0.9" },
     { name = "matplotlib" },
     { name = "mmcls" },
-    { name = "mmcv-lite", specifier = ">=2.0.0,<2.1.0" },
-    { name = "mmdet", specifier = ">=3.0.0rc5,<3.2.0" },
+    { name = "mmcv", specifier = ">=2.0.0,<2.1.0" },
+    { name = "mmdet", specifier = ">=3.0.0rc0,<3.1.0" },
     { name = "mmengine" },
-    { name = "mmocr" },
+    { name = "mmocr", specifier = "==1.0.1" },
+    { name = "monai", specifier = "==1.0.1" },
     { name = "numpy", specifier = "<2.0" },
     { name = "omegaconf" },
     { name = "opencv-python" },
@@ -2549,10 +2553,10 @@ requires-dist = [
     { name = "soccernet", specifier = "==0.1.55" },
     { name = "tabulate" },
     { name = "tensorboard", specifier = ">=2.20.0,<3.0" },
-    { name = "torch", specifier = "==2.0.1", index = "https://download.pytorch.org/whl/cu118" },
-    { name = "torchvision", specifier = "==0.15.2", index = "https://download.pytorch.org/whl/cu118" },
+    { name = "torch", specifier = "==2.0.1", index = "https://download.pytorch.org/whl/cu117" },
+    { name = "torchvision", specifier = "==0.15.2", index = "https://download.pytorch.org/whl/cu117" },
     { name = "tqdm" },
-    { name = "transformers", specifier = ">=4.29.2,<5.0" },
+    { name = "transformers", specifier = ">=4.21.0,<4.23.0" },
     { name = "ultralytics" },
     { name = "wandb" },
     { name = "yacs" },
@@ -2578,7 +2582,7 @@ wheels = [
 
 [[package]]
 name = "transformers"
-version = "4.56.1"
+version = "4.22.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "filelock", marker = "sys_platform == 'linux'" },
@@ -2588,13 +2592,12 @@ dependencies = [
     { name = "pyyaml", marker = "sys_platform == 'linux'" },
     { name = "regex", marker = "sys_platform == 'linux'" },
     { name = "requests", marker = "sys_platform == 'linux'" },
-    { name = "safetensors", marker = "sys_platform == 'linux'" },
     { name = "tokenizers", marker = "sys_platform == 'linux'" },
     { name = "tqdm", marker = "sys_platform == 'linux'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/89/21/dc88ef3da1e49af07ed69386a11047a31dcf1aaf4ded3bc4b173fbf94116/transformers-4.56.1.tar.gz", hash = "sha256:0d88b1089a563996fc5f2c34502f10516cad3ea1aa89f179f522b54c8311fe74", size = 9855473, upload-time = "2025-09-04T20:47:13.14Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f3/be/eb816e65c6e734325f94e0a48da8a8c7385d0c3d7d5c906ff8170c5ecd70/transformers-4.22.2.tar.gz", hash = "sha256:bbdd0271d86b23e86b4ad83b38e82681105dd6b080e142b16af5f5f3b68fefc4", size = 4100124, upload-time = "2022-09-27T14:49:52.523Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/71/7c/283c3dd35e00e22a7803a0b2a65251347b745474a82399be058bde1c9f15/transformers-4.56.1-py3-none-any.whl", hash = "sha256:1697af6addfb6ddbce9618b763f4b52d5a756f6da4899ffd1b4febf58b779248", size = 11608197, upload-time = "2025-09-04T20:47:04.895Z" },
+    { url = "https://files.pythonhosted.org/packages/b1/7a/60a226cb857bb7e4c3c8ceaf7035b6618e5cec8056426fbd0a914a70f2b1/transformers-4.22.2-py3-none-any.whl", hash = "sha256:4f3b81578683cbabe06c68240d096997026f950ae4fdcd40566c2b84cf875cf7", size = 4861872, upload-time = "2022-09-27T14:49:46.206Z" },
 ]
 
 [[package]]
@@ -2605,7 +2608,7 @@ dependencies = [
     { name = "cmake", marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
     { name = "filelock", marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
     { name = "lit", marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
-    { name = "torch", version = "2.0.1+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
+    { name = "torch", version = "2.0.1+cu117", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/77/ac/28b74ec1177c730d0da8803eaff5e5025bd532bcf07cadb0fcf661abed97/triton-2.0.0-1-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:74f118c12b437fb2ca25e1a04759173b517582fcf4c7be11913316c764213656", size = 63319914, upload-time = "2023-03-20T17:32:46.036Z" },
@@ -2653,10 +2656,10 @@ dependencies = [
     { name = "pyyaml", marker = "sys_platform == 'linux'" },
     { name = "requests", marker = "sys_platform == 'linux'" },
     { name = "scipy", marker = "sys_platform == 'linux'" },
-    { name = "torch", version = "2.0.1", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
-    { name = "torch", version = "2.0.1+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
-    { name = "torchvision", version = "0.15.2", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
-    { name = "torchvision", version = "0.15.2+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
+    { name = "torch", version = "2.0.1", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "torch", version = "2.0.1+cu117", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
+    { name = "torchvision", version = "0.15.2", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "torchvision", version = "0.15.2+cu117", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
     { name = "ultralytics-thop", marker = "sys_platform == 'linux'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/07/51/a05906df96cf2f67e3cf64e5aa4fd268c473206d936261508de0ce768d4f/ultralytics-8.3.199.tar.gz", hash = "sha256:6a4b8525e986618dda85d2ad31a7927f27f66fa1c7e6de5cc0453ee500f00868", size = 917169, upload-time = "2025-09-12T12:05:46.952Z" }
@@ -2670,8 +2673,8 @@ version = "2.0.17"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy", marker = "sys_platform == 'linux'" },
-    { name = "torch", version = "2.0.1", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
-    { name = "torch", version = "2.0.1+cu118", source = { registry = "https://download.pytorch.org/whl/cu118" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
+    { name = "torch", version = "2.0.1", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "torch", version = "2.0.1+cu117", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/bf/db/c4ad478cd83b64bab1c32796dd5b1bf886f80917715225e78c19fd53b1b9/ultralytics_thop-2.0.17.tar.gz", hash = "sha256:f4572aeb7236939f35c72f966e4e0c3d42fd433ae2974d816865d43e29dc981b", size = 34530, upload-time = "2025-09-03T14:05:35.191Z" }
 wheels = [

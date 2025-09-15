@@ -26,11 +26,12 @@ dependencies = [
     "matplotlib",
     "rich",
     "tabulate",
+    "monai==1.0.1",  # compatible with PyTorch 2.0.1
     "sn-trackeval",
     "lap",
     "distinctipy",
     "rtmlib",
-    "transformers>=4.29.2,<5.0",  # compatible with PyTorch 1.13.1 (newer versions require torch.compiler)
+    "transformers>=4.21.0,<4.23.0",  # compatible with PyTorch 2.0.1
     "accelerate>=0.19.0,<1.0",  # compatible with older transformers and PyTorch
     "huggingface-hub",
     "opencv-python",
@@ -43,7 +44,7 @@ dependencies = [
     "scikit-image",
     "tensorboard>=2.20.0,<3.0",  # compatible with PyTorch 1.13.1
     "easyocr>=1.7.1,<2.0",
-    "mmocr",  # required for jersey number recognition
+    "mmocr==1.0.1",  # specific version for compatibility
     "mmdet>=3.0.0rc0,<3.1.0",  # required for mmocr (version constraint for compatibility)
     "mmcls",  # required for mmocr
     "mmcv>=2.0.0,<2.1.0",  # required for mmocr with CUDA support

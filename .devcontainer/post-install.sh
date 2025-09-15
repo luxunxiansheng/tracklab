@@ -12,15 +12,29 @@ export PIP_TRUSTED_HOST=pypi.tuna.tsinghua.edu.cn
 
 # Install PyTorch with CUDA support (matching current working environment)
 echo "📦 Installing PyTorch with CUDA..."
-pip install torch==2.0.1+cu117 torchvision==0.15.2+cu117 --index-url https://download.pytorch.org/whl/cu117
+pip install torch==2.0.1+cu117 torchvision==0.15.2+cu117 --index-url https://download.pytorch.org/whl/cu117 --force-reinstall
 
 # Downgrade NumPy to fix compatibility issues with imgaug and other libraries
 echo "📦 Downgrading NumPy to version < 2.0 for compatibility..."
-pip install "numpy<2.0" --no-cache-dir
+pip install "numpy<2.0" --force-reinstall --no-cache-dir
 
-# Install main project dependencies from pyproject.toml
+# Install compatible versions BEFORE running uv sync to prevent conflicts
+echo "📦 Installing compatible dependency versions..."
+pip install monai==1.0.1 transformers==4.22.2 --force-reinstall --no-cache-dir
+
+# Install MMCV ecosystem in correct order
+echo "📦 Installing MMCV 2.0.1 with CUDA 11.7 support (includes _ext module)..."
+pip install mmcv==2.0.1 -f https://download.openmmlab.com/mmcv/dist/cu117/torch2.0/index.html --force-reinstall --no-cache-dir
+
+echo "📦 Installing MMDetection 3.0.0..."
+pip install "mmdet>=3.0.0rc0,<3.1.0" --force-reinstall --no-cache-dir
+
+echo "📦 Installing MMOCR 1.0.1..."
+pip install mmocr==1.0.1 --force-reinstall --no-cache-dir
+
+# Install main project dependencies from pyproject.toml (but don't let it override our working versions)
 echo "📦 Installing main project dependencies..."
-uv sync || {
+uv sync --no-install-package torch --no-install-package torchvision --no-install-package monai --no-install-package transformers --no-install-package mmocr --no-install-package mmdet --no-install-package mmcv || {
     echo "  ⚠️  uv sync failed, trying pip install..."
     pip install -e . || echo "  ⚠️  Failed to install main dependencies"
 }
@@ -31,14 +45,6 @@ uv sync --group dev || {
     echo "  ⚠️  uv dev sync failed, trying pip install..."
     pip install sphinx sphinx_rtd_theme myst-parser || echo "  ⚠️  Some dev dependencies may have failed to install"
 }
-
-# Install additional dependencies that may be missing
-echo "📦 Installing additional dependencies..."
-pip install monai torchmetrics mmocr "mmdet>=3.0.0rc0,<3.1.0" mmcls || echo "  ⚠️  Some additional dependencies may have failed to install"
-
-# Install MMCV with CUDA 11.7 support (compatible with PyTorch 2.0.1+cu117)
-echo "📦 Installing MMCV 2.0.1 with CUDA 11.7 support..."
-pip install mmcv==2.0.1 -f https://download.openmmlab.com/mmcv/dist/cu117/torch2.0/index.html --no-cache-dir || echo "  ⚠️  MMCV installation failed"
 
 # Install prtreid (only if not already installed)
 echo "🔧 Installing prtreid..."
@@ -64,10 +70,30 @@ else
     pip install git+https://github.com/VlSomers/bpbreid.git --no-deps || echo "  ⚠️  Failed to install bpbreid, you may need to install it manually"
 fi
 
-# Verify key dependencies are installed
+# Verify key dependencies are installed and working
 echo "🔍 Verifying key dependencies..."
+echo "Checking PyTorch..."
+python -c "import torch; print('✅ torch:', torch.__version__)" 2>/dev/null || echo "❌ torch not found"
+
+echo "Checking MONAI..."
 python -c "import monai; print('✅ monai:', monai.__version__)" 2>/dev/null || echo "❌ monai not found"
+
+echo "Checking Transformers..."
+python -c "import transformers; print('✅ transformers:', transformers.__version__)" 2>/dev/null || echo "❌ transformers not found"
+
+echo "Checking MMCV..."
+python -c "import mmcv; print('✅ mmcv:', mmcv.__version__)" 2>/dev/null || echo "❌ mmcv not found"
+
+echo "Checking MMOCR..."
 python -c "import mmocr; print('✅ mmocr:', mmocr.__version__)" 2>/dev/null || echo "❌ mmocr not found"
+
+echo "Testing TrackLab imports..."
+python -c "from tracklab.wrappers.jersey.mmocr_api import MMOCR; from tracklab.wrappers.reid.prtreid_api import PRTReId; print('✅ All TrackLab imports successful!')" 2>/dev/null || {
+    echo "❌ TrackLab imports failed!"
+    exit 1
+}
+
+echo "🎉 Devcontainer setup complete and verified!"
 python -c "from tracklab.wrappers.jersey.mmocr_api import MMOCR; print('✅ MMOCR API imported successfully')" 2>/dev/null || echo "❌ MMOCR API failed"
 python -c "import torch; print('✅ torch:', torch.__version__)" 2>/dev/null || echo "❌ torch not found"
 python -c "import torchvision; print('✅ torchvision:', torchvision.__version__)" 2>/dev/null || echo "❌ torchvision not found"
