@@ -43,7 +43,10 @@ dependencies = [
     "scikit-image",
     "tensorboard>=2.20.0,<3.0",  # compatible with PyTorch 1.13.1
     "easyocr>=1.7.1,<2.0",
-    "mmcv-lite>=2.0.0,<2.1.0",  # CPU-only version without CUDA dependencies
+    "mmocr",  # required for jersey number recognition
+    "mmdet>=3.0.0rc0,<3.1.0",  # required for mmocr (version constraint for compatibility)
+    "mmcls",  # required for mmocr
+    "mmcv>=2.0.0,<2.1.0",  # required for mmocr with CUDA support
     "mmengine",  # required for some modules
     "openmim==0.3.9",
     "albumentations>=0.5.2,<2.0",  # downgraded for prtreid compatibility (no is_check_shapes parameter)
@@ -80,7 +83,7 @@ environments = ["sys_platform == 'linux'"]
 
 [[tool.uv.index]]
 name = "pytorch"
-url = "https://download.pytorch.org/whl/cu118"
+url = "https://download.pytorch.org/whl/cu117"
 explicit = true
 
 [tool.uv.sources]

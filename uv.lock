@@ -739,6 +739,26 @@ wheels = [
 ]
 
 [[package]]
+name = "imgaug"
+version = "0.4.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "imageio", marker = "sys_platform == 'linux'" },
+    { name = "matplotlib", marker = "sys_platform == 'linux'" },
+    { name = "numpy", marker = "sys_platform == 'linux'" },
+    { name = "opencv-python", marker = "sys_platform == 'linux'" },
+    { name = "pillow", marker = "sys_platform == 'linux'" },
+    { name = "scikit-image", marker = "sys_platform == 'linux'" },
+    { name = "scipy", marker = "sys_platform == 'linux'" },
+    { name = "shapely", marker = "sys_platform == 'linux'" },
+    { name = "six", marker = "sys_platform == 'linux'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/25/7d/820295b8fdaf06dce9688ef2fdeb5a317896d3276db7723e5a94e85e1253/imgaug-0.4.0.tar.gz", hash = "sha256:46bab63ed38f8980630ff721a09ca2281b7dbd4d8c11258818b6ebcc69ea46c7", size = 937254, upload-time = "2020-02-05T20:54:24.835Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/66/b1/af3142c4a85cba6da9f4ebb5ff4e21e2616309552caca5e8acefe9840622/imgaug-0.4.0-py2.py3-none-any.whl", hash = "sha256:ce61e65b4eb7405fc62c1b0a79d2fa92fd47f763aaecb65152d29243592111f9", size = 948018, upload-time = "2020-02-05T20:54:22.293Z" },
+]
+
+[[package]]
 name = "importlib-metadata"
 version = "8.7.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1001,6 +1021,17 @@ wheels = [
 ]
 
 [[package]]
+name = "lmdb"
+version = "1.7.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/5e/87/b6f8bccab1ec1fe58866108c0da648715bc1488627edf9702dae6380613a/lmdb-1.7.3.tar.gz", hash = "sha256:d4a27b7af4fe38f3409d9fbfbf47b617b3d94dee98a00bc8c2a8336ccd3f9b15", size = 883449, upload-time = "2025-07-26T01:11:43.197Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e7/3a/6e10d385e22d9d7f272fcac41fcddda1e309034e4206cd9ee42d81413637/lmdb-1.7.3-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:bc669164f60e1508901085073b6deae24b147d16ed98bece4f7fa8b4bb9edfff", size = 294632, upload-time = "2025-07-26T01:11:37.764Z" },
+    { url = "https://files.pythonhosted.org/packages/25/5c/9997cdfc78f6e59a85db3519403710a3eeb55b4ca9aae37b48c615846e55/lmdb-1.7.3-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ea36951a87945ca8181a7393d1709f8d6ab8a187100485115cad1d8e03a41cae", size = 296066, upload-time = "2025-07-26T01:11:38.918Z" },
+    { url = "https://files.pythonhosted.org/packages/b9/ab/e6c2ba79107d20c7a45eae2d69e395691635e761b1e57f5a29c5f2fc42ff/lmdb-1.7.3-py3-none-any.whl", hash = "sha256:4cd7fb79b2c69dcf564d4eec36237e0efc303559176b60ff36fb47ccd3b8b5bb", size = 148538, upload-time = "2025-07-26T01:11:42.118Z" },
+]
+
+[[package]]
 name = "lsq-ellipse"
 version = "2.2.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1096,6 +1127,20 @@ wheels = [
 ]
 
 [[package]]
+name = "mmcls"
+version = "0.25.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "matplotlib", marker = "sys_platform == 'linux'" },
+    { name = "numpy", marker = "sys_platform == 'linux'" },
+    { name = "packaging", marker = "sys_platform == 'linux'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/86/b0/8cca8a5667c62e8e45bdbcbc2c56640978c08e1622ecf15acb721bcf3239/mmcls-0.25.0.tar.gz", hash = "sha256:a88c9eb80a49aa7dd638991be1c9dea54e8a1f769dfafb77083a5bd17953fc44", size = 307927, upload-time = "2022-12-06T10:27:28.957Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1f/7d/19588f57c22f4053ca2db92c691fbea556899f407fe7bb03ed42b37f07ef/mmcls-0.25.0-py2.py3-none-any.whl", hash = "sha256:37127121dc0505bd7cac6736c8c220e56bbcdaa91994d6296463bf0ede0ab1b4", size = 648841, upload-time = "2022-12-06T10:27:27.193Z" },
+]
+
+[[package]]
 name = "mmcv-lite"
 version = "2.0.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1111,6 +1156,24 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/4c/42/650e426cd22e7a7f353f9620980d478e093da3ebfac06594055f600ba3fc/mmcv-lite-2.0.1.tar.gz", hash = "sha256:40793a850293ba051e731fa857da00b37156282fba77b466a550b7360d77d980", size = 482598, upload-time = "2023-06-29T08:42:38.347Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2b/aa/32a2e538e9b2d3fdf86e79bfbf6ca6a0e7d8a6e6ab5adcc5e43a8fccfb65/mmcv_lite-2.0.1-py2.py3-none-any.whl", hash = "sha256:7f386d8097d37128c659a492722e47256707cdd12444e173700327b09dc345d3", size = 715046, upload-time = "2023-06-29T08:41:15.244Z" },
+]
+
+[[package]]
+name = "mmdet"
+version = "3.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "matplotlib", marker = "sys_platform == 'linux'" },
+    { name = "numpy", marker = "sys_platform == 'linux'" },
+    { name = "pycocotools", marker = "sys_platform == 'linux'" },
+    { name = "scipy", marker = "sys_platform == 'linux'" },
+    { name = "shapely", marker = "sys_platform == 'linux'" },
+    { name = "six", marker = "sys_platform == 'linux'" },
+    { name = "terminaltables", marker = "sys_platform == 'linux'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ed/7f/8a07df0d2848862af78d2378997533267117c6bd131d4c1efb479d9be0bb/mmdet-3.1.0.tar.gz", hash = "sha256:858673319cfdf2e98461862f97b668e6c2e5f68160dab31a8d501fda9a58373c", size = 1117725, upload-time = "2023-06-30T07:43:26.07Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c5/ba/5e9726a4a1c5dd4df1ee8cbdabc9b255215cf94581cd1b5670c8d6c42af5/mmdet-3.1.0-py3-none-any.whl", hash = "sha256:fc3263852331698970d2b23533862806953d0cf8362bcb46cfa6e55982dfd3c5", size = 1987665, upload-time = "2023-06-30T07:43:23.69Z" },
 ]
 
 [[package]]
@@ -1130,6 +1193,26 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/17/14/959360bbd8374e23fc1b720906999add16a3ac071a501636db12c5861ff5/mmengine-0.10.7.tar.gz", hash = "sha256:d20ffcc31127567e53dceff132612a87f0081de06cbb7ab2bdb7439125a69225", size = 378090, upload-time = "2025-03-04T12:23:09.568Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/98/8e/f98332248aad102511bea4ae19c0ddacd2f0a994f3ca4c82b7a369e0af8b/mmengine-0.10.7-py3-none-any.whl", hash = "sha256:262ac976a925562f78cd5fd14dd1bc9b680ed0aa81f0d85b723ef782f99c54ee", size = 452720, upload-time = "2025-03-04T12:23:06.339Z" },
+]
+
+[[package]]
+name = "mmocr"
+version = "1.0.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "imgaug", marker = "sys_platform == 'linux'" },
+    { name = "lmdb", marker = "sys_platform == 'linux'" },
+    { name = "matplotlib", marker = "sys_platform == 'linux'" },
+    { name = "numpy", marker = "sys_platform == 'linux'" },
+    { name = "opencv-python", marker = "sys_platform == 'linux'" },
+    { name = "pyclipper", marker = "sys_platform == 'linux'" },
+    { name = "pycocotools", marker = "sys_platform == 'linux'" },
+    { name = "rapidfuzz", marker = "sys_platform == 'linux'" },
+    { name = "scikit-image", marker = "sys_platform == 'linux'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/6c/e7/489f4cc965c8901c61c29d5302a916df180202778cdba131e76ceb693e14/mmocr-1.0.1.tar.gz", hash = "sha256:34f906bab2023c6f8860c86106ecd97cb4667bb20a6470c3745249f2bf4c8bf0", size = 346120, upload-time = "2023-07-04T07:12:20.239Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e4/c6/6b77c1bca3f94195a5f65ba938b22de690879c34775d587a44f6b574ea2a/mmocr-1.0.1-py2.py3-none-any.whl", hash = "sha256:772924e3ac8fb8b76443a70e7b8b41e12d16b22951d34daf41ec195cd2c197bf", size = 627567, upload-time = "2023-07-04T07:12:18.362Z" },
 ]
 
 [[package]]
@@ -1711,6 +1794,27 @@ wheels = [
 ]
 
 [[package]]
+name = "rapidfuzz"
+version = "3.13.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ed/f6/6895abc3a3d056b9698da3199b04c0e56226d530ae44a470edabf8b664f0/rapidfuzz-3.13.0.tar.gz", hash = "sha256:d2eaf3839e52cbcc0accbe9817a67b4b0fcf70aaeb229cfddc1c28061f9ce5d8", size = 57904226, upload-time = "2025-04-03T20:38:51.226Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e3/3c/195f8c4b4a76e00c4d2f5f4ebec2c2108a81afbb1339a3378cf9b370bd02/rapidfuzz-3.13.0-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:1a79a2f07786a2070669b4b8e45bd96a01c788e7a3c218f531f3947878e0f956", size = 1426492, upload-time = "2025-04-03T20:37:26.25Z" },
+    { url = "https://files.pythonhosted.org/packages/ae/8e/e1eca4b25ecdfed51750008e9b0f5d3539bbd897f8ea14f525738775d1b6/rapidfuzz-3.13.0-cp39-cp39-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:9f338e71c45b69a482de8b11bf4a029993230760120c8c6e7c9b71760b6825a1", size = 5343427, upload-time = "2025-04-03T20:37:28.959Z" },
+    { url = "https://files.pythonhosted.org/packages/48/0d/366b972b54d7d6edd83c86ebcdf5ca446f35fba72d8b283a3629f0677b7f/rapidfuzz-3.13.0-cp39-cp39-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:adb40ca8ddfcd4edd07b0713a860be32bdf632687f656963bcbce84cea04b8d8", size = 1649583, upload-time = "2025-04-03T20:37:31.435Z" },
+    { url = "https://files.pythonhosted.org/packages/93/1b/7f5841392bae67e645dc39e49b37824028a400c489e8afb16eb1e5095da8/rapidfuzz-3.13.0-cp39-cp39-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:48719f7dcf62dfb181063b60ee2d0a39d327fa8ad81b05e3e510680c44e1c078", size = 1615186, upload-time = "2025-04-03T20:37:33.686Z" },
+    { url = "https://files.pythonhosted.org/packages/5e/00/861a4601e4685efd8161966cf35728806fb9df112b6951585bb194f74379/rapidfuzz-3.13.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9327a4577f65fc3fb712e79f78233815b8a1c94433d0c2c9f6bc5953018b3565", size = 3080994, upload-time = "2025-04-03T20:37:35.935Z" },
+    { url = "https://files.pythonhosted.org/packages/6f/5a/19c03bc9a550f63875d8db25c3d9b2e6d98757bd28ea1a1fd40ec6b22ee1/rapidfuzz-3.13.0-cp39-cp39-musllinux_1_2_aarch64.whl", hash = "sha256:200030dfc0a1d5d6ac18e993c5097c870c97c41574e67f227300a1fb74457b1d", size = 2492755, upload-time = "2025-04-03T20:37:38.665Z" },
+    { url = "https://files.pythonhosted.org/packages/f0/44/5b860b4dcab7ee6f4ded818d5b0bf548772519386418ab84e9f395c7e995/rapidfuzz-3.13.0-cp39-cp39-musllinux_1_2_i686.whl", hash = "sha256:cc269e74cad6043cb8a46d0ce580031ab642b5930562c2bb79aa7fbf9c858d26", size = 7577160, upload-time = "2025-04-03T20:37:41.056Z" },
+    { url = "https://files.pythonhosted.org/packages/d0/64/22aab1c17c96ae344a06e5be692a62977d6acd5dd7f8470a8e068111282a/rapidfuzz-3.13.0-cp39-cp39-musllinux_1_2_ppc64le.whl", hash = "sha256:e62779c6371bd2b21dbd1fdce89eaec2d93fd98179d36f61130b489f62294a92", size = 2891173, upload-time = "2025-04-03T20:37:43.647Z" },
+    { url = "https://files.pythonhosted.org/packages/9b/da/e4928f158c5cebe2877dc11dea62d230cc02bd977992cf4bf33c41ae6ffe/rapidfuzz-3.13.0-cp39-cp39-musllinux_1_2_s390x.whl", hash = "sha256:f4797f821dc5d7c2b6fc818b89f8a3f37bcc900dd9e4369e6ebf1e525efce5db", size = 3434650, upload-time = "2025-04-03T20:37:47.015Z" },
+    { url = "https://files.pythonhosted.org/packages/5c/d7/a126c0f4ae2b7927d2b7a4206e2b98db2940591d4edcb350d772b97d18ba/rapidfuzz-3.13.0-cp39-cp39-musllinux_1_2_x86_64.whl", hash = "sha256:d21f188f6fe4fbf422e647ae9d5a68671d00218e187f91859c963d0738ccd88c", size = 4414291, upload-time = "2025-04-03T20:37:49.55Z" },
+    { url = "https://files.pythonhosted.org/packages/d0/a1/ef21859170e9d7e7e7ee818e9541b71da756189586f87e129c7b13c79dd3/rapidfuzz-3.13.0-pp39-pypy39_pp73-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:0fd05336db4d0b8348d7eaaf6fa3c517b11a56abaa5e89470ce1714e73e4aca7", size = 1373040, upload-time = "2025-04-03T20:38:39.294Z" },
+    { url = "https://files.pythonhosted.org/packages/58/c7/2361a8787f12166212c7d4ad4d2a01b640164686ea39ee26b24fd12acd3e/rapidfuzz-3.13.0-pp39-pypy39_pp73-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:573ad267eb9b3f6e9b04febce5de55d8538a87c56c64bf8fd2599a48dc9d8b77", size = 5254220, upload-time = "2025-04-03T20:38:42.201Z" },
+    { url = "https://files.pythonhosted.org/packages/1d/55/a965d98d5acf4a27ddd1d6621f086231dd243820e8108e8da7fa8a01ca1f/rapidfuzz-3.13.0-pp39-pypy39_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:30fd1451f87ccb6c2f9d18f6caa483116bbb57b5a55d04d3ddbd7b86f5b14998", size = 2990908, upload-time = "2025-04-03T20:38:44.794Z" },
+]
+
+[[package]]
 name = "readchar"
 version = "4.2.1"
 source = { registry = "https://pypi.org/simple" }
@@ -2195,6 +2299,15 @@ wheels = [
 ]
 
 [[package]]
+name = "terminaltables"
+version = "3.1.10"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f5/fc/0b73d782f5ab7feba8d007573a3773c58255f223c5940a7b7085f02153c3/terminaltables-3.1.10.tar.gz", hash = "sha256:ba6eca5cb5ba02bba4c9f4f985af80c54ec3dccf94cfcd190154386255e47543", size = 12264, upload-time = "2021-12-07T19:03:35.758Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c4/fb/ea621e0a19733e01fe4005d46087d383693c0f4a8f824b47d8d4122c87e0/terminaltables-3.1.10-py2.py3-none-any.whl", hash = "sha256:e4fdc4179c9e4aab5f674d80f09d76fa436b96fdc698a8505e0a36bf0804a874", size = 15155, upload-time = "2021-12-07T19:03:34.013Z" },
+]
+
+[[package]]
 name = "threadpoolctl"
 version = "3.6.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2362,8 +2475,11 @@ dependencies = [
     { name = "lap", marker = "sys_platform == 'linux'" },
     { name = "lightning", marker = "sys_platform == 'linux'" },
     { name = "matplotlib", marker = "sys_platform == 'linux'" },
+    { name = "mmcls", marker = "sys_platform == 'linux'" },
     { name = "mmcv-lite", marker = "sys_platform == 'linux'" },
+    { name = "mmdet", marker = "sys_platform == 'linux'" },
     { name = "mmengine", marker = "sys_platform == 'linux'" },
+    { name = "mmocr", marker = "sys_platform == 'linux'" },
     { name = "numpy", marker = "sys_platform == 'linux'" },
     { name = "omegaconf", marker = "sys_platform == 'linux'" },
     { name = "opencv-python", marker = "sys_platform == 'linux'" },
@@ -2413,8 +2529,11 @@ requires-dist = [
     { name = "lap" },
     { name = "lightning", specifier = "==2.0.9" },
     { name = "matplotlib" },
+    { name = "mmcls" },
     { name = "mmcv-lite", specifier = ">=2.0.0,<2.1.0" },
+    { name = "mmdet", specifier = ">=3.0.0rc5,<3.2.0" },
     { name = "mmengine" },
+    { name = "mmocr" },
     { name = "numpy", specifier = "<2.0" },
     { name = "omegaconf" },
     { name = "opencv-python" },
