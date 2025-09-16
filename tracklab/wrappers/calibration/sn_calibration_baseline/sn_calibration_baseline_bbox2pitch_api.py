@@ -3,7 +3,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from .sn_calibration_baseline.camera import Camera
+from .camera import Camera
 from tracklab.pipeline import ImageLevelModule
 from tracklab.utils.collate import Unbatchable, default_collate
 import logging

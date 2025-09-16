@@ -4,7 +4,7 @@ import pandas as pd
 
 from tracklab.pipeline import ImageLevelModule
 from tracklab.utils.coordinates import ltrb_to_ltwh
-from .byte_track import byte_tracker as byte_tracker
+from . import byte_tracker as byte_tracker
 
 import logging
 

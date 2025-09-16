@@ -8,20 +8,20 @@ import torch
 import torchvision.transforms as T
 from PIL import Image
 
-from .sn_calibration_baseline.camera import Camera
-from .sn_calibration_baseline.detect_extremities import (
+from ..sn_calibration_baseline.camera import Camera
+from ..sn_calibration_baseline.detect_extremities import (
     generate_class_synthesis,
     join_points,
 )
 from tracklab.pipeline import ImageLevelModule
 from tracklab.utils.download import download_file
-from .tvcalib.cam_distr.tv_main_center import get_cam_distr, get_dist_distr
-from .tvcalib.inference import InferenceSegmentationModel, InferenceDatasetCalibration
+from .cam_distr.tv_main_center import get_cam_distr, get_dist_distr
+from .inference import InferenceSegmentationModel, InferenceDatasetCalibration
 from torchvision.models.segmentation import deeplabv3_resnet101
-from .tvcalib.module import TVCalibModule
-from .sn_calibration_baseline.soccerpitch import SoccerPitch
-from .tvcalib.utils.io import detach_dict, tensor2list
-from .tvcalib.utils.objects_3d import (
+from .module import TVCalibModule
+from ..sn_calibration_baseline.soccerpitch import SoccerPitch
+from .utils.io import detach_dict, tensor2list
+from .utils.objects_3d import (
     SoccerPitchLineCircleSegments,
     SoccerPitchSNCircleCentralSplit,
 )

@@ -5,7 +5,7 @@ from pathlib import Path
 
 from tracklab.pipeline import ImageLevelModule
 from tracklab.utils.coordinates import ltrb_to_ltwh
-from .bot_sort import bot_sort as bot_sort
+from . import bot_sort as bot_sort
 
 import logging
 

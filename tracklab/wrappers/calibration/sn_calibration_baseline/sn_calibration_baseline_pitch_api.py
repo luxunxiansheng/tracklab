@@ -6,7 +6,7 @@ import gdown
 import numpy as np
 import pandas as pd
 
-from .sn_calibration_baseline.detect_extremities import (
+from .detect_extremities import (
     SegmentationNetwork,
     generate_class_synthesis,
     get_line_extremities,
@@ -16,7 +16,7 @@ import gdown
 import numpy as np
 import pandas as pd
 
-from .sn_calibration_baseline.detect_extremities import (
+from .detect_extremities import (
     SegmentationNetwork,
     generate_class_synthesis,
     get_line_extremities,

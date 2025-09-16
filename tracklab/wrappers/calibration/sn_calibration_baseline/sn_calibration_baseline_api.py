@@ -2,13 +2,13 @@ import numpy as np
 import pandas as pd
 from typing import Any
 
-from .sn_calibration_baseline.baseline_cameras import (
+from .baseline_cameras import (
     normalization_transform,
     estimate_homography_from_line_correspondences,
     Camera,
 )
-from .sn_calibration_baseline.camera import unproject_image_point
-from .sn_calibration_baseline.soccerpitch import SoccerPitch
+from .camera import unproject_image_point
+from .soccerpitch import SoccerPitch
 from tracklab.pipeline import ImageLevelModule
 
 

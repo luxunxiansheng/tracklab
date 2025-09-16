@@ -16,15 +16,15 @@ from tracklab.pipeline import ImageLevelModule
 from tracklab.utils.download import download_file
 from tracklab.pipeline.videolevel_module import VideoLevelModule
 
-from .pnlcalib.model.cls_hrnet import get_cls_net
-from .pnlcalib.model.cls_hrnet_l import get_cls_net as get_cls_net_l
-from .pnlcalib.utils.utils_heatmap import (
+from .model.cls_hrnet import get_cls_net
+from .model.cls_hrnet_l import get_cls_net as get_cls_net_l
+from .utils.utils_heatmap import (
     get_keypoints_from_heatmap_batch_maxpool,
     get_keypoints_from_heatmap_batch_maxpool_l,
     complete_keypoints,
     coords_to_dict,
 )
-from .pnlcalib.utils.utils_calib import FramebyFrameCalib
+from .utils.utils_calib import FramebyFrameCalib
 
 
 def kp_to_line(keypoints):
@@ -70,13 +70,13 @@ def kp_to_line(keypoints):
     return lines
 
 
-class PnLCalib_Keypoints(ImageLevelModule):
+class NBJW_Calib_Keypoints(ImageLevelModule):
 
     input_columns = {
         "image": [],
         "detection": [],
     }
-    output_columns = {"image": ["keypoints", "lines_det", "lines"], "detection": []}
+    output_columns = {"image": ["keypoints", "lines"], "detection": []}
 
     def __init__(
         self,
@@ -88,27 +88,23 @@ class PnLCalib_Keypoints(ImageLevelModule):
         device,
         cfg,
         cfg_l,
-        kp_threshold=0.1611,
-        line_threshold=0.3434,
         **kwargs,
     ):
         super().__init__(batch_size)
         self.device = device
-        self.kp_threshold = kp_threshold
-        self.line_threshold = line_threshold
 
         self.cfg = cfg
         self.cfg_l = cfg_l
 
         if not os.path.isfile(checkpoint_kp):
             download_file(
-                "https://zenodo.org/records/14046275/files/pnl_SV_kp?download=1",
+                "https://zenodo.org/records/12626395/files/SV_kp?download=1",
                 checkpoint_kp,
             )
 
         if not os.path.isfile(checkpoint_l):
             download_file(
-                "https://zenodo.org/records/14046275/files/pnl_SV_lines?download=1",
+                "https://zenodo.org/records/12626395/files/SV_lines?download=1",
                 checkpoint_l,
             )
 
@@ -144,39 +140,23 @@ class PnLCalib_Keypoints(ImageLevelModule):
         line_coords = get_keypoints_from_heatmap_batch_maxpool_l(
             heatmaps_l[:, :-1, :, :]
         )
-        kp_dict = coords_to_dict(
-            kp_coords, threshold=self.kp_threshold, ground_plane_only=True
-        )
-        lines_dict = coords_to_dict(
-            line_coords, threshold=self.line_threshold, ground_plane_only=True
-        )
+        kp_dict = coords_to_dict(kp_coords, threshold=0.1449)
+        lines_dict = coords_to_dict(line_coords, threshold=0.2983)
 
         image_width = batch.size()[-1]
         image_height = batch.size()[-2]
-        kp_dict, lines_dict = complete_keypoints(
-            kp_dict[0], lines_dict[0], w=image_width, h=image_height, normalize=True
+        final_dict = complete_keypoints(
+            kp_dict, lines_dict, w=image_width, h=image_height, normalize=True
         )
-
-        # Ensure outputs are always present, even if empty
-        if not kp_dict:
-            kp_dict = {}  # Empty dict if no keypoints detected
-        if not lines_dict:
-            lines_dict = {}  # Empty dict if no lines detected
-
-        lines_from_kp = kp_to_line(kp_dict) if kp_dict else {}
 
         output_pred = []
-
-        output_pred.append(
-            pd.Series(
-                {
-                    "keypoints": kp_dict,
-                    "lines_det": lines_dict,
-                    "lines": lines_from_kp,
-                },
-                name=metadatas.index[0],
+        for result, idx in zip(final_dict, metadatas.index):
+            output_pred.append(
+                pd.Series(
+                    {"keypoints": result, "lines": kp_to_line(result)},
+                    name=idx,
+                )
             )
-        )
 
         return pd.DataFrame(), pd.DataFrame(output_pred)
 
@@ -200,9 +180,9 @@ class PnLCalib_Keypoints(ImageLevelModule):
         return new_dict
 
 
-class PnLCalib(ImageLevelModule):
+class NBJW_Calib(ImageLevelModule):
     input_columns = {
-        "image": ["keypoints", "lines_det"],
+        "image": ["keypoints"],
         "detection": ["bbox_ltwh"],
     }
     output_columns = {
@@ -211,16 +191,9 @@ class PnLCalib(ImageLevelModule):
     }
 
     def __init__(
-        self,
-        image_width,
-        image_height,
-        batch_size,
-        use_prev_homography,
-        refine_lines,
-        **kwargs,
+        self, image_width, image_height, batch_size, use_prev_homography, **kwargs
     ):
         super().__init__(batch_size)
-        self.refine_lines = refine_lines
         self.image_width = image_width
         self.image_height = image_height
         self.cam = FramebyFrameCalib(
@@ -235,30 +208,13 @@ class PnLCalib(ImageLevelModule):
         return image
 
     def process(self, batch: Any, detections: pd.DataFrame, metadatas: pd.DataFrame):
-        keypoints = metadatas["keypoints"].iloc[0]
-        lines = metadatas["lines_det"].iloc[0]
+        predictions = metadatas["keypoints"].iloc[0]
 
-        self.cam.update(keypoints, lines)
-        try:
-            final_dict = self.cam.heuristic_voting_ground(
-                refine_lines=self.refine_lines
-            )
-        except np.linalg.LinAlgError:
-            final_dict = None
-
-        if final_dict is None:
-            h = None
-        else:
-            h = final_dict["homography"]
-
+        self.cam.update(predictions)
+        h = self.cam.get_homography_from_ground_plane(use_ransac=50, inverse=True)
         if self.use_prev_homography:
             if h is not None:
-                try:
-                    camera_predictions = self.cam.heuristic_voting(
-                        refine_lines=self.refine_lines
-                    )["cam_params"]
-                except np.linalg.LinAlgError:
-                    camera_predictions = {}
+                camera_predictions = self.cam.heuristic_voting()["cam_params"]
                 detections["bbox_pitch"] = detections.bbox.ltrb().apply(
                     get_bbox_pitch(h)
                 )
@@ -273,20 +229,7 @@ class PnLCalib(ImageLevelModule):
                     )
                 else:
                     camera_predictions = {}
-                    detections["bbox_pitch"] = pd.Series(
-                        [
-                            {
-                                "x_bottom_left": None,
-                                "y_bottom_left": None,
-                                "x_bottom_right": None,
-                                "y_bottom_right": None,
-                                "x_bottom_middle": None,
-                                "y_bottom_middle": None,
-                            }
-                        ]
-                        * len(detections),
-                        index=detections.index,
-                    )
+                    detections["bbox_pitch"] = None
             return detections[["bbox_pitch"]], pd.DataFrame(
                 [
                     pd.Series(
@@ -296,31 +239,13 @@ class PnLCalib(ImageLevelModule):
             )
         else:
             if h is not None:
-                try:
-                    camera_predictions = self.cam.heuristic_voting(
-                        refine_lines=self.refine_lines
-                    )["cam_params"]
-                except np.linalg.LinAlgError:
-                    camera_predictions = {}
+                camera_predictions = self.cam.heuristic_voting()["cam_params"]
                 detections["bbox_pitch"] = detections.bbox.ltrb().apply(
                     get_bbox_pitch(h)
                 )
             else:
                 camera_predictions = {}
-                detections["bbox_pitch"] = pd.Series(
-                    [
-                        {
-                            "x_bottom_left": None,
-                            "y_bottom_left": None,
-                            "x_bottom_right": None,
-                            "y_bottom_right": None,
-                            "x_bottom_middle": None,
-                            "y_bottom_middle": None,
-                        }
-                    ]
-                    * len(detections),
-                    index=detections.index,
-                )
+                detections["bbox_pitch"] = None
 
             return detections[["bbox_pitch"]], pd.DataFrame(
                 [
@@ -346,14 +271,7 @@ def get_bbox_pitch(h):
         pbr_x, pbr_y, _ = unproject_point_on_planeZ0(h, br)
         pbm_x, pbm_y, _ = unproject_point_on_planeZ0(h, bm)
         if np.any(np.isnan([pbl_x, pbl_y, pbr_x, pbr_y, pbm_x, pbm_y])):
-            return {
-                "x_bottom_left": None,
-                "y_bottom_left": None,
-                "x_bottom_right": None,
-                "y_bottom_right": None,
-                "x_bottom_middle": None,
-                "y_bottom_middle": None,
-            }
+            return None
         return {
             "x_bottom_left": pbl_x,
             "y_bottom_left": pbl_y,

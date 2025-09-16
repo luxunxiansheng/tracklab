@@ -3,7 +3,7 @@ from collections import defaultdict
 import torch
 import numpy as np
 import pandas as pd
-from .bpbreid_strong_sort import strong_sort as strong_sort
+from . import strong_sort as strong_sort
 import logging
 
 from tracklab.pipeline import ImageLevelModule
