@@ -2,20 +2,7 @@
 
 <div align="center">
 
-[[CAMELTrack](https:#### Manual Packages
-Some packages require manual installation due to Git dependencies. **In the dev container, these are installed automatically during setup:**
-
-```bash
-# These are installed automatically in .devcontainer/post-install.sh
-pip install git+https://github.com/VlSomers/prtreid.git --no-deps
-pip install git+https://github.com/VlSomers/bpbreid.git --no-deps
-```
-
-If you're not using the dev container, install them manually:
-```bash
-pip install git+https://github.com/VlSomers/prtreid.git --no-deps
-pip install git+https://github.com/VlSomers/bpbreid.git --no-deps
-```rackingLaboratory/CAMELTrack)] [[Soccernet-Gamestate](https://github.com/SoccerNet/sn-gamestate)] [[MOT-Taxonomy](https://github.com/VlSomers/multi-object-tracking-taxonomy)]
+[[CAMELTrack](https://github.com/TrackingLaboratory/CAMELTrack)] [[Soccernet-Gamestate](https://github.com/SoccerNet/sn-gamestate)] [[MOT-Taxonomy](https://github.com/VlSomers/multi-object-tracking-taxonomy)]
 	
 </div>
 
@@ -144,77 +131,7 @@ Some optional advanced modules and datasets require additional setup :
 - For [BPBReID](https://github.com/VlSomers/bpbreid) and [KPReID](https://github.com/VlSomers/keypoint_promptable_reidentification): install using `[uv] pip install "torchreid@git+https://github.com/victorjoos/keypoint_promptable_reidentification"`.
 - Get the **SoccerNet Tracking** dataset [here](https://github.com/SoccerNet/sn-tracking), rename the root folder as `SoccerNetMOT` and put it under the global dataset directory (specified under the `data_dir` config as explained below). Otherwise, you can modify the `dataset_path` config in [soccernet_mot.yaml](tracklab/configs/dataset/soccernet_mot.yaml) with your custom SoccerNet dataset directory.
 
-### � Package Management for Developers
-
-TrackLab uses `uv` for fast and reliable dependency management. The project is structured as a workspace with plugins.
-
-#### Installing Dependencies
-```bash
-# Clone the repository
-git clone https://github.com/TrackingLaboratory/tracklab.git
-cd tracklab
-
-# Sync all dependencies (main project + plugins)
-uv sync
-
-# For development, install in editable mode
-uv sync --dev
-```
-
-#### Upgrading Dependencies
-```bash
-# Upgrade all dependencies to latest compatible versions
-uv lock --upgrade
-
-# Sync after upgrading
-uv sync
-```
-
-#### Manual Packages
-Some packages require manual installation due to Git dependencies. **In the dev container, these are installed automatically during setup:**
-
-```bash
-# These are installed automatically in .devcontainer/post-install.sh
-pip install git+https://github.com/VlSomers/prtreid.git
-pip install git+https://github.com/VlSomers/bpbreid.git
-```
-
-If you're not using the dev container, install them manually:
-```bash
-uv pip install git+https://github.com/VlSomers/prtreid.git
-uv pip install git+https://github.com/VlSomers/bpbreid.git
-```
-
-#### 🐳 Dev Container (Recommended for Development)
-
-For the most reliable and reproducible development environment, use the provided Dev Container configuration:
-
-1. **Prerequisites**: Docker and VS Code with the Dev Containers extension
-2. **Open in Dev Container**: VS Code will prompt to reopen in container, or use Command Palette: "Dev Containers: Reopen in Container"
-3. **Automatic Setup**: The container will automatically:
-   - Install Python 3.9 with CUDA 11.8 support
-   - Set up virtual environment with uv
-   - Install all dependencies from `pyproject.toml` and `uv.lock`
-   - Install PyTorch 2.0.1+cu118 and torchvision 0.15.2+cu118
-   - Install git-based packages (prtreid, bpbreid)
-   - Configure the development environment
-
-**Environment Reproducibility**: The current working environment is captured in:
-- `uv.lock`: Exact dependency versions managed by uv
-- `current_working_environment.txt`: Backup of exact package versions
-- `requirements-working.txt`: Human-readable known working configuration
-- `.devcontainer/`: Complete container configuration
-
-This ensures anyone building the container will get the exact same working environment.
-
-#### Workspace Structure
-- Main project: `pyproject.toml`
-- Plugins: `plugins/*/pyproject.toml`
-- All managed via `uv` workspace in `pyproject.toml`
-
-For troubleshooting, use `uv tree` to visualize dependencies or `uv sync --dry-run` to preview changes.
-
-### �🔨 Setup
+### 🔨 Setup
 
 You will need to set up some variables before running the code : 
 
