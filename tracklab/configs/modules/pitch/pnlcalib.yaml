@@ -4,6 +4,8 @@ checkpoint_l: ${model_dir}/calibration/pnl_SV_lines
 image_width: 1920
 image_height: 1080
 batch_size: 1
+kp_threshold: 0.1  # Threshold for keypoint detection (default: 0.1611, lower for poor quality)
+line_threshold: 0.2  # Threshold for line detection (default: 0.3434, lower for poor quality)
 
 
 #Kp model
