@@ -3,7 +3,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from sn_calibration_baseline.camera import Camera
+from .sn_calibration_baseline.camera import Camera
 from tracklab.pipeline import ImageLevelModule
 from tracklab.utils.collate import Unbatchable, default_collate
 import logging
@@ -20,10 +20,8 @@ def collate_df(batch):
 class Bbox2Pitch(ImageLevelModule):
     collate_fn = collate_df
 
-    input_columns = dict(detection=["bbox_ltwh"],
-                         image=["parameters"])
-    output_columns = dict(detection=["bbox_pitch"],
-                          image=[])
+    input_columns = dict(detection=["bbox_ltwh"], image=["parameters"])
+    output_columns = dict(detection=["bbox_pitch"], image=[])
 
     def __init__(self, batch_size, **kwargs):
         super().__init__(batch_size)
@@ -34,7 +32,9 @@ class Bbox2Pitch(ImageLevelModule):
         if isinstance(camera_parameters, dict):  # Camera parameters
             sn_cam = Camera(iwidth=image.shape[1], iheight=image.shape[0])
             sn_cam.from_json_parameters(camera_parameters)
-            detections["bbox_pitch"] = detections.bbox.ltrb().apply(get_bbox_pitch(sn_cam))
+            detections["bbox_pitch"] = detections.bbox.ltrb().apply(
+                get_bbox_pitch(sn_cam)
+            )
         elif isinstance(camera_parameters, (list, np.ndarray)):  # Homography
             detections["bbox_pitch"] = detections.bbox.ltrb().apply(
                 get_bbox_pitch_homography(camera_parameters)
@@ -43,7 +43,9 @@ class Bbox2Pitch(ImageLevelModule):
             log.warning(f"camera parameters were None/NA")
             return pd.DataFrame(columns=["bbox_pitch"])
         else:
-            log.warning(f"camera parameters should be dict or list not {camera_parameters}")
+            log.warning(
+                f"camera parameters should be dict or list not {camera_parameters}"
+            )
             return pd.DataFrame(columns=["bbox_pitch"])
 
         return detections["bbox_pitch"]
@@ -65,7 +67,7 @@ def get_bbox_pitch(cam):
         l, t, r, b = bbox_ltrb
         bl = np.array([l, b, 1])
         br = np.array([r, b, 1])
-        bm = np.array([l+(r-l)/2, b, 1])
+        bm = np.array([l + (r - l) / 2, b, 1])
 
         pbl_x, pbl_y, _ = cam.unproject_point_on_planeZ0(bl)
         pbr_x, pbr_y, _ = cam.unproject_point_on_planeZ0(br)
@@ -73,15 +75,21 @@ def get_bbox_pitch(cam):
         if np.any(np.isnan([pbl_x, pbl_y, pbr_x, pbr_y, pbm_x, pbm_y])):
             return None
         return {
-            "x_bottom_left": pbl_x, "y_bottom_left": pbl_y,
-            "x_bottom_right": pbr_x, "y_bottom_right": pbr_y,
-            "x_bottom_middle": pbm_x, "y_bottom_middle": pbm_y,
+            "x_bottom_left": pbl_x,
+            "y_bottom_left": pbl_y,
+            "x_bottom_right": pbr_x,
+            "y_bottom_right": pbr_y,
+            "x_bottom_middle": pbm_x,
+            "y_bottom_middle": pbm_y,
         }
+
     return _get_bbox
+
 
 def get_bbox_pitch_homography(homography):
     try:
         hinv = np.linalg.inv(homography)
+
         def _get_bbox(bbox_ltrb):
             l, t, r, b = bbox_ltrb
             bl = np.array([l, b, 1])
@@ -94,10 +102,14 @@ def get_bbox_pitch_homography(homography):
             bird_lower_middle = hinv @ bm
             bird_lower_middle /= bird_lower_middle[2]
             return {
-                "x_bottom_left": bird_lower_left[0], "y_bottom_left": bird_lower_left[1],
-                "x_bottom_right": bird_lower_right[0], "y_bottom_right": bird_lower_right[1],
-                "x_bottom_middle": bird_lower_middle[0], "y_bottom_middle": bird_lower_middle[1],
+                "x_bottom_left": bird_lower_left[0],
+                "y_bottom_left": bird_lower_left[1],
+                "x_bottom_right": bird_lower_right[0],
+                "y_bottom_right": bird_lower_right[1],
+                "x_bottom_middle": bird_lower_middle[0],
+                "y_bottom_middle": bird_lower_middle[1],
             }
+
         return _get_bbox
     except np.linalg.LinAlgError:
         return lambda x: None

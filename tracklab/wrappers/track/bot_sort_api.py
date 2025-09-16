@@ -5,7 +5,7 @@ from pathlib import Path
 
 from tracklab.pipeline import ImageLevelModule
 from tracklab.utils.coordinates import ltrb_to_ltwh
-import bot_sort.bot_sort as bot_sort
+from .bot_sort import bot_sort as bot_sort
 
 import logging
 
@@ -34,7 +34,7 @@ class BotSORT(ImageLevelModule):
             Path(self.cfg.model_weights),
             self.device,
             self.cfg.fp16,
-            **self.cfg.hyperparams
+            **self.cfg.hyperparams,
         )
 
     @torch.no_grad()
@@ -47,12 +47,8 @@ class BotSORT(ImageLevelModule):
             conf = detection.bbox.conf()
             cls = detection.category_id
             tracklab_id = int(detection.name)
-            processed_detections.append(
-                np.array([*ltrb, conf, cls, tracklab_id])
-            )
-        return {
-            "input": np.stack(processed_detections)
-        }
+            processed_detections.append(np.array([*ltrb, conf, cls, tracklab_id]))
+        return {"input": np.stack(processed_detections)}
 
     @torch.no_grad()
     def process(self, batch, detections: pd.DataFrame, metadatas: pd.DataFrame):
@@ -60,7 +56,7 @@ class BotSORT(ImageLevelModule):
             return []
         inputs = batch["input"][0]  # Nx7 [l,t,r,b,conf,class,tracklab_id]
         inputs = inputs[inputs[:, 4] > self.cfg.min_confidence]
-        image = cv2_load_image(metadatas['file_path'].values[0])
+        image = cv2_load_image(metadatas["file_path"].values[0])
         results = self.model.update(inputs, image)
         results = np.asarray(results)  # N'x8 [l,t,r,b,track_id,class,conf,idx]
         if results.size:

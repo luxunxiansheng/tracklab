@@ -57,7 +57,9 @@ class PoseTrack21Evaluator(EvaluatorBase):
         eval_pose_on_all = self.cfg.eval_pose_on_all
         if not self.cfg.get("save_eval", True):
             tempdir = Path(tempfile.TemporaryDirectory().name)
-            self.cfg.posetrack_trackers_folder = str(tempdir / self.cfg.posetrack_trackers_folder)
+            self.cfg.posetrack_trackers_folder = str(
+                tempdir / self.cfg.posetrack_trackers_folder
+            )
             self.cfg.mot_trackers_folder = str(tempdir / self.cfg.mot_trackers_folder)
         if self.cfg.eval_pose_estimation:
             annotations = self._annotations_pose_estimation_eval(
@@ -529,7 +531,7 @@ class PoseTrack21Evaluator(EvaluatorBase):
             detections_pred.reset_index(drop=True),
             left_on="id",
             right_on="image_id",
-            suffixes=('', '_y')
+            suffixes=("", "_y"),
         )
         len_before_drop = len(df)
         df.dropna(

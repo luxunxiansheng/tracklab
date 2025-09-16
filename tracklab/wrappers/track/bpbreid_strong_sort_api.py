@@ -3,7 +3,7 @@ from collections import defaultdict
 import torch
 import numpy as np
 import pandas as pd
-import bpbreid_strong_sort.strong_sort as strong_sort
+from .bpbreid_strong_sort import strong_sort as strong_sort
 import logging
 
 from tracklab.pipeline import ImageLevelModule
@@ -73,14 +73,14 @@ class BPBReIDStrongSORT(ImageLevelModule):
     def preprocess(self, image, detections: pd.DataFrame, metadata: pd.Series):
         if len(detections) == 0:
             return {
-            "id": [],
-            "bbox_ltwh": [],
-            "reid_features": [],
-            "visibility_scores": [],
-            "scores": [],
-            "classes": [],
-            "frame": [],
-        }
+                "id": [],
+                "bbox_ltwh": [],
+                "reid_features": [],
+                "visibility_scores": [],
+                "scores": [],
+                "classes": [],
+                "frame": [],
+            }
         if hasattr(detections, "bbox_conf"):
             score = detections.bbox.conf()
         else:

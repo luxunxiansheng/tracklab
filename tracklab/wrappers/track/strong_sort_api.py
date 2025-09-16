@@ -5,7 +5,7 @@ from pathlib import Path
 
 from tracklab.pipeline import ImageLevelModule
 from tracklab.utils.coordinates import ltrb_to_ltwh
-import strong_sort.strong_sort as strong_sort
+from .strong_sort import strong_sort as strong_sort
 
 import logging
 
@@ -34,7 +34,7 @@ class StrongSORT(ImageLevelModule):
             Path(self.cfg.model_weights),
             self.device,
             self.cfg.fp16,
-            **self.cfg.hyperparams
+            **self.cfg.hyperparams,
         )
         # For camera compensation
         self.prev_frame = None
@@ -49,16 +49,12 @@ class StrongSORT(ImageLevelModule):
             conf = detection.bbox.conf()
             cls = detection.category_id
             tracklab_id = int(detection.name)
-            processed_detections.append(
-                np.array([*ltrb, conf, cls, tracklab_id])
-            )
-        return {
-            "input": np.stack(processed_detections)
-        }
+            processed_detections.append(np.array([*ltrb, conf, cls, tracklab_id]))
+        return {"input": np.stack(processed_detections)}
 
     @torch.no_grad()
     def process(self, batch, detections: pd.DataFrame, metadatas: pd.DataFrame):
-        image = cv2_load_image(metadatas['file_path'].values[0])
+        image = cv2_load_image(metadatas["file_path"].values[0])
         if self.cfg.ecc:
             if self.prev_frame is not None:
                 self.model.tracker.camera_update(self.prev_frame, image)

@@ -4,7 +4,7 @@ import pandas as pd
 
 from tracklab.pipeline import ImageLevelModule
 from tracklab.utils.coordinates import ltrb_to_ltwh
-import oc_sort.ocsort as ocsort
+from .oc_sort import ocsort as ocsort
 
 import logging
 
@@ -39,9 +39,7 @@ class OCSORT(ImageLevelModule):
             conf = detection.bbox.conf()
             cls = detection.category_id
             tracklab_id = int(detection.name)
-            processed_detections.append(
-                np.array([*ltrb, conf, cls, tracklab_id])
-            )
+            processed_detections.append(np.array([*ltrb, conf, cls, tracklab_id]))
         return {
             "input": np.stack(processed_detections),
         }

@@ -4,7 +4,7 @@ import pandas as pd
 
 from tracklab.pipeline import ImageLevelModule
 from tracklab.utils.coordinates import ltrb_to_ltwh
-import byte_track.byte_tracker as byte_tracker
+from .byte_track import byte_tracker as byte_tracker
 
 import logging
 
@@ -39,12 +39,8 @@ class ByteTrack(ImageLevelModule):
             conf = detection.bbox.conf()
             cls = detection.category_id
             tracklab_id = int(detection.name)
-            processed_detections.append(
-                np.array([*ltrb, conf, cls, tracklab_id])
-            )
-        return {
-            "input": np.stack(processed_detections)
-        }
+            processed_detections.append(np.array([*ltrb, conf, cls, tracklab_id]))
+        return {"input": np.stack(processed_detections)}
 
     @torch.no_grad()
     def process(self, batch, detections: pd.DataFrame, metadatas: pd.DataFrame):
