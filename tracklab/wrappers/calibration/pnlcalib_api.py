@@ -239,7 +239,12 @@ class PnLCalib(ImageLevelModule):
         lines = metadatas["lines_det"].iloc[0]
 
         self.cam.update(keypoints, lines)
-        final_dict = self.cam.heuristic_voting_ground(refine_lines=self.refine_lines)
+        try:
+            final_dict = self.cam.heuristic_voting_ground(
+                refine_lines=self.refine_lines
+            )
+        except np.linalg.LinAlgError:
+            final_dict = None
 
         if final_dict is None:
             h = None
@@ -248,9 +253,12 @@ class PnLCalib(ImageLevelModule):
 
         if self.use_prev_homography:
             if h is not None:
-                camera_predictions = self.cam.heuristic_voting(
-                    refine_lines=self.refine_lines
-                )["cam_params"]
+                try:
+                    camera_predictions = self.cam.heuristic_voting(
+                        refine_lines=self.refine_lines
+                    )["cam_params"]
+                except np.linalg.LinAlgError:
+                    camera_predictions = {}
                 detections["bbox_pitch"] = detections.bbox.ltrb().apply(
                     get_bbox_pitch(h)
                 )
@@ -265,7 +273,20 @@ class PnLCalib(ImageLevelModule):
                     )
                 else:
                     camera_predictions = {}
-                    detections["bbox_pitch"] = None
+                    detections["bbox_pitch"] = pd.Series(
+                        [
+                            {
+                                "x_bottom_left": None,
+                                "y_bottom_left": None,
+                                "x_bottom_right": None,
+                                "y_bottom_right": None,
+                                "x_bottom_middle": None,
+                                "y_bottom_middle": None,
+                            }
+                        ]
+                        * len(detections),
+                        index=detections.index,
+                    )
             return detections[["bbox_pitch"]], pd.DataFrame(
                 [
                     pd.Series(
@@ -275,15 +296,31 @@ class PnLCalib(ImageLevelModule):
             )
         else:
             if h is not None:
-                camera_predictions = self.cam.heuristic_voting(
-                    refine_lines=self.refine_lines
-                )["cam_params"]
+                try:
+                    camera_predictions = self.cam.heuristic_voting(
+                        refine_lines=self.refine_lines
+                    )["cam_params"]
+                except np.linalg.LinAlgError:
+                    camera_predictions = {}
                 detections["bbox_pitch"] = detections.bbox.ltrb().apply(
                     get_bbox_pitch(h)
                 )
             else:
                 camera_predictions = {}
-                detections["bbox_pitch"] = None
+                detections["bbox_pitch"] = pd.Series(
+                    [
+                        {
+                            "x_bottom_left": None,
+                            "y_bottom_left": None,
+                            "x_bottom_right": None,
+                            "y_bottom_right": None,
+                            "x_bottom_middle": None,
+                            "y_bottom_middle": None,
+                        }
+                    ]
+                    * len(detections),
+                    index=detections.index,
+                )
 
             return detections[["bbox_pitch"]], pd.DataFrame(
                 [
@@ -309,7 +346,14 @@ def get_bbox_pitch(h):
         pbr_x, pbr_y, _ = unproject_point_on_planeZ0(h, br)
         pbm_x, pbm_y, _ = unproject_point_on_planeZ0(h, bm)
         if np.any(np.isnan([pbl_x, pbl_y, pbr_x, pbr_y, pbm_x, pbm_y])):
-            return None
+            return {
+                "x_bottom_left": None,
+                "y_bottom_left": None,
+                "x_bottom_right": None,
+                "y_bottom_right": None,
+                "x_bottom_middle": None,
+                "y_bottom_middle": None,
+            }
         return {
             "x_bottom_left": pbl_x,
             "y_bottom_left": pbl_y,
