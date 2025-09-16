@@ -88,10 +88,14 @@ class PnLCalib_Keypoints(ImageLevelModule):
         device,
         cfg,
         cfg_l,
+        kp_threshold=0.1611,
+        line_threshold=0.3434,
         **kwargs,
     ):
         super().__init__(batch_size)
         self.device = device
+        self.kp_threshold = kp_threshold
+        self.line_threshold = line_threshold
 
         self.cfg = cfg
         self.cfg_l = cfg_l
@@ -153,6 +157,14 @@ class PnLCalib_Keypoints(ImageLevelModule):
             kp_dict[0], lines_dict[0], w=image_width, h=image_height, normalize=True
         )
 
+        # Ensure outputs are always present, even if empty
+        if not kp_dict:
+            kp_dict = {}  # Empty dict if no keypoints detected
+        if not lines_dict:
+            lines_dict = {}  # Empty dict if no lines detected
+
+        lines_from_kp = kp_to_line(kp_dict) if kp_dict else {}
+
         output_pred = []
 
         output_pred.append(
@@ -160,7 +172,7 @@ class PnLCalib_Keypoints(ImageLevelModule):
                 {
                     "keypoints": kp_dict,
                     "lines_det": lines_dict,
-                    "lines": kp_to_line(kp_dict),
+                    "lines": lines_from_kp,
                 },
                 name=metadatas.index[0],
             )
@@ -223,8 +235,8 @@ class PnLCalib(ImageLevelModule):
         return image
 
     def process(self, batch: Any, detections: pd.DataFrame, metadatas: pd.DataFrame):
-        keypoints = metadatas["keypoints"][0]
-        lines = metadatas["lines_det"][0]
+        keypoints = metadatas["keypoints"].iloc[0]
+        lines = metadatas["lines_det"].iloc[0]
 
         self.cam.update(keypoints, lines)
         final_dict = self.cam.heuristic_voting_ground(refine_lines=self.refine_lines)
