@@ -1,4 +1,4 @@
-_target_: tracklab.wrappers.bbox_detector.yolo_ultralytics_api.YOLOUltralytics
+_target_: tracklab.pipeline.bbox_detector.yolo_ultralytics_api.YOLOUltralytics
 batch_size: 8
 cfg:
   # models available :

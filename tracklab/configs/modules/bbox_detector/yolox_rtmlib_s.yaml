@@ -1,4 +1,4 @@
-_target_: tracklab.wrappers.bbox_detector.rtmlib_api.RTMLibDetector
+_target_: tracklab.pipeline.bbox_detector.rtmlib_api.RTMLibDetector
 _recursive_: false
 
 model:

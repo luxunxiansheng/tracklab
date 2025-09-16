@@ -1,7 +1,7 @@
-tracklab.wrappers.track package
+tracklab.pipeline.track package
 ===============================
 
-.. automodule:: tracklab.wrappers.track
+.. automodule:: tracklab.pipeline.track
    :members:
    :show-inheritance:
    :undoc-members:
@@ -9,50 +9,50 @@ tracklab.wrappers.track package
 Submodules
 ----------
 
-tracklab.wrappers.track.bot\_sort\_api module
+tracklab.pipeline.track.bot\_sort\_api module
 ---------------------------------------------
 
-.. automodule:: tracklab.wrappers.track.bot_sort_api
+.. automodule:: tracklab.pipeline.track.bot_sort_api
    :members:
    :show-inheritance:
    :undoc-members:
 
-tracklab.wrappers.track.bpbreid\_strong\_sort\_api module
+tracklab.pipeline.track.bpbreid\_strong\_sort\_api module
 ---------------------------------------------------------
 
-.. automodule:: tracklab.wrappers.track.bpbreid_strong_sort_api
+.. automodule:: tracklab.pipeline.track.bpbreid_strong_sort_api
    :members:
    :show-inheritance:
    :undoc-members:
 
-tracklab.wrappers.track.byte\_track\_api module
+tracklab.pipeline.track.byte\_track\_api module
 -----------------------------------------------
 
-.. automodule:: tracklab.wrappers.track.byte_track_api
+.. automodule:: tracklab.pipeline.track.byte_track_api
    :members:
    :show-inheritance:
    :undoc-members:
 
-tracklab.wrappers.track.deep\_oc\_sort\_api module
+tracklab.pipeline.track.deep\_oc\_sort\_api module
 --------------------------------------------------
 
-.. automodule:: tracklab.wrappers.track.deep_oc_sort_api
+.. automodule:: tracklab.pipeline.track.deep_oc_sort_api
    :members:
    :show-inheritance:
    :undoc-members:
 
-tracklab.wrappers.track.oc\_sort\_api module
+tracklab.pipeline.track.oc\_sort\_api module
 --------------------------------------------
 
-.. automodule:: tracklab.wrappers.track.oc_sort_api
+.. automodule:: tracklab.pipeline.track.oc_sort_api
    :members:
    :show-inheritance:
    :undoc-members:
 
-tracklab.wrappers.track.strong\_sort\_api module
+tracklab.pipeline.track.strong\_sort\_api module
 ------------------------------------------------
 
-.. automodule:: tracklab.wrappers.track.strong_sort_api
+.. automodule:: tracklab.pipeline.track.strong_sort_api
    :members:
    :show-inheritance:
    :undoc-members:

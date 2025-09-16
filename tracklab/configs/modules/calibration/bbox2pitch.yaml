@@ -1,2 +1,2 @@
-_target_: tracklab.wrappers.calibration.sn_calibration_baseline_bbox2pitch_api.Bbox2Pitch
+_target_: tracklab.pipeline.calibration.sn_calibration_baseline_bbox2pitch_api.Bbox2Pitch
 batch_size: 16

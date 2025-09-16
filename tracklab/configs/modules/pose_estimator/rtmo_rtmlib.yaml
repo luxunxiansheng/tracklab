@@ -1,4 +1,4 @@
-_target_: tracklab.wrappers.pose_estimator.rtmlib_api.RTMO
+_target_: tracklab.pipeline.pose_estimator.rtmlib_api.RTMO
 _recursive_: false
 
 min_confidence: 0.4

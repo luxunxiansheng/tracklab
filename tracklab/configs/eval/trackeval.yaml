@@ -1,4 +1,4 @@
-_target_: tracklab.wrappers.TrackEvalEvaluator
+_target_: tracklab.pipeline.TrackEvalEvaluator
 
 
 show_progressbar: True  # Show progressbar during evaluation

@@ -55,7 +55,7 @@ fi
 
 # Test TrackLab imports
 echo "Testing TrackLab imports..."
-if python -c "from tracklab.wrappers.jersey.mmocr_api import MMOCR; from tracklab.wrappers.reid.prtreid_api import PRTReId; print('✅ All TrackLab imports successful!')" 2>/dev/null; then
+if python -c "from tracklab.pipeline.jersey.mmocr_api import MMOCR; from tracklab.pipeline.reid.prtreid_api import PRTReId; print('✅ All TrackLab imports successful!')" 2>/dev/null; then
     echo "🎉 All TrackLab modules working correctly!"
     exit 0
 else

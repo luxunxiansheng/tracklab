@@ -702,7 +702,7 @@ pip install -e .
 ### Basic Usage
 
 ```python
-from tracklab.wrappers.calibration import NBJW_Calib_Keypoints
+from tracklab.pipeline.calibration import NBJW_Calib_Keypoints
 
 # Initialize calibrator
 calibrator = NBJW_Calib_Keypoints(
@@ -727,7 +727,7 @@ camera_params = calibrate_from_keypoints(keypoints, lines)
 # Example configuration in config.yaml
 modules:
   calibration:
-    _target_: tracklab.wrappers.calibration.NBJW_Calib_Keypoints
+    _target_: tracklab.pipeline.calibration.NBJW_Calib_Keypoints
     checkpoint_kp: ${data_dir}/models/nbjw_kp.pth
     checkpoint_l: ${data_dir}/models/nbjw_lines.pth
     image_width: 1920
@@ -774,7 +774,7 @@ class CalibrationModule(ImageLevelModule):
 #### NBJW Calibration API
 
 ```python
-from tracklab.wrappers.calibration.nbjw_calib_api import NBJW_Calib_Keypoints
+from tracklab.pipeline.calibration.nbjw_calib_api import NBJW_Calib_Keypoints
 
 calib = NBJW_Calib_Keypoints(
     checkpoint_kp=str,      # Path to keypoint model
@@ -789,7 +789,7 @@ calib = NBJW_Calib_Keypoints(
 #### TVCalib API
 
 ```python
-from tracklab.wrappers.calibration.tvcalib_api import TVCalib_Segmentation
+from tracklab.pipeline.calibration.tvcalib_api import TVCalib_Segmentation
 
 calib = TVCalib_Segmentation(
     checkpoint=str,         # Path to DeepLabV3 model

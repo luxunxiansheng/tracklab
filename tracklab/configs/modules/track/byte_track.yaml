@@ -1,4 +1,4 @@
-_target_: tracklab.wrappers.ByteTrack
+_target_: tracklab.pipeline.ByteTrack
 
 cfg:
   min_confidence: 0.4

@@ -27,8 +27,8 @@ update of the results accross the pipeline relies on the uniqueness of the
 indexes.
 
 You can find the example of the MOT20 implementation of the `TrackingDataset` 
-that we implemented in `tracklab/wrappers/dataset/mot20.py`. You will then 
-need to add your new class to the `tracklab/wrappers/dataset/__init__.py` file.
+that we implemented in `tracklab/pipeline/dataset/mot20.py`. You will then 
+need to add your new class to the `tracklab/pipeline/dataset/__init__.py` file.
 
 ## Config file
 
@@ -40,7 +40,7 @@ Basically, you will need to add a `.yaml` file in `configs/dataset` which will b
 converted to a dictionary and will contain all the arguments required for your 
 new class. The `_target_` element indicates the object you want to 
 instantiate for the creation of your dataset. 
-It  will point to our new class `tracklab.wrappers.MOT20`. You can find the configuration 
+It  will point to our new class `tracklab.pipeline.MOT20`. You can find the configuration 
 file in `configs/dataset/mot20.yaml`.
 
 Then you have to change in the main config file (`configs/config.yaml`) the entry in 

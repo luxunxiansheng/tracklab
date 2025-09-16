@@ -1,7 +1,7 @@
-tracklab.wrappers.eval.posetrack package
+tracklab.pipeline.eval.posetrack package
 ========================================
 
-.. automodule:: tracklab.wrappers.eval.posetrack
+.. automodule:: tracklab.pipeline.eval.posetrack
    :members:
    :show-inheritance:
    :undoc-members:
@@ -9,18 +9,18 @@ tracklab.wrappers.eval.posetrack package
 Submodules
 ----------
 
-tracklab.wrappers.eval.posetrack.posetrack18\_evaluator module
+tracklab.pipeline.eval.posetrack.posetrack18\_evaluator module
 --------------------------------------------------------------
 
-.. automodule:: tracklab.wrappers.eval.posetrack.posetrack18_evaluator
+.. automodule:: tracklab.pipeline.eval.posetrack.posetrack18_evaluator
    :members:
    :show-inheritance:
    :undoc-members:
 
-tracklab.wrappers.eval.posetrack.posetrack21\_evaluator module
+tracklab.pipeline.eval.posetrack.posetrack21\_evaluator module
 --------------------------------------------------------------
 
-.. automodule:: tracklab.wrappers.eval.posetrack.posetrack21_evaluator
+.. automodule:: tracklab.pipeline.eval.posetrack.posetrack21_evaluator
    :members:
    :show-inheritance:
    :undoc-members:

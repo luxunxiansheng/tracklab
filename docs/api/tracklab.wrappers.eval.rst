@@ -1,7 +1,7 @@
-tracklab.wrappers.eval package
+tracklab.pipeline.eval package
 ==============================
 
-.. automodule:: tracklab.wrappers.eval
+.. automodule:: tracklab.pipeline.eval
    :members:
    :show-inheritance:
    :undoc-members:
@@ -12,16 +12,16 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   tracklab.wrappers.eval.posetrack
-   tracklab.wrappers.eval.soccernet
+   tracklab.pipeline.eval.posetrack
+   tracklab.pipeline.eval.soccernet
 
 Submodules
 ----------
 
-tracklab.wrappers.eval.trackeval\_evaluator module
+tracklab.pipeline.eval.trackeval\_evaluator module
 --------------------------------------------------
 
-.. automodule:: tracklab.wrappers.eval.trackeval_evaluator
+.. automodule:: tracklab.pipeline.eval.trackeval_evaluator
    :members:
    :show-inheritance:
    :undoc-members:

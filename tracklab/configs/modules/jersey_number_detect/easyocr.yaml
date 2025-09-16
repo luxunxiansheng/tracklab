@@ -1,4 +1,4 @@
-_target_: tracklab.wrappers.jersey.easyocr_api.EasyOCR
+_target_: tracklab.pipeline.jersey.easyocr_api.EasyOCR
 cfg:
   text_threshold: 0.5
   link_threshold: 0.3

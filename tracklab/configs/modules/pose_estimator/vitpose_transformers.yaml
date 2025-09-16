@@ -1,4 +1,4 @@
-_target_: tracklab.wrappers.pose_estimator.transformers_api.VITPose
+_target_: tracklab.pipeline.pose_estimator.transformers_api.VITPose
 batch_size: 16
 model_name: vitpose-plus-base
 

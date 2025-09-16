@@ -1,2 +1,2 @@
-_target_: tracklab.wrappers.team.tracklet_team_side_labeling_api.TrackletTeamSideLabeling
+_target_: tracklab.pipeline.team.tracklet_team_side_labeling_api.TrackletTeamSideLabeling
 cfg: null

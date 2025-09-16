@@ -1,4 +1,4 @@
-_target_: tracklab.wrappers.BPBReIDStrongSORT
+_target_: tracklab.pipeline.BPBReIDStrongSORT
 
 cfg:
   ecc: False # activate camera motion compensation

@@ -1,4 +1,4 @@
-_target_: tracklab.wrappers.BotSORT
+_target_: tracklab.pipeline.BotSORT
 
 cfg:
   # weights can be downloaded from :

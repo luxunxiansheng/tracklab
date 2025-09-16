@@ -87,7 +87,7 @@ python -c "import mmcv; print('✅ mmcv:', mmcv.__version__)" 2>/dev/null || ech
 python -c "import mmocr; print('✅ mmocr:', mmocr.__version__)" 2>/dev/null || echo "❌ mmocr not found"
 
 echo "Testing TrackLab imports..."
-python -c "from tracklab.wrappers.jersey.mmocr_api import MMOCR; from tracklab.wrappers.reid.prtreid_api import PRTReId; print('✅ All TrackLab imports successful!')" 2>/dev/null || {
+python -c "from tracklab.pipeline.jersey.mmocr_api import MMOCR; from tracklab.pipeline.reid.prtreid_api import PRTReId; print('✅ All TrackLab imports successful!')" 2>/dev/null || {
     echo "❌ TrackLab imports failed!"
     exit 1
 }

@@ -1,7 +1,7 @@
 defaults:
   - default
 
-_target_: tracklab.wrappers.Bee24
+_target_: tracklab.pipeline.Bee24
 
 dataset_path: ${data_dir}/BEE24
 eval_set: "test"

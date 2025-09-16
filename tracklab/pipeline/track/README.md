@@ -888,7 +888,7 @@ def recommend_algorithm(requirements):
 
 ```yaml
 # tracklab/configs/modules/track/strong_sort.yaml
-_target_: tracklab.wrappers.track.strong_sort_api.StrongSORT
+_target_: tracklab.pipeline.track.strong_sort_api.StrongSORT
 
 # Model configuration
 model_weights: "${model_dir}/track/strong_sort_weights.pth"
@@ -913,7 +913,7 @@ hyperparams:
 
 ```yaml
 # tracklab/configs/modules/track/byte_track.yaml
-_target_: tracklab.wrappers.track.byte_track_api.ByteTrack
+_target_: tracklab.pipeline.track.byte_track_api.ByteTrack
 
 # Minimal configuration for speed
 min_confidence: 0.6
@@ -930,7 +930,7 @@ hyperparams:
 
 ```yaml
 # tracklab/configs/modules/track/bot_sort.yaml
-_target_: tracklab.wrappers.track.bot_sort_api.BotSORT
+_target_: tracklab.pipeline.track.bot_sort_api.BotSORT
 
 # Model weights for appearance features
 model_weights: "${model_dir}/track/bot_sort_weights.pth"
@@ -957,7 +957,7 @@ hyperparams:
 
 ```yaml
 # Sports-specific tracking configuration
-_target_: tracklab.wrappers.track.bpbreid_strong_sort_api.BPBReIDStrongSORT
+_target_: tracklab.pipeline.track.bpbreid_strong_sort_api.BPBReIDStrongSORT
 
 # Sports-optimized ReID model
 model_weights: "${model_dir}/track/bpbreid_sports.pth"
@@ -980,7 +980,7 @@ hyperparams:
 
 ```yaml
 # Crowd surveillance configuration
-_target_: tracklab.wrappers.track.deep_oc_sort_api.DeepOCSORT
+_target_: tracklab.pipeline.track.deep_oc_sort_api.DeepOCSORT
 
 # Deep learning features for crowded scenes
 model_weights: "${model_dir}/track/deep_oc_sort_crowd.pth"
@@ -1001,7 +1001,7 @@ hyperparams:
 
 ```yaml
 # Lightweight configuration for edge devices
-_target_: tracklab.wrappers.track.oc_sort_api.OCSORT
+_target_: tracklab.pipeline.track.oc_sort_api.OCSORT
 
 # Minimal resource requirements
 min_confidence: 0.7
@@ -1023,7 +1023,7 @@ hyperparams:
 
 ```yaml
 # Autonomous vehicle tracking configuration
-_target_: tracklab.wrappers.track.byte_track_api.ByteTrack
+_target_: tracklab.pipeline.track.byte_track_api.ByteTrack
 
 # High-confidence requirements for safety
 min_confidence: 0.8
@@ -1045,7 +1045,7 @@ redundancy_check: true
 
 ```yaml
 # Retail store analytics configuration
-_target_: tracklab.wrappers.track.strong_sort_api.StrongSORT
+_target_: tracklab.pipeline.track.strong_sort_api.StrongSORT
 
 # Customer tracking parameters
 min_confidence: 0.4
@@ -1068,7 +1068,7 @@ queue_detection: true
 
 ```yaml
 # Industrial safety and monitoring configuration
-_target_: tracklab.wrappers.track.bot_sort_api.BotSORT
+_target_: tracklab.pipeline.track.bot_sort_api.BotSORT
 
 # Robust detection requirements
 min_confidence: 0.6
@@ -1091,7 +1091,7 @@ ppe_compliance_check: true
 
 ```yaml
 # Drone-based aerial tracking configuration
-_target_: tracklab.wrappers.track.oc_sort_api.OCSORT
+_target_: tracklab.pipeline.track.oc_sort_api.OCSORT
 
 # Aerial perspective adjustments
 min_confidence: 0.5
@@ -1116,7 +1116,7 @@ motion_blur_handling: true
 
 ```yaml
 # Multi-camera tracking configuration
-_target_: tracklab.wrappers.track.strong_sort_api.StrongSORT
+_target_: tracklab.pipeline.track.strong_sort_api.StrongSORT
 
 # Multi-camera coordination
 camera_sync: true
@@ -1140,7 +1140,7 @@ temporal_sync_tolerance: 0.1  # 100ms tolerance
 
 ```yaml
 # Weather-resistant tracking configuration
-_target_: tracklab.wrappers.track.deep_oc_sort_api.DeepOCSORT
+_target_: tracklab.pipeline.track.deep_oc_sort_api.DeepOCSORT
 
 # Robust to weather conditions
 min_confidence: 0.3  # Lower threshold for poor visibility
@@ -1166,7 +1166,7 @@ motion_blur_correction: true
 
 ```yaml
 # Scientific research and analysis configuration
-_target_: tracklab.wrappers.track.strong_sort_api.StrongSORT
+_target_: tracklab.pipeline.track.strong_sort_api.StrongSORT
 
 # Maximum accuracy requirements
 min_confidence: 0.8
@@ -1192,7 +1192,7 @@ behavior_pattern_recognition: true
 
 ```yaml
 # Ultra-fast tracking for real-time applications
-_target_: tracklab.wrappers.track.byte_track_api.ByteTrack
+_target_: tracklab.pipeline.track.byte_track_api.ByteTrack
 
 # Speed-optimized settings
 min_confidence: 0.7
@@ -1216,7 +1216,7 @@ memory_pool: true
 
 ```yaml
 # Low-memory configuration for embedded systems
-_target_: tracklab.wrappers.track.oc_sort_api.OCSORT
+_target_: tracklab.pipeline.track.oc_sort_api.OCSORT
 
 # Memory-efficient settings
 min_confidence: 0.6
@@ -1241,7 +1241,7 @@ periodic_cleanup: true
 
 ```yaml
 # High-throughput GPU configuration
-_target_: tracklab.wrappers.track.deep_oc_sort_api.DeepOCSORT
+_target_: tracklab.pipeline.track.deep_oc_sort_api.DeepOCSORT
 
 # GPU acceleration settings
 fp16: true
@@ -1270,7 +1270,7 @@ async_data_loading: true
 
 ```yaml
 # Wildlife and animal tracking configuration
-_target_: tracklab.wrappers.track.bot_sort_api.BotSORT
+_target_: tracklab.pipeline.track.bot_sort_api.BotSORT
 
 # Animal behavior considerations
 min_confidence: 0.4
@@ -1294,7 +1294,7 @@ habitat_mapping: true
 
 ```yaml
 # Biological cell tracking configuration
-_target_: tracklab.wrappers.track.oc_sort_api.OCSORT
+_target_: tracklab.pipeline.track.oc_sort_api.OCSORT
 
 # Microscopic imaging considerations
 min_confidence: 0.5
@@ -1320,7 +1320,7 @@ morphology_tracking: true
 
 ```yaml
 # Urban traffic monitoring configuration
-_target_: tracklab.wrappers.track.byte_track_api.ByteTrack
+_target_: tracklab.pipeline.track.byte_track_api.ByteTrack
 
 # Traffic flow requirements
 min_confidence: 0.6
@@ -1346,7 +1346,7 @@ license_plate_tracking: true
 
 ```yaml
 # Template for real-time video analytics applications
-_target_: tracklab.wrappers.track.byte_track_api.ByteTrack
+_target_: tracklab.pipeline.track.byte_track_api.ByteTrack
 
 # Performance-first settings
 min_confidence: 0.6
@@ -1370,7 +1370,7 @@ performance_monitoring: true
 
 ```yaml
 # Template for forensic video analysis
-_target_: tracklab.wrappers.track.strong_sort_api.StrongSORT
+_target_: tracklab.pipeline.track.strong_sort_api.StrongSORT
 
 # Accuracy-first settings
 min_confidence: 0.7
@@ -1395,7 +1395,7 @@ evidence_correlation: true
 
 ```yaml
 # Template for research experiments
-_target_: tracklab.wrappers.track.deep_oc_sort_api.DeepOCSORT
+_target_: tracklab.pipeline.track.deep_oc_sort_api.DeepOCSORT
 
 # Experimental settings
 min_confidence: 0.3  # Lower threshold for research
@@ -1593,7 +1593,7 @@ def validate_config(config):
 #### Basic Single-Object Tracking
 
 ```python
-from tracklab.wrappers.track.byte_track_api import ByteTrack
+from tracklab.pipeline.track.byte_track_api import ByteTrack
 import cv2
 import numpy as np
 
@@ -1624,8 +1624,8 @@ for target in online_targets:
 #### Multi-Object Tracking with ReID
 
 ```python
-from tracklab.wrappers.track.strong_sort_api import StrongSORT
-from tracklab.wrappers.reid.osnet_api import OSNet
+from tracklab.pipeline.track.strong_sort_api import StrongSORT
+from tracklab.pipeline.reid.osnet_api import OSNet
 import torch
 
 # Initialize ReID model
@@ -1676,7 +1676,7 @@ while cap.isOpened():
 
 ```python
 import asyncio
-from tracklab.wrappers.track.byte_track_api import ByteTrack
+from tracklab.pipeline.track.byte_track_api import ByteTrack
 import cv2
 import time
 
@@ -1744,7 +1744,7 @@ asyncio.run(tracker.process_stream('rtsp://camera_stream'))
 #### Multi-Camera Tracking Coordination
 
 ```python
-from tracklab.wrappers.track.strong_sort_api import StrongSORT
+from tracklab.pipeline.track.strong_sort_api import StrongSORT
 from collections import defaultdict
 import threading
 
@@ -1842,7 +1842,7 @@ for camera_id in range(4):
 #### Sports Analytics Pipeline
 
 ```python
-from tracklab.wrappers.track.bpbreid_strong_sort_api import BPBReIDStrongSORT
+from tracklab.pipeline.track.bpbreid_strong_sort_api import BPBReIDStrongSORT
 import pandas as pd
 
 class SportsTracker:
@@ -2152,7 +2152,7 @@ class STrack:
 
 ```python
 from ultralytics import YOLO
-from tracklab.wrappers.track.byte_track_api import ByteTrack
+from tracklab.pipeline.track.byte_track_api import ByteTrack
 import cv2
 
 # Initialize models
@@ -2204,7 +2204,7 @@ cv2.destroyAllWindows()
 
 ```python
 from deep_sort_realtime.deepsort_tracker import DeepSort
-from tracklab.wrappers.track.strong_sort_api import StrongSORT
+from tracklab.pipeline.track.strong_sort_api import StrongSORT
 import torch
 
 class HybridTracker:
@@ -2275,7 +2275,7 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 from vision_msgs.msg import Detection2DArray, Detection2D
-from tracklab.wrappers.track.byte_track_api import ByteTrack
+from tracklab.pipeline.track.byte_track_api import ByteTrack
 import cv_bridge
 import numpy as np
 
@@ -2762,7 +2762,7 @@ fp16: true  # Half precision
 min_confidence: 0.6  # Reduce detections to process
 
 # Use lighter algorithm
-_target_: tracklab.wrappers.track.byte_track_api.ByteTrack  # Faster alternative
+_target_: tracklab.pipeline.track.byte_track_api.ByteTrack  # Faster alternative
 ```
 
 ### Advanced Debugging

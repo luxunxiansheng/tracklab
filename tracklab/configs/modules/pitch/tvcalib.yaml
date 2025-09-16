@@ -1,4 +1,4 @@
-_target_: tracklab.wrappers.calibration.tvcalib_api.TVCalib_Segmentation
+_target_: tracklab.pipeline.calibration.tvcalib_api.TVCalib_Segmentation
 checkpoint: ${model_dir}/calibration/train_59.pt
 image_width: 1920
 image_height: 1080

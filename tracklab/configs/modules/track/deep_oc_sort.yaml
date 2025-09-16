@@ -1,4 +1,4 @@
-_target_: tracklab.wrappers.DeepOCSORT
+_target_: tracklab.pipeline.DeepOCSORT
 
 cfg:
   # weights can be downloaded from :

@@ -1,7 +1,7 @@
 defaults:
   - default
 
-_target_: tracklab.wrappers.SoccerNetGameState
+_target_: tracklab.pipeline.SoccerNetGameState
 
 dataset_path: ${data_dir}/SoccerNetGS
 annotation_path: ${data_dir}/SoccerNetGS

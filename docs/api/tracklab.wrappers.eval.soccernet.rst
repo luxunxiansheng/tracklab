@@ -1,7 +1,7 @@
-tracklab.wrappers.eval.soccernet package
+tracklab.pipeline.eval.soccernet package
 ========================================
 
-.. automodule:: tracklab.wrappers.eval.soccernet
+.. automodule:: tracklab.pipeline.eval.soccernet
    :members:
    :show-inheritance:
    :undoc-members:
@@ -9,10 +9,10 @@ tracklab.wrappers.eval.soccernet package
 Submodules
 ----------
 
-tracklab.wrappers.eval.soccernet.soccer\_accuracy module
+tracklab.pipeline.eval.soccernet.soccer\_accuracy module
 --------------------------------------------------------
 
-.. automodule:: tracklab.wrappers.eval.soccernet.soccer_accuracy
+.. automodule:: tracklab.pipeline.eval.soccernet.soccer_accuracy
    :members:
    :show-inheritance:
    :undoc-members:

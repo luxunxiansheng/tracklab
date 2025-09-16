@@ -47,7 +47,7 @@ This package provides unified interfaces for various state-of-the-art object det
 **Configuration**:
 
 ```yaml
-_target_: tracklab.wrappers.bbox_detector.yolo_ultralytics_api.YOLOUltralytics
+_target_: tracklab.pipeline.bbox_detector.yolo_ultralytics_api.YOLOUltralytics
 model:
   model_name: "yolo11n.pt"  # or yolo11s, yolo11m, yolo11l, yolo11x
   imgsz: 640
@@ -84,7 +84,7 @@ model:
 **Configuration**:
 
 ```yaml
-_target_: tracklab.wrappers.bbox_detector.transformers_api.RTDetr
+_target_: tracklab.pipeline.bbox_detector.transformers_api.RTDetr
 batch_size: 8
 min_confidence: 0.4
 model_name: rtdetr_r50vd_coco_o365
@@ -133,7 +133,7 @@ model_name: rtdetr_r50vd_coco_o365
 **Configuration**:
 
 ```yaml
-_target_: tracklab.wrappers.bbox_detector.rtmlib_api.RTMLibDetector
+_target_: tracklab.pipeline.bbox_detector.rtmlib_api.RTMLibDetector
 model:
   _target_: rtmlib.RTMDet
   onnx_model: "https://download.openmmlab.com/mmpose/v1/projects/rtmposev1/onnx_sdk/rtmdet_nano_8xb32-300e_hand-267f9c8f.zip"
@@ -187,7 +187,7 @@ model:
 **Configuration**:
 
 ```yaml
-_target_: tracklab.wrappers.bbox_detector.rtmlib_api.RTMLibDetector
+_target_: tracklab.pipeline.bbox_detector.rtmlib_api.RTMLibDetector
 model:
   _target_: rtmlib.YOLOX
   onnx_model: "https://download.openmmlab.com/mmpose/v1/projects/rtmposev1/onnx_sdk/yolox_m_8xb8-300e_humanart-c2c7a14a.zip"
@@ -247,7 +247,7 @@ model:
 **Configuration**:
 
 ```yaml
-_target_: tracklab.wrappers.bbox_detector.mmdetection_api.MMDetection
+_target_: tracklab.pipeline.bbox_detector.mmdetection_api.MMDetection
 config_name: "path/to/config"
 path_to_checkpoint: "path/to/checkpoint"
 batch_size: 8
@@ -284,7 +284,7 @@ fcos_config = {
 All detectors follow the same interface and can be used interchangeably in TrackLab configurations:
 
 ```python
-from tracklab.wrappers.bbox_detector import YOLOUltralytics, RTDetr, RTMLibDetector, MMDetection
+from tracklab.pipeline.bbox_detector import YOLOUltralytics, RTDetr, RTMLibDetector, MMDetection
 
 # Initialize detector with configuration
 detector = YOLOUltralytics(cfg=config, device=device, batch_size=8)
@@ -442,7 +442,7 @@ except RuntimeError as e:
 tracklab_config = {
     "modules": {
         "bbox_detector": {
-            "_target_": "tracklab.wrappers.bbox_detector.yolo_ultralytics_api.YOLOUltralytics",
+            "_target_": "tracklab.pipeline.bbox_detector.yolo_ultralytics_api.YOLOUltralytics",
             "model": {
                 "model_name": "yolo11m.pt",
                 "imgsz": 640,
@@ -728,7 +728,7 @@ config["imgsz"] = 1280
 
 ```yaml
 # Check YAML syntax
-_target_: tracklab.wrappers.bbox_detector.yolo_ultralytics_api.YOLOUltralytics
+_target_: tracklab.pipeline.bbox_detector.yolo_ultralytics_api.YOLOUltralytics
 model:
   model_name: "yolo11n.pt"
   imgsz: 640

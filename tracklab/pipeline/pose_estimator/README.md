@@ -28,7 +28,7 @@ The pose estimator module supports several leading pose estimation frameworks, e
 
 ```yaml
 ```yaml
-_target_: tracklab.wrappers.pose_estimator.mmpose_api.BottomUpMMPose
+_target_: tracklab.pipeline.pose_estimator.mmpose_api.BottomUpMMPose
 batch_size: 1
 cfg:
   path_to_config: "path/to/mmpose/config.py"
@@ -60,7 +60,7 @@ cfg:
 ```yaml
 modules:
   pose_estimator:
-    _target_: tracklab.wrappers.pose_estimator.yolo_ultralytics_pose_api.YOLOUltralyticsPose
+    _target_: tracklab.pipeline.pose_estimator.yolo_ultralytics_pose_api.YOLOUltralyticsPose
     batch_size: 8
     cfg:
       path_to_checkpoint: "${model_dir}/yolo_ultralytics/yolo11m-pose.pt"
@@ -89,7 +89,7 @@ modules:
 **Configuration:**
 
 ```yaml
-_target_: tracklab.wrappers.pose_estimator.rtmlib_api.RTMPose
+_target_: tracklab.pipeline.pose_estimator.rtmlib_api.RTMPose
 model:
   _target_: rtmlib.RTMPose
   onnx_model: "https://download.openmmlab.com/mmpose/v1/projects/rtmposev1/onnx_sdk/rtmpose-m_simcc-body7_pt-body7_420e-256x192-e48f03d0_20230504.zip"
@@ -109,7 +109,7 @@ model:
 **Configuration:**
 
 ```yaml
-_target_: tracklab.wrappers.pose_estimator.rtmlib_api.RTMO
+_target_: tracklab.pipeline.pose_estimator.rtmlib_api.RTMO
 model:
   _target_: rtmlib.RTMO
   onnx_model: "path/to/rtmo/model.onnx"
@@ -141,7 +141,7 @@ min_confidence: 0.3
 **Configuration:**
 
 ```yaml
-_target_: tracklab.wrappers.pose_estimator.transformers_api.ViTPose
+_target_: tracklab.pipeline.pose_estimator.transformers_api.ViTPose
 model:
   _target_: transformers.ViTPose
   model_name: "vitpose-base"
@@ -452,7 +452,7 @@ pipeline:
 
 modules:
   pose_estimator:
-    _target_: tracklab.wrappers.pose_estimator.yolo_ultralytics_pose_api.YOLOUltralyticsPose
+    _target_: tracklab.pipeline.pose_estimator.yolo_ultralytics_pose_api.YOLOUltralyticsPose
     batch_size: 8
     cfg:
       path_to_checkpoint: "${model_dir}/yolo_ultralytics/yolo11m-pose.pt"

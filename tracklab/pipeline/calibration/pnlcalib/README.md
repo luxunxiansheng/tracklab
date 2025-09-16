@@ -99,7 +99,7 @@ camera_params = calibrator.calibrate(keypoints)
 ### Integration with TrackLab
 
 ```python
-from tracklab.wrappers.calibration.pnlcalib import PNLCalib
+from tracklab.pipeline.calibration.pnlcalib import PNLCalib
 
 # Initialize calibrator
 calibrator = PNLCalib(

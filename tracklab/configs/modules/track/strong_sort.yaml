@@ -1,4 +1,4 @@
-_target_: tracklab.wrappers.StrongSORT
+_target_: tracklab.pipeline.StrongSORT
 
 cfg:
   # weights can be downloaded from :

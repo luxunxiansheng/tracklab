@@ -1,7 +1,7 @@
-tracklab.wrappers.dataset.soccernet package
+tracklab.pipeline.dataset.soccernet package
 ===========================================
 
-.. automodule:: tracklab.wrappers.dataset.soccernet
+.. automodule:: tracklab.pipeline.dataset.soccernet
    :members:
    :show-inheritance:
    :undoc-members:
@@ -9,18 +9,18 @@ tracklab.wrappers.dataset.soccernet package
 Submodules
 ----------
 
-tracklab.wrappers.dataset.soccernet.soccernet\_game\_state module
+tracklab.pipeline.dataset.soccernet.soccernet\_game\_state module
 -----------------------------------------------------------------
 
-.. automodule:: tracklab.wrappers.dataset.soccernet.soccernet_game_state
+.. automodule:: tracklab.pipeline.dataset.soccernet.soccernet_game_state
    :members:
    :show-inheritance:
    :undoc-members:
 
-tracklab.wrappers.dataset.soccernet.soccernet\_mot module
+tracklab.pipeline.dataset.soccernet.soccernet\_mot module
 ---------------------------------------------------------
 
-.. automodule:: tracklab.wrappers.dataset.soccernet.soccernet_mot
+.. automodule:: tracklab.pipeline.dataset.soccernet.soccernet_mot
    :members:
    :show-inheritance:
    :undoc-members:

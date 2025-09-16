@@ -19,7 +19,7 @@ Subpackages
    tracklab.pipeline
    tracklab.utils
    tracklab.visualization
-   tracklab.wrappers
+   tracklab.pipeline
 
 Submodules
 ----------

@@ -1,7 +1,7 @@
-tracklab.wrappers.dataset.posetrack package
+tracklab.pipeline.dataset.posetrack package
 ===========================================
 
-.. automodule:: tracklab.wrappers.dataset.posetrack
+.. automodule:: tracklab.pipeline.dataset.posetrack
    :members:
    :show-inheritance:
    :undoc-members:
@@ -9,26 +9,26 @@ tracklab.wrappers.dataset.posetrack package
 Submodules
 ----------
 
-tracklab.wrappers.dataset.posetrack.posetrack17 module
+tracklab.pipeline.dataset.posetrack.posetrack17 module
 ------------------------------------------------------
 
-.. automodule:: tracklab.wrappers.dataset.posetrack.posetrack17
+.. automodule:: tracklab.pipeline.dataset.posetrack.posetrack17
    :members:
    :show-inheritance:
    :undoc-members:
 
-tracklab.wrappers.dataset.posetrack.posetrack18 module
+tracklab.pipeline.dataset.posetrack.posetrack18 module
 ------------------------------------------------------
 
-.. automodule:: tracklab.wrappers.dataset.posetrack.posetrack18
+.. automodule:: tracklab.pipeline.dataset.posetrack.posetrack18
    :members:
    :show-inheritance:
    :undoc-members:
 
-tracklab.wrappers.dataset.posetrack.posetrack21 module
+tracklab.pipeline.dataset.posetrack.posetrack21 module
 ------------------------------------------------------
 
-.. automodule:: tracklab.wrappers.dataset.posetrack.posetrack21
+.. automodule:: tracklab.pipeline.dataset.posetrack.posetrack21
    :members:
    :show-inheritance:
    :undoc-members:

@@ -1,7 +1,7 @@
 defaults:
   - default
 
-_target_: tracklab.wrappers.DanceTrack
+_target_: tracklab.pipeline.DanceTrack
 
 dataset_path: ${data_dir}/DanceTrack
 eval_set: "val"

@@ -106,7 +106,7 @@ python -m tvcalib.optimize \
 ### Integration with TrackLab
 
 ```python
-from tracklab.wrappers.calibration.tvcalib import TVCalib_Segmentation
+from tracklab.pipeline.calibration.tvcalib import TVCalib_Segmentation
 
 # Initialize calibrator with pre-trained model
 calibrator = TVCalib_Segmentation(

@@ -1,7 +1,7 @@
 defaults:
   - default
 
-_target_: tracklab.wrappers.MOT20
+_target_: tracklab.pipeline.MOT20
 
 dataset_path: ${data_dir}/MOT20
 eval_set: "train"

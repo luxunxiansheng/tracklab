@@ -1,7 +1,7 @@
 defaults:
   - dataset: default
 
-_target_: tracklab.wrappers.reid.kpreid_api.KPReId
+_target_: tracklab.pipeline.reid.kpreid_api.KPReId
 training_enabled: False
 batch_size: 2
 save_path: reid

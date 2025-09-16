@@ -1,7 +1,7 @@
 defaults:
   - default
 
-_target_: tracklab.wrappers.SportsMOT
+_target_: tracklab.pipeline.SportsMOT
 
 dataset_path: ${data_dir}/SportsMOT
 eval_set: "val"

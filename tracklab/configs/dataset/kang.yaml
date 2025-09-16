@@ -1,7 +1,7 @@
 defaults:
   - default
 
-_target_: tracklab.wrappers.ExternalVideo
+_target_: tracklab.pipeline.ExternalVideo
 
 video_path: "${project_dir}/data/kang/kang_3.mp4"
 # video_path: "https: Youtube video link"

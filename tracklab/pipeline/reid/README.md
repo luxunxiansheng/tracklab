@@ -573,7 +573,7 @@ total_loss = [9.3, 4.8, 3.2, 2.2, 1.6, 1.25]  # Combined loss
 #### KPReId (Keypoint Promptable ReID)
 
 ```python
-from tracklab.wrappers.reid.kpreid_api import KPReId
+from tracklab.pipeline.reid.kpreid_api import KPReId
 
 # Key features:
 # - Uses keypoints for enhanced feature extraction
@@ -597,7 +597,7 @@ from tracklab.wrappers.reid.kpreid_api import KPReId
 #### PRTReId (PoseTrack ReID)
 
 ```python
-from tracklab.wrappers.reid.prtreid_api import PRTReId
+from tracklab.pipeline.reid.prtreid_api import PRTReId
 
 # Key features:
 # - Role detection and classification
@@ -669,7 +669,7 @@ Pre-trained models are automatically downloaded:
 
 ```yaml
 # tracklab/configs/modules/reid/kpr.yaml
-_target_: tracklab.wrappers.reid.kpreid_api.KPReId
+_target_: tracklab.pipeline.reid.kpreid_api.KPReId
 training_enabled: false
 batch_size: 32
 save_path: reid
@@ -715,7 +715,7 @@ For applications requiring maximum ReID accuracy:
 
 ```yaml
 # High-accuracy KPReId configuration
-_target_: tracklab.wrappers.reid.kpreid_api.KPReId
+_target_: tracklab.pipeline.reid.kpreid_api.KPReId
 batch_size: 16  # Smaller batch for detailed processing
 use_keypoints_visibility_scores_for_reid: true
 
@@ -742,7 +742,7 @@ Optimized for speed in real-time applications:
 
 ```yaml
 # Real-time optimized configuration
-_target_: tracklab.wrappers.reid.kpreid_api.KPReId
+_target_: tracklab.pipeline.reid.kpreid_api.KPReId
 batch_size: 128  # Large batch for GPU utilization
 use_keypoints_visibility_scores_for_reid: false  # Skip visibility for speed
 
@@ -764,7 +764,7 @@ For deployment on edge devices or systems with limited memory:
 
 ```yaml
 # Memory-optimized configuration
-_target_: tracklab.wrappers.reid.kpreid_api.KPReId
+_target_: tracklab.pipeline.reid.kpreid_api.KPReId
 batch_size: 4  # Very small batch to fit in memory
 use_keypoints_visibility_scores_for_reid: false
 
@@ -809,7 +809,7 @@ For multi-camera tracking scenarios:
 
 ```yaml
 # Multi-camera ReID configuration
-_target_: tracklab.wrappers.reid.kpreid_api.KPReId
+_target_: tracklab.pipeline.reid.kpreid_api.KPReId
 batch_size: 64
 use_keypoints_visibility_scores_for_reid: true
 
@@ -834,7 +834,7 @@ For fine-tuning on custom datasets:
 
 ```yaml
 # Fine-tuning configuration
-_target_: tracklab.wrappers.reid.kpreid_api.KPReId
+_target_: tracklab.pipeline.reid.kpreid_api.KPReId
 training_enabled: true
 batch_size: 64
 
@@ -869,7 +869,7 @@ For training on completely new datasets:
 
 ```yaml
 # From-scratch training configuration
-_target_: tracklab.wrappers.reid.kpreid_api.KPReId
+_target_: tracklab.pipeline.reid.kpreid_api.KPReId
 training_enabled: true
 batch_size: 128
 
@@ -907,7 +907,7 @@ cfg:
 
 ```yaml
 # Crowd surveillance configuration
-_target_: tracklab.wrappers.reid.kpreid_api.KPReId
+_target_: tracklab.pipeline.reid.kpreid_api.KPReId
 batch_size: 96
 use_keypoints_visibility_scores_for_reid: true
 
@@ -926,7 +926,7 @@ cfg:
 
 ```yaml
 # Retail analytics configuration
-_target_: tracklab.wrappers.reid.kpreid_api.KPReId
+_target_: tracklab.pipeline.reid.kpreid_api.KPReId
 batch_size: 32
 use_keypoints_visibility_scores_for_reid: true
 
@@ -1008,7 +1008,7 @@ reid_config_schema = {
 #### Simple Integration
 
 ```python
-from tracklab.wrappers.reid.kpreid_api import KPReId
+from tracklab.pipeline.reid.kpreid_api import KPReId
 import torch
 
 # Initialize ReID module
@@ -1122,21 +1122,21 @@ defaults:
 # Module configurations
 modules:
   detector:
-    _target_: tracklab.wrappers.bbox_detector.yolov8.YOLOv8
+    _target_: tracklab.pipeline.bbox_detector.yolov8.YOLOv8
     cfg:
       model:
         name: "yolov8n"
         conf_threshold: 0.5
 
   pose_estimator:
-    _target_: tracklab.wrappers.pose_estimator.rtmdet.RTMDet
+    _target_: tracklab.pipeline.pose_estimator.rtmdet.RTMDet
     cfg:
       model:
         name: "rtmpose_m"
         conf_threshold: 0.6
 
   reid:
-    _target_: tracklab.wrappers.reid.kpreid_api.KPReId
+    _target_: tracklab.pipeline.reid.kpreid_api.KPReId
     batch_size: 64
     use_keypoints_visibility_scores_for_reid: true
     cfg:
@@ -1144,7 +1144,7 @@ modules:
         load_weights: "${model_dir}/reid/kpr_dancetrack_sportsmot_posetrack21_occludedduke_market_split0.pth.tar"
 
   tracker:
-    _target_: tracklab.wrappers.track.strong_sort.StrongSORT
+    _target_: tracklab.pipeline.track.strong_sort.StrongSORT
     cfg:
       model:
         reid_enabled: true
@@ -1169,7 +1169,7 @@ output:
 
 ```python
 # Using both KPReId and PRTReId in same pipeline
-from tracklab.wrappers.reid.kpreid_api import KPReId
+from tracklab.pipeline.reid.kpreid_api import KPReId
 from sn_gamestate.reid.prtreid_api import PRTReId
 
 # Initialize both models

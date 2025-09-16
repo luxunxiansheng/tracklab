@@ -177,7 +177,7 @@ shows all the possible options you can modify.
 ### Architecture
 Here is an overview of the important TrackLab classes:
 - **[TrackingDataset](tracklab/datastruct/tracking_dataset.py)**: Abstract class to be instantiated when adding a new dataset. The `TrackingDataset` contains one `TrackingSet` for each split of the dataset (train, val, test, etc).
-  - Example: [SoccerNetMOT](tracklab/wrappers/dataset/soccernet/soccernet_mot.py). The [SoccerNet Tracking](https://github.com/SoccerNet/sn-tracking) dataset.
+  - Example: [SoccerNetMOT](tracklab/pipeline/dataset/soccernet/soccernet_mot.py). The [SoccerNet Tracking](https://github.com/SoccerNet/sn-tracking) dataset.
 - **[TrackingSet](tracklab/datastruct/tracking_dataset.py)**: A tracking set contains three [Pandas](https://pandas.pydata.org/) dataframes:
   1. `video_metadatas`: contains one row of information per video (e.g. fps, width, height, etc).
   2. `image_metadatas`: contains one row of information per image (e.g. frame_id, video_id, etc).
@@ -189,17 +189,17 @@ Here is an overview of the important TrackLab classes:
 - **[Pipeline](tracklab/pipeline/module.py)**: Define the order in which modules are executed by the `TrackingEngine`. If a `tracker_state` is loaded from disk, modules that should not be executed again must be removed.
   - Example: `[bbox_detector, reid, track]`.
 - **[VideoLevelModule](tracklab/pipeline/videolevel_module.py)**: Abstract class to be instantiated when adding a new tracking module that operates on all frames simultaneously. Can be used to implement offline tracking strategies, tracklet level voting mechanisms, etc. 
-  - Example: [MajorityVoteTracklet](tracklab/wrappers/tracklet_agg/majority_vote_api.py). To perform majority voting within each tracklet and compute a consistent tracklet level attribute (an attribute can be, for instance, the result of a detection level classification task).
+  - Example: [MajorityVoteTracklet](tracklab/pipeline/tracklet_agg/majority_vote_api.py). To perform majority voting within each tracklet and compute a consistent tracklet level attribute (an attribute can be, for instance, the result of a detection level classification task).
 - **[ImageLevelModule](tracklab/pipeline/imagelevel_module.py)**: Abstract class to be instantiated when adding a new tracking module that operates on a single frame. Can be used to implement online tracking strategies, pose/segmentation/bbox detectors, etc.
-  - Example 1: [YOLOv11](tracklab/wrappers/bbox_detector/yolo_ultralytics_api.py). To perform object detection on each image with [YOLOv11](https://github.com/ultralytics/ultralytics). Creates a new row (i.e. detection) within `detections_pred`.
-  - Example 2: [StrongSORT](tracklab/wrappers/track/strong_sort_api.py). To perform online tracking with [StrongSORT](https://github.com/dyhBUPT/StrongSORT). Creates a new `track_id` column for each detection within `detections_pred`. 
+  - Example 1: [YOLOv11](tracklab/pipeline/bbox_detector/yolo_ultralytics_api.py). To perform object detection on each image with [YOLOv11](https://github.com/ultralytics/ultralytics). Creates a new row (i.e. detection) within `detections_pred`.
+  - Example 2: [StrongSORT](tracklab/pipeline/track/strong_sort_api.py). To perform online tracking with [StrongSORT](https://github.com/dyhBUPT/StrongSORT). Creates a new `track_id` column for each detection within `detections_pred`. 
 - **[DetectionLevelModule](tracklab/pipeline/detectionlevel_module.py)**: Abstract class to be instantiated when adding a new tracking module that operates on a single detection. Can be used to implement pose estimation for top-down strategies, re-identification, attributes recognition, etc. 
-  - Example 1: [RTMPose](tracklab/wrappers/pose_estimator/rtmlib_api.py). To perform pose estimation on each detection with [RTMPose](https://github.com/Tau-J/rtmlib).
-  - Example 2: [BPBReId](tracklab/wrappers/reid/bpbreid_api.py). To perform person re-identification on each detection with [BPBReID](https://github.com/VlSomers/bpbreid). Creates a new `embedding` column within `detections_pred`.
+  - Example 1: [RTMPose](tracklab/pipeline/pose_estimator/rtmlib_api.py). To perform pose estimation on each detection with [RTMPose](https://github.com/Tau-J/rtmlib).
+  - Example 2: [BPBReId](tracklab/pipeline/reid/bpbreid_api.py). To perform person re-identification on each detection with [BPBReID](https://github.com/VlSomers/bpbreid). Creates a new `embedding` column within `detections_pred`.
 - **[Callback](tracklab/callbacks/callback.py)**: Implement this class to add a callback that is triggered at a specific point during the tracking process, e.g. when dataset/video/module processing starts/ends.
   - Example: [VisualizationEngine](tracklab/visualization/visualization_engine.py). Implements `on_video_loop_end` to save each video tracking results as a .mp4 or a list of .jpg. 
 - **[Evaluator](tracklab/pipeline/evaluator.py)**: Implement this class to add a new evaluation metric, such as MOTA, HOTA, IDF1 or any other (non-tracking related) metrics. 
-  - Example: [TrackEvalEvaluator](tracklab/wrappers/eval/trackeval_evaluator.py). Evaluate the performance of a tracker using the official [TrackEval library](https://github.com/JonathonLuiten/TrackEval).
+  - Example: [TrackEvalEvaluator](tracklab/pipeline/eval/trackeval_evaluator.py). Evaluate the performance of a tracker using the official [TrackEval library](https://github.com/JonathonLuiten/TrackEval).
 
 ### Execution Flow
 Here is an overview of what happens when you run TrackLab:

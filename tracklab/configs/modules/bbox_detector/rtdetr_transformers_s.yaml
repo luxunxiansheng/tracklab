@@ -1,4 +1,4 @@
-_target_: tracklab.wrappers.bbox_detector.transformers_api.RTDetr
+_target_: tracklab.pipeline.bbox_detector.transformers_api.RTDetr
 batch_size: 16
 min_confidence: 0.4
 model_name: rtdetr_r18vd_coco_o365

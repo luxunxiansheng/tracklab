@@ -1,4 +1,4 @@
-_target_: tracklab.wrappers.pose_estimator.rtmlib_api.RTMPose
+_target_: tracklab.pipeline.pose_estimator.rtmlib_api.RTMPose
 _recursive_: false
 
 model:

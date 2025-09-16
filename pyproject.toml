@@ -71,7 +71,7 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-where = [".", "tracklab/wrappers/track", "tracklab/wrappers/calibration", "tracklab/wrappers/eval"]
+where = [".", "tracklab/pipeline/track", "tracklab/pipeline/calibration", "tracklab/pipeline/eval"]
 include = ["tracklab*", "bot_sort*", "bpbreid_strong_sort*", "byte_track*",
     "deep_oc_sort*", "oc_sort*", "strong_sort*", "nbjw_calib*", "tvcalib*", 
     "sn_calibration_baseline*", "pnlcalib*", "posetrack21*"]

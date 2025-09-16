@@ -1,7 +1,7 @@
-tracklab.wrappers.reid package
+tracklab.pipeline.reid package
 ==============================
 
-.. automodule:: tracklab.wrappers.reid
+.. automodule:: tracklab.pipeline.reid
    :members:
    :show-inheritance:
    :undoc-members:
@@ -9,18 +9,18 @@ tracklab.wrappers.reid package
 Submodules
 ----------
 
-tracklab.wrappers.reid.kpreid\_api module
+tracklab.pipeline.reid.kpreid\_api module
 -----------------------------------------
 
-.. automodule:: tracklab.wrappers.reid.kpreid_api
+.. automodule:: tracklab.pipeline.reid.kpreid_api
    :members:
    :show-inheritance:
    :undoc-members:
 
-tracklab.wrappers.reid.kpreid\_dataset module
+tracklab.pipeline.reid.kpreid\_dataset module
 ---------------------------------------------
 
-.. automodule:: tracklab.wrappers.reid.kpreid_dataset
+.. automodule:: tracklab.pipeline.reid.kpreid_dataset
    :members:
    :show-inheritance:
    :undoc-members:

@@ -1,7 +1,7 @@
-tracklab.wrappers package
+tracklab.pipeline package
 =========================
 
-.. automodule:: tracklab.wrappers
+.. automodule:: tracklab.pipeline
    :members:
    :show-inheritance:
    :undoc-members:
@@ -12,10 +12,10 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   tracklab.wrappers.bbox_detector
-   tracklab.wrappers.dataset
-   tracklab.wrappers.eval
-   tracklab.wrappers.pose_estimator
-   tracklab.wrappers.reid
-   tracklab.wrappers.track
-   tracklab.wrappers.tracklet_agg
+   tracklab.pipeline.bbox_detector
+   tracklab.pipeline.dataset
+   tracklab.pipeline.eval
+   tracklab.pipeline.pose_estimator
+   tracklab.pipeline.reid
+   tracklab.pipeline.track
+   tracklab.pipeline.tracklet_agg

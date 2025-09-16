@@ -1,4 +1,4 @@
-_target_: tracklab.wrappers.pose_estimator.yolo_ultralytics_pose_api.YOLOUltralyticsPose
+_target_: tracklab.pipeline.pose_estimator.yolo_ultralytics_pose_api.YOLOUltralyticsPose
 batch_size: 2
 cfg:
   # models available:

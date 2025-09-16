@@ -81,7 +81,7 @@ The core class that implements the confidence-weighted majority voting algorithm
 The module is configured via YAML files in the TrackLab config system:
 
 ```yaml
-_target_: tracklab.wrappers.tracklet_agg.majority_vote_api.MajorityVoteTracklet
+_target_: tracklab.pipeline.tracklet_agg.majority_vote_api.MajorityVoteTracklet
 cfg:
   attributes: ["jersey_number", "role"]
 ```

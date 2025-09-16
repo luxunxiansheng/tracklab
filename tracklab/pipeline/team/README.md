@@ -71,13 +71,13 @@ Determines the spatial orientation of teams on the field by analyzing player pos
 ### Clustering Configuration
 
 ```yaml
-_target_: tracklab.wrappers.team.tracklet_team_clustering_api.TrackletTeamClustering
+_target_: tracklab.pipeline.team.tracklet_team_clustering_api.TrackletTeamClustering
 ```
 
 ### Side Labeling Configuration
 
 ```yaml
-_target_: tracklab.wrappers.team.tracklet_team_side_labeling_api.TrackletTeamSideLabeling
+_target_: tracklab.pipeline.team.tracklet_team_side_labeling_api.TrackletTeamSideLabeling
 ```
 
 ## Usage
@@ -97,10 +97,10 @@ pipeline:
 
 modules:
   team_clustering:
-    _target_: tracklab.wrappers.team.tracklet_team_clustering_api.TrackletTeamClustering
+    _target_: tracklab.pipeline.team.tracklet_team_clustering_api.TrackletTeamClustering
 
   team_side_labeling:
-    _target_: tracklab.wrappers.team.tracklet_team_side_labeling_api.TrackletTeamSideLabeling
+    _target_: tracklab.pipeline.team.tracklet_team_side_labeling_api.TrackletTeamSideLabeling
 ```
 
 ## Algorithm Details

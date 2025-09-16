@@ -1,7 +1,7 @@
-tracklab.wrappers.bbox\_detector package
+tracklab.pipeline.bbox\_detector package
 ========================================
 
-.. automodule:: tracklab.wrappers.bbox_detector
+.. automodule:: tracklab.pipeline.bbox_detector
    :members:
    :show-inheritance:
    :undoc-members:
@@ -9,26 +9,26 @@ tracklab.wrappers.bbox\_detector package
 Submodules
 ----------
 
-tracklab.wrappers.bbox\_detector.mmdetection\_api module
+tracklab.pipeline.bbox\_detector.mmdetection\_api module
 --------------------------------------------------------
 
-.. automodule:: tracklab.wrappers.bbox_detector.mmdetection_api
+.. automodule:: tracklab.pipeline.bbox_detector.mmdetection_api
    :members:
    :show-inheritance:
    :undoc-members:
 
-tracklab.wrappers.bbox\_detector.rtmlib\_api module
+tracklab.pipeline.bbox\_detector.rtmlib\_api module
 ---------------------------------------------------
 
-.. automodule:: tracklab.wrappers.bbox_detector.rtmlib_api
+.. automodule:: tracklab.pipeline.bbox_detector.rtmlib_api
    :members:
    :show-inheritance:
    :undoc-members:
 
-tracklab.wrappers.bbox\_detector.yolo\_ultralytics\_api module
+tracklab.pipeline.bbox\_detector.yolo\_ultralytics\_api module
 --------------------------------------------------------------
 
-.. automodule:: tracklab.wrappers.bbox_detector.yolo_ultralytics_api
+.. automodule:: tracklab.pipeline.bbox_detector.yolo_ultralytics_api
    :members:
    :show-inheritance:
    :undoc-members:

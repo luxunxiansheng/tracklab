@@ -64,7 +64,7 @@ success, camera_params = estimate_camera_from_lines(detected_lines, field, camer
 ### Integration with TrackLab
 
 ```python
-from tracklab.wrappers.calibration.baseline import BaselineCalibration
+from tracklab.pipeline.calibration.baseline import BaselineCalibration
 
 # Initialize calibrator
 calibrator = BaselineCalibration(

@@ -96,7 +96,7 @@ camera_params = calibrate_camera_from_keypoints(keypoints_2d)
 ### Integration with TrackLab
 
 ```python
-from tracklab.wrappers.calibration.nbjw_calib import NBJWCalib
+from tracklab.pipeline.calibration.nbjw_calib import NBJWCalib
 
 # Initialize calibrator
 calibrator = NBJWCalib(

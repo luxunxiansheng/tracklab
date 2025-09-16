@@ -260,7 +260,7 @@ pip install pandas numpy torch
 ### EasyOCR Configuration
 
 ```python
-from tracklab.wrappers.jersey.easyocr_api import EasyOCR
+from tracklab.pipeline.jersey.easyocr_api import EasyOCR
 
 # Initialize with configuration
 ocr_config = {
@@ -280,7 +280,7 @@ easyocr_detector = EasyOCR(
 ### MMOCR Configuration
 
 ```python
-from tracklab.wrappers.jersey.mmocr_api import MMOCR
+from tracklab.pipeline.jersey.mmocr_api import MMOCR
 
 # Initialize MMOCR detector
 mmocr_detector = MMOCR(
@@ -292,7 +292,7 @@ mmocr_detector = MMOCR(
 ### Voting Tracklet Configuration
 
 ```python
-from tracklab.wrappers.jersey.voting_tracklet_jn_api import VotingTrackletJerseyNumber
+from tracklab.pipeline.jersey.voting_tracklet_jn_api import VotingTrackletJerseyNumber
 
 # Initialize voting processor
 voting_processor = VotingTrackletJerseyNumber(
@@ -326,7 +326,7 @@ pipeline_config = {
     "modules": [
         {
             "name": "jersey_detector",
-            "type": "tracklab.wrappers.jersey.easyocr_api.EasyOCR",
+            "type": "tracklab.pipeline.jersey.easyocr_api.EasyOCR",
             "config": {
                 "batch_size": 8,
                 "device": "cuda"
@@ -345,7 +345,7 @@ pipeline_config = {
         # ... other modules ...
         {
             "name": "jersey_voting",
-            "type": "tracklab.wrappers.jersey.voting_tracklet_jn_api.VotingTrackletJerseyNumber",
+            "type": "tracklab.pipeline.jersey.voting_tracklet_jn_api.VotingTrackletJerseyNumber",
             "config": {}
         }
     ]
