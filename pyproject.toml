@@ -51,7 +51,8 @@ dependencies = [
     "mmengine",  # required for some modules
     "openmim==0.3.9",
     "albumentations>=0.5.2,<2.0",  # downgraded for prtreid compatibility (no is_check_shapes parameter)
-    "calibration",
+    "kornia==0.6.3",
+    "lsq-ellipse>=2.2.1",
 ]
 
 [dependency-groups]
@@ -70,9 +71,10 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-where = [".", "plugins/track"]
+where = [".", "tracklab/wrappers/track", "tracklab/wrappers/calibration", "tracklab/wrappers/eval"]
 include = ["tracklab*", "bot_sort*", "bpbreid_strong_sort*", "byte_track*",
-    "deep_oc_sort*", "oc_sort*", "strong_sort*", "hydra_plugins.*"]
+    "deep_oc_sort*", "oc_sort*", "strong_sort*", "nbjw_calib*", "tvcalib*", 
+    "sn_calibration_baseline*", "pnlcalib*", "posetrack21*"]
 exclude = []
 
 [tool.setuptools.package-data]
@@ -91,9 +93,6 @@ explicit = true
 # PyTorch packages need to use the official PyTorch index for CUDA versions
 torch = { index = "pytorch" }
 torchvision = { index = "pytorch" }
-calibration = { workspace = true, editable = true }
 
 [tool.uv.workspace]
-members = [
-    "plugins/calibration",
-]
+members = []

@@ -11,12 +11,6 @@ supported-markers = [
     "sys_platform == 'linux'",
 ]
 
-[manifest]
-members = [
-    "calibration",
-    "tracklab",
-]
-
 [[package]]
 name = "absl-py"
 version = "2.3.1"
@@ -263,39 +257,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/67/01/43759329a6f7036aa739e86d446b908fa207222e224e537cd3d66fdb4c29/botocore-1.10.84.tar.gz", hash = "sha256:d3e4b5a2c903ea30d19d41ea2f65d0e51dce54f4f4c4dfd6ecd7b04f240844a8", size = 4612644, upload-time = "2018-08-23T23:58:44.898Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/01/b7/cb08cd1af2bb0d0dfb393101a93b6ab6fb80f109ab7b37f2f34386c11351/botocore-1.10.84-py2.py3-none-any.whl", hash = "sha256:380852e1adb9ba4ba9ff096af61f88a6888197b86e580e1bd786f04ebe6f9c0c", size = 4478913, upload-time = "2018-08-23T23:58:47.736Z" },
-]
-
-[[package]]
-name = "calibration"
-version = "1.0.2"
-source = { editable = "plugins/calibration" }
-dependencies = [
-    { name = "hydra-core", marker = "sys_platform == 'linux'" },
-    { name = "kornia", marker = "sys_platform == 'linux'" },
-    { name = "lsq-ellipse", marker = "sys_platform == 'linux'" },
-    { name = "numpy", marker = "sys_platform == 'linux'" },
-    { name = "omegaconf", marker = "sys_platform == 'linux'" },
-    { name = "opencv-python", marker = "sys_platform == 'linux'" },
-    { name = "pandas", marker = "sys_platform == 'linux'" },
-    { name = "rich", marker = "sys_platform == 'linux'" },
-    { name = "torch", version = "2.0.1", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
-    { name = "torch", version = "2.0.1+cu117", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
-    { name = "torchvision", version = "0.15.2", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
-    { name = "torchvision", version = "0.15.2+cu117", source = { registry = "https://download.pytorch.org/whl/cu117" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "hydra-core", specifier = ">=1.3.2" },
-    { name = "kornia", specifier = "==0.6.3" },
-    { name = "lsq-ellipse", specifier = ">=2.2.1" },
-    { name = "numpy", specifier = ">=1.21.0,<2.0.0" },
-    { name = "omegaconf", specifier = ">=2.3.0" },
-    { name = "opencv-python", specifier = ">=4.11.0.86" },
-    { name = "pandas", specifier = ">=2.3.2" },
-    { name = "rich", specifier = ">=14.1.0" },
-    { name = "torch", specifier = ">=2.0,<3.0", index = "https://download.pytorch.org/whl/cu117" },
-    { name = "torchvision", specifier = ">=0.15,<1.0.0", index = "https://download.pytorch.org/whl/cu117" },
 ]
 
 [[package]]
@@ -2467,15 +2428,16 @@ source = { editable = "." }
 dependencies = [
     { name = "accelerate", marker = "sys_platform == 'linux'" },
     { name = "albumentations", marker = "sys_platform == 'linux'" },
-    { name = "calibration", marker = "sys_platform == 'linux'" },
     { name = "distinctipy", marker = "sys_platform == 'linux'" },
     { name = "easyocr", marker = "sys_platform == 'linux'" },
     { name = "filterpy", marker = "sys_platform == 'linux'" },
     { name = "gdown", marker = "sys_platform == 'linux'" },
     { name = "huggingface-hub", marker = "sys_platform == 'linux'" },
     { name = "hydra-core", marker = "sys_platform == 'linux'" },
+    { name = "kornia", marker = "sys_platform == 'linux'" },
     { name = "lap", marker = "sys_platform == 'linux'" },
     { name = "lightning", marker = "sys_platform == 'linux'" },
+    { name = "lsq-ellipse", marker = "sys_platform == 'linux'" },
     { name = "matplotlib", marker = "sys_platform == 'linux'" },
     { name = "mmcls", marker = "sys_platform == 'linux'" },
     { name = "mmcv", marker = "sys_platform == 'linux'" },
@@ -2522,15 +2484,16 @@ dev = [
 requires-dist = [
     { name = "accelerate", specifier = ">=0.19.0,<1.0" },
     { name = "albumentations", specifier = ">=0.5.2,<2.0" },
-    { name = "calibration", editable = "plugins/calibration" },
     { name = "distinctipy" },
     { name = "easyocr", specifier = ">=1.7.1,<2.0" },
     { name = "filterpy" },
     { name = "gdown" },
     { name = "huggingface-hub" },
     { name = "hydra-core" },
+    { name = "kornia", specifier = "==0.6.3" },
     { name = "lap" },
     { name = "lightning", specifier = "==2.0.9" },
+    { name = "lsq-ellipse", specifier = ">=2.2.1" },
     { name = "matplotlib" },
     { name = "mmcls" },
     { name = "mmcv", specifier = ">=2.0.0,<2.1.0" },
