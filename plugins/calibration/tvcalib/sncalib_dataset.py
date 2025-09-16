@@ -10,8 +10,7 @@ import kornia
 from PIL import Image
 from torch.utils.data import Dataset
 import torchvision
-from torch._six import string_classes
-import collections
+import collections.abc
 from operator import itemgetter
 
 
@@ -56,7 +55,10 @@ def split_circle_central(keypoints_dict):
             keypoints_dict["Circle central left"] = points_circle_central_left
         if len(points_circle_central_right) > 0:
             keypoints_dict["Circle central right"] = points_circle_central_right
-        if len(points_circle_central_left) == 0 and len(points_circle_central_right) == 0:
+        if (
+            len(points_circle_central_left) == 0
+            and len(points_circle_central_right) == 0
+        ):
             raise RuntimeError
         del keypoints_dict["Circle central"]
     return keypoints_dict
@@ -100,33 +102,43 @@ class BaseDataset(Dataset):
             self.df_match_info = self.df_match_info_filter
         if constant_cam_position > 1:
             self.df_match_info = (
-                self.df_match_info.groupby(["league", "season", "match"]).agg(list).reset_index()
+                self.df_match_info.groupby(["league", "season", "match"])
+                .agg(list)
+                .reset_index()
             )
 
             if not remove_invalid:
-                if not (self.df_match_info["image_id"].agg(len) >= constant_cam_position).all():
+                if not (
+                    self.df_match_info["image_id"].agg(len) >= constant_cam_position
+                ).all():
                     print(self.df_match_info["image_id"].agg(len))
                     raise ValueError(
                         f"Tried to sample constant_cam_position={constant_cam_position} but this assumption does not hold for all samples"
                     )
 
-            self.df_match_info["number_of_samples"] = self.df_match_info["image_id"].apply(
-                lambda l: len(l)
-            )
+            self.df_match_info["number_of_samples"] = self.df_match_info[
+                "image_id"
+            ].apply(lambda l: len(l))
             self.df_match_info = self.df_match_info.loc[
                 self.df_match_info["number_of_samples"] >= constant_cam_position
             ]
 
-            self.df_match_info = self.df_match_info.apply(pd.Series.explode).reset_index()
-            self.df_match_info = self.df_match_info.groupby(["league", "season", "match"]).sample(
-                n=constant_cam_position, random_state=10
-            )
+            self.df_match_info = self.df_match_info.apply(
+                pd.Series.explode
+            ).reset_index()
+            self.df_match_info = self.df_match_info.groupby(
+                ["league", "season", "match"]
+            ).sample(n=constant_cam_position, random_state=10)
 
             self.df_match_info = (
-                self.df_match_info.groupby(["league", "season", "match"]).agg(list).reset_index()
+                self.df_match_info.groupby(["league", "season", "match"])
+                .agg(list)
+                .reset_index()
             )
 
-            self.df_match_info.drop(labels=["number_of_samples", "index"], inplace=True, axis=1)
+            self.df_match_info.drop(
+                labels=["number_of_samples", "index"], inplace=True, axis=1
+            )
 
         self.filter_cam_type = filter_cam_type
         self.constant_cam_position = constant_cam_position
@@ -147,7 +159,8 @@ class BaseDataset(Dataset):
         for image_id in candidates_meta["image_id"]:
             file_annotation = self.dir_annotations / image_id
             file_annotation = (
-                file_annotation.parent / f"{self.extremities_prefix}{file_annotation.stem}.json"
+                file_annotation.parent
+                / f"{self.extremities_prefix}{file_annotation.stem}.json"
             )
             with open(file_annotation) as fr:
                 keypoints_dict = json.load(fr)
@@ -247,8 +260,16 @@ class FixedInputSizeDataset(BaseDataset):
                 )
 
         for segment_type, num_segments, segment_names in [
-            ("lines", self.model3d.line_segments.shape[1], self.model3d.line_segments_names),
-            ("circles", self.model3d.circle_segments.shape[1], self.model3d.circle_segments_names),
+            (
+                "lines",
+                self.model3d.line_segments.shape[1],
+                self.model3d.line_segments_names,
+            ),
+            (
+                "circles",
+                self.model3d.circle_segments.shape[1],
+                self.model3d.circle_segments_names,
+            ),
         ]:
             # set non-visible pixels to (-1, -1) (pad_pixel_position_xy)
 
@@ -256,7 +277,8 @@ class FixedInputSizeDataset(BaseDataset):
             if segment_type == "circles":
                 num_points_selection = self.num_points_on_circle_segments
             px_projected_selection = (
-                torch.zeros((num_segments, num_points_selection, 2)) + self.pad_pixel_position_xy
+                torch.zeros((num_segments, num_points_selection, 2))
+                + self.pad_pixel_position_xy
             )
             for segment_index, label in enumerate(segment_names):
                 if label in pixel_stacked:
@@ -295,14 +317,16 @@ class FixedInputSizeDataset(BaseDataset):
             px_projected_selection_shuffled = px_projected_selection_shuffled.view(
                 num_segments * num_points_selection, 3
             )
-            px_projected_selection_shuffled = px_projected_selection_shuffled.transpose(0, 1)
+            px_projected_selection_shuffled = px_projected_selection_shuffled.transpose(
+                0, 1
+            )
             px_projected_selection_shuffled = px_projected_selection_shuffled.view(
                 3, num_segments, num_points_selection
             )
 
-            r[
-                f"{segment_type}__px_projected_selection_shuffled"
-            ] = px_projected_selection_shuffled  # (3, num_segments, num_points_selection)
+            r[f"{segment_type}__px_projected_selection_shuffled"] = (
+                px_projected_selection_shuffled  # (3, num_segments, num_points_selection)
+            )
 
             ndc_projected_selection_shuffled = px_projected_selection_shuffled.clone()
             ndc_projected_selection_shuffled[0] = (
@@ -311,11 +335,15 @@ class FixedInputSizeDataset(BaseDataset):
             ndc_projected_selection_shuffled[1] = (
                 ndc_projected_selection_shuffled[1] / self.image_height_source
             )
-            ndc_projected_selection_shuffled[1] = ndc_projected_selection_shuffled[1] * 2.0 - 1
-            ndc_projected_selection_shuffled[0] = ndc_projected_selection_shuffled[0] * 2.0 - 1
-            r[
-                f"{segment_type}__ndc_projected_selection_shuffled"
-            ] = ndc_projected_selection_shuffled
+            ndc_projected_selection_shuffled[1] = (
+                ndc_projected_selection_shuffled[1] * 2.0 - 1
+            )
+            ndc_projected_selection_shuffled[0] = (
+                ndc_projected_selection_shuffled[0] * 2.0 - 1
+            )
+            r[f"{segment_type}__ndc_projected_selection_shuffled"] = (
+                ndc_projected_selection_shuffled
+            )
 
         if self.return_image:
             file_image = self.dir_images / image_id
@@ -332,11 +360,14 @@ class FixedInputSizeDataset(BaseDataset):
         keypoints_raw = meta_dict["meta"]["keypoints_raw"]
 
         per_sample_output = [
-            self.prepare_per_sample(keypoints_raw[i], image_ids[i]) for i in range(len(image_ids))
+            self.prepare_per_sample(keypoints_raw[i], image_ids[i])
+            for i in range(len(image_ids))
         ]
 
         for k in per_sample_output[0].keys():
-            meta_dict[k] = torch.stack([per_sample_output[i][k] for i in range(len(image_ids))])
+            meta_dict[k] = torch.stack(
+                [per_sample_output[i][k] for i in range(len(image_ids))]
+            )
         del meta_dict["meta"]["keypoints_raw"]
 
         meta_dict["image_id"] = image_ids
@@ -421,11 +452,13 @@ def custom_list_collate(batch):
         return torch.tensor(batch, dtype=torch.float64)
     elif isinstance(elem, int):
         return torch.tensor(batch)
-    elif isinstance(elem, string_classes):
+    elif isinstance(elem, (str, bytes)):
         return batch
     elif isinstance(elem, collections.abc.Mapping):
         try:
-            return elem_type({key: custom_list_collate([d[key] for d in batch]) for key in elem})
+            return elem_type(
+                {key: custom_list_collate([d[key] for d in batch]) for key in elem}
+            )
         except TypeError:
             # The mapping type may not support `__init__(iterable)`.
             return {key: custom_list_collate([d[key] for d in batch]) for key in elem}
@@ -498,7 +531,10 @@ class CamInferenceDataset(FixedInputSizeDataset):
         self.df_per_sample_output_cams.set_index("image_ids", drop=True, inplace=True)
 
         self.image_id_manual_selection = image_id_manual_selection
-        if self.image_id_manual_selection is not None and len(image_id_manual_selection) > 0:
+        if (
+            self.image_id_manual_selection is not None
+            and len(image_id_manual_selection) > 0
+        ):
             print(self.df_match_info)
             self.df_match_info = self.df_match_info.loc[image_id_manual_selection]
 
@@ -546,11 +582,16 @@ class HomographyInferenceDataset(torch.utils.data.Dataset):
         self.df_per_sample_output_cams = pd.read_json(
             file_per_sample_output, orient="records", lines=True
         )
-        self.df_per_sample_output_cams["image_id"] = self.df_per_sample_output_cams["image_ids"]
+        self.df_per_sample_output_cams["image_id"] = self.df_per_sample_output_cams[
+            "image_ids"
+        ]
         self.df_per_sample_output_cams.set_index("image_ids", drop=True, inplace=True)
 
         self.image_id_manual_selection = image_id_manual_selection
-        if self.image_id_manual_selection is not None and len(image_id_manual_selection) > 0:
+        if (
+            self.image_id_manual_selection is not None
+            and len(image_id_manual_selection) > 0
+        ):
             self.df_per_sample_output_cams = self.df_per_sample_output_cams.loc[
                 image_id_manual_selection
             ]
