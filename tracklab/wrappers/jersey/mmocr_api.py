@@ -2,6 +2,11 @@ import pandas as pd
 import torch
 import numpy as np
 import logging
+import warnings
+
+# Suppress harmless MMOCR compatibility warnings
+warnings.filterwarnings("ignore", message=".*data_preprocessor.*")
+warnings.filterwarnings("ignore", message=".*Failed to search registry.*")
 
 # MMOCR imports - these require working MMCV with compiled extensions
 from mmocr.apis import MMOCRInferencer, TextDetInferencer, TextRecInferencer
@@ -23,6 +28,7 @@ class MMOCR(DetectionLevelModule):
     def __init__(self, batch_size, device, tracking_dataset=None):
         super().__init__(batch_size=batch_size)
 
+        # Simple MMOCR initialization
         self.ocr = MMOCRInferencer(det="dbnet_resnet18_fpnc_1200e_icdar2015", rec="SAR")
         self.batch_size = batch_size
 
