@@ -1,19 +1,17 @@
 _target_: tracklab.pipeline.bbox_detector.yolo_ultralytics_api.YOLOUltralytics
 batch_size: 8
 cfg:
-  # models available :
-  # yolo11n.pt yolo11s.pt yolo11m.pt yolo11l.pt yolo11x.pt
-  # those models will be downloaded automatically if not found in the path
-  path_to_checkpoint: "${model_dir}/yolo/yolo11m.pt"
+  # Start with a smaller model for training
+  path_to_checkpoint: "${model_dir}/yolo/yolo11s.pt"
 
   min_confidence: 0.4
 
-  # Training configuration (only used when training_enabled: true)
+  # Training configuration
   training:
     epochs: 100
     batch_size: 16
     img_size: 640
-    data_path: null  # Will be auto-generated from TrackLab dataset if null
+    data_path: null  # Will be auto-generated from TrackLab dataset
     optimizer: SGD
     lr0: 0.01
     lrf: 0.1
@@ -30,3 +28,6 @@ cfg:
       fliplr: 0.5
       mosaic: 1.0
       mixup: 0.0
+
+# Enable training mode
+training_enabled: true
