@@ -47,19 +47,15 @@ class YOLOUltralytics(ImageLevelModule):
         "bbox_ltwh",
         "bbox_conf",
     ]
-    training_enabled = False  # Set to True in config to enable training
+    
 
-    def __init__(self, cfg, device, batch_size, **kwargs):
+    def __init__(self, cfg, device, batch_size,training_enabled=False, **kwargs):
         super().__init__(batch_size)
         self.cfg = cfg
         self.device = device
-        self.training_config = cfg.get("training", {})
+        self.training_enabled = training_enabled
+       
 
-        # Set training_enabled from config
-        self.training_enabled = cfg.get("training_enabled", False)
-
-        # Validate configuration
-        self._validate_config()
 
         # Initialize path configuration
         self._setup_paths()
@@ -83,32 +79,7 @@ class YOLOUltralytics(ImageLevelModule):
             torch.cuda.synchronize()
             log.debug("GPU memory cleaned up")
 
-    def _validate_config(self):
-        """Validate required configuration parameters"""
-        required_params = ["min_confidence"]
-        missing_params = []
 
-        for param in required_params:
-            if not hasattr(self.cfg, param):
-                missing_params.append(param)
-
-        if missing_params:
-            raise ValueError(f"Missing required config parameters: {missing_params}")
-
-        # Validate training config if training is enabled
-        if self.training_enabled:
-            train_cfg = self.training_config
-            recommended_params = ["epochs", "batch_size", "img_size"]
-            missing_recommended = []
-
-            for param in recommended_params:
-                if param not in train_cfg:
-                    missing_recommended.append(param)
-
-            if missing_recommended:
-                log.warning(
-                    f"Missing recommended training parameters (will use defaults): {missing_recommended}"
-                )
 
     def _setup_paths(self):
         """Setup and standardize path configuration following TrackLab's framework"""

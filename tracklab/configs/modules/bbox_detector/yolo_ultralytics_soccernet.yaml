@@ -3,10 +3,8 @@
 
 _target_: tracklab.pipeline.bbox_detector.yolo_ultralytics_api.YOLOUltralytics
 batch_size: 16
+training_enabled: True  # Enable training
 cfg:
-  # Enable training mode
-  training_enabled: true
-  
   # Dataset name for model naming
   dataset_name: "soccernet"
   
