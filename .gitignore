@@ -144,3 +144,5 @@ dmypy.json
 .DS_Store
 uv.lock
 uv.lock
+visualization/
+eval/

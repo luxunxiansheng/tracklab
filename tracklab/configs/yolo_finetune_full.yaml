@@ -1,0 +1,46 @@
+# Formal configuration for fine-tuning YOLO detector in TrackLab
+# Using full SoccerNet dataset with proper validation
+
+defaults:
+  - dataset: soccernet_gs
+  - eval: detection  # Use detection evaluator for precision/recall/F1 metrics
+  - engine: offline
+  - visualization: none  # Disable visualization for faster training
+  - modules/bbox_detector: yolo_ultralytics_trainable  # Use trainable YOLO module
+  - _self_
+
+# Pipeline - only training the YOLO detector
+pipeline:
+  - bbox_detector  # This will train the YOLO model
+
+# Experiment settings
+experiment_name: "yolo_finetune_soccer_full"
+home_dir: "${oc.env:HOME}"
+data_dir: "${project_dir}/data"
+model_dir: "${project_dir}/pretrained_models"
+
+# Machine configuration
+num_cores: 16
+use_wandb: False  # Set to True if you want to use Weights & Biases logging
+use_rich: True
+print_config: False
+
+# Flags
+test_tracking: True
+eval_tracking: True  # Enable evaluation during training
+
+# Tracker state
+state:
+  save_file: "states/${experiment_name}.pklz"
+  load_file: null
+
+# Dataset configuration
+dataset:
+  nvid: -1  # Process all videos (-1 means full dataset)
+  eval_set: "valid"  # Use validation set for evaluation during training
+
+# Training will run automatically when you execute:
+# tracklab -cn yolo_finetune_full
+
+# Configure Hydra to use the current working directory
+project_dir: "${hydra:runtime.cwd}"

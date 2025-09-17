@@ -36,6 +36,9 @@ class YOLOUltralytics(ImageLevelModule):
         self.device = device
         self.training_config = cfg.get("training", {})
 
+        # Set training_enabled from config
+        self.training_enabled = cfg.get("training_enabled", False)
+
         # Load or initialize model
         if hasattr(cfg, "path_to_checkpoint") and cfg.path_to_checkpoint:
             self.model = YOLO(cfg.path_to_checkpoint)

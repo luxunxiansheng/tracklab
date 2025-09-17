@@ -117,15 +117,19 @@ class SoccerNetGameState(TrackingDataset):
         if supercategory == "object":
             # Remove detections that don't have mandatory columns
             # Detections with no track_id will therefore be removed and not count as FP at evaluation
+            mandatory_columns = ["bbox_ltwh"]
+            if "track_id" in dataframe.columns:
+                mandatory_columns.append("track_id")
+            if "bbox_pitch" in dataframe.columns:
+                mandatory_columns.append("bbox_pitch")
             dataframe.dropna(
-                subset=[
-                    "track_id",
-                    "bbox_ltwh",
-                    "bbox_pitch",
-                ],
+                subset=mandatory_columns,
                 how="any",
                 inplace=True,
             )
+            # Add track_id if missing (for detection-only runs)
+            if "track_id" not in dataframe.columns:
+                dataframe["track_id"] = -1  # Default for detections without tracking
             dataframe = dataframe.rename(
                 columns={"bbox_ltwh": "bbox_image", "jersey_number": "jersey"}
             )

@@ -6,15 +6,16 @@ cfg:
 
   min_confidence: 0.4
 
-  # Training configuration
+  # Training configuration for fine-tuning
   training:
-    epochs: 100
-    batch_size: 16
+    epochs: 20  # Fine-tuning with 20 epochs
+    batch_size: 8  # Smaller batch size for fine-tuning
     img_size: 640
     data_path: null  # Will be auto-generated from TrackLab dataset
     optimizer: SGD
-    lr0: 0.01
+    lr0: 0.001  # Lower learning rate for fine-tuning
     lrf: 0.1
+    freeze: 10  # Freeze first 10 layers for fine-tuning
     augmentation:
       hsv_h: 0.015
       hsv_s: 0.7
@@ -26,7 +27,7 @@ cfg:
       perspective: 0.0
       flipud: 0.0
       fliplr: 0.5
-      mosaic: 1.0
+      mosaic: 0.5  # Reduce mosaic for fine-tuning
       mixup: 0.0
 
 # Enable training mode
