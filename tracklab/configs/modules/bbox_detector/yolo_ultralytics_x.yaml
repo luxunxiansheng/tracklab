@@ -6,4 +6,14 @@ cfg:
   # those models will be downloaded automatically if not found in the path
   path_to_checkpoint: "${model_dir}/yolo/yolo11x.pt"
 
+  # Dataset name for model naming (optional - will use "custom" if not specified)
+  # dataset_name: "your_dataset_name"
+
+  # Dataset split names (optional - will use standard names if not specified)
+  # split_names:
+  #   train: "train"      # or "training", "train_set", etc.
+  #   val: "val"          # or "validation", "valid", etc.
+  #   eval: "eval"        # or "evaluation", etc.
+  #   test: "test"        # or "testing", "test_set", etc.
+
   min_confidence: 0.4

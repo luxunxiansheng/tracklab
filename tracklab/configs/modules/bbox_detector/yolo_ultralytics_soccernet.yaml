@@ -7,6 +7,16 @@ cfg:
   # Enable training mode
   training_enabled: true
   
+  # Dataset name for model naming
+  dataset_name: "soccernet"
+  
+  # Dataset split names for SoccerNet (uses standard names)
+  # split_names:
+  #   train: "train"
+  #   val: "val"
+  #   eval: "eval"
+  #   test: "test"
+  
   # Start with medium pretrained model for better performance
   path_to_checkpoint: "${model_dir}/yolo/yolo11m.pt"
 
