@@ -23,7 +23,7 @@ colors:
   # - track_id: A color based on the tracking ID (for prediction or ground_truth only).
   # - RGB code: A hardcoded color in [R, G, B] format.
   default:
-    no_id: null  # Color setting for objects with no ID (null means no display).
+    no_id: [255, 0, 0]  # Red color for objects with no ID (detection-only mode)
     prediction: "track_id"  # Color setting for tracked predictions, based on tracking ID.
     ground_truth: null  # Color setting for ground truth (null means no display).
 

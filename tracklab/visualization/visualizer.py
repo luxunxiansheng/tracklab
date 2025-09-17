@@ -16,7 +16,13 @@ class Visualizer(ABC):
     def draw_frame(self, image, detections_pred, detections_gt, image_pred, image_gt):
         pass
 
-    def preproces(self, video_detections_pred, video_detections_gt, video_image_pred, video_image_gt):
+    def preproces(
+        self,
+        video_detections_pred,
+        video_detections_gt,
+        video_image_pred,
+        video_image_gt,
+    ):
         pass
 
     def post_init(self, **kwargs):
@@ -27,9 +33,11 @@ class Visualizer(ABC):
 class ImageVisualizer(Visualizer, ABC):
     pass
 
+
 @lru_cache(maxsize=None)
 def get_fixed_colors(N):
     return get_colors(N)
+
 
 class DetectionVisualizer(Visualizer, ABC):
     def __init__(self):
@@ -74,7 +82,6 @@ class DetectionVisualizer(Visualizer, ABC):
                 metric = cost_matrix[i, col_idxs[row_idx]]
             self.draw_detection(image, pred, gt, metric)
 
-
     @abstractmethod
     def draw_detection(self, image, detection_pred, detection_gt, metric=None):
         pass
@@ -82,9 +89,15 @@ class DetectionVisualizer(Visualizer, ABC):
     def color(self, detection, is_prediction, color_type="default"):
         assert self.colors is not None
         if color_type not in self.colors:
-            raise ValueError(f"{color_type} not declared in the colors dict for visualization")
-        if pd.isna(detection.track_id):
-            color = self.colors[color_type].no_id
+            raise ValueError(
+                f"{color_type} not declared in the colors dict for visualization"
+            )
+
+        # Check if track_id column exists (it won't exist if tracking is disabled)
+        has_track_id = hasattr(detection, "track_id") and "track_id" in detection.index
+
+        if not has_track_id or pd.isna(detection.track_id):
+            color = self.colors[color_type].get("no_id", None)
         else:
             cmap_key = "prediction" if is_prediction else "ground_truth"
             if self.colors[color_type][cmap_key] == "track_id":

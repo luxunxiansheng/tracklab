@@ -1,10 +1,12 @@
 import cv2
 import numpy as np
+import pandas as pd
 import logging
 
 from tracklab.visualization import DetectionVisualizer
 
 log = logging.getLogger(__name__)
+
 
 class TrackingLine(DetectionVisualizer):
     def __init__(self, max_length: int = 60, vertical_pos: float = 0.0):
@@ -15,8 +17,16 @@ class TrackingLine(DetectionVisualizer):
         self.xy = []
         self.track_id = []
 
-    def preproces(self, video_detections_pred, video_detections_gt, video_image_pred, video_image_gt):
-        for (track_id, image_id) , detection in video_detections_pred.groupby(["track_id", "image_id"]):
+    def preproces(
+        self,
+        video_detections_pred,
+        video_detections_gt,
+        video_image_pred,
+        video_image_gt,
+    ):
+        for (track_id, image_id), detection in video_detections_pred.groupby(
+            ["track_id", "image_id"]
+        ):
             assert len(detection) <= 1, "frame with duplicate track_ids"
             frame_id = video_image_gt.loc[image_id].name
             self.frame_id.append(frame_id)
@@ -38,18 +48,28 @@ class TrackingLine(DetectionVisualizer):
         xy = np.array(self.xy)
         filtering_mask = frame_ids >= self.current_frame_id - self.max_length
         filtering_mask &= frame_ids <= self.current_frame_id
-        filtering_mask &= track_ids == detection_pred.track_id
-        current_xy = xy[(frame_ids == self.current_frame_id)&(track_ids == detection_pred.track_id)]
-        current_xys = xy[filtering_mask]
-        color = self.color(detection_pred, is_prediction=True, color_type="bbox")
-        if color:
-            cv2.polylines(
-                image,
-                [current_xys.astype(np.int32)],
-                False,
-                color=color,
-                thickness=2,
-            )
+
+        # Check if detection has track_id before filtering
+        if (
+            hasattr(detection_pred, "track_id")
+            and "track_id" in detection_pred.index
+            and not pd.isna(detection_pred.track_id)
+        ):
+            filtering_mask &= track_ids == detection_pred.track_id
+            current_xy = xy[
+                (frame_ids == self.current_frame_id)
+                & (track_ids == detection_pred.track_id)
+            ]
+            current_xys = xy[filtering_mask]
+            color = self.color(detection_pred, is_prediction=True, color_type="bbox")
+            if color:
+                cv2.polylines(
+                    image,
+                    [current_xys.astype(np.int32)],
+                    False,
+                    color=color,
+                    thickness=2,
+                )
             if len(current_xy) == 1:
                 cv2.circle(
                     image,

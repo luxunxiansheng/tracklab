@@ -4,10 +4,10 @@
 # to create the final config file. This item *must* be
 # the first element in the file.
 defaults:
-  - dataset: video
+  - dataset: video  # Back to video dataset
   - eval: trackeval
   - engine: offline
-  - visualization: keypoints
+  - visualization: bbox
   - modules/bbox_detector: yolo_ultralytics
   - modules/pose_estimator: yolo_ultralytics-pose
   - modules/reid: kpr
@@ -19,10 +19,10 @@ defaults:
 # - If loading a tracking state from disk, remove modules whose outputs are already provided in the loaded state
 # Use 'pipeline: []' for an empty pipeline
 pipeline:
-  #- bbox_detector
-  - pose_estimator
+  - bbox_detector
+  #- pose_estimator
   #- reid
-  - track
+  #- track
 
 num_cores: 4
 
@@ -43,8 +43,8 @@ state:
   load_from_groundtruth: false
 
 # Flag parameters
-test_tracking: true
-eval_tracking: true
+test_tracking: true   # Enable tracking operation (includes detection)
+eval_tracking: false  # Disable evaluation since tracking is disabled
 use_rich: true
 
 # configure Hydra to use the current working directory

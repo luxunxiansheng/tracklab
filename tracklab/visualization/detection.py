@@ -16,17 +16,25 @@ class DefaultDetection(DetectionVisualizer):
             if detection is not None:
                 color_bbox = self.color(detection, is_prediction=is_pred)
                 if color_bbox:
+                    # Check if track_id exists before trying to print it
+                    has_track_id = (
+                        hasattr(detection, "track_id") and "track_id" in detection.index
+                    )
+                    should_print_id = self.print_id and has_track_id
+
                     draw_bbox(
                         detection,
                         image,
                         color_bbox,
-                        print_id=self.print_id,
+                        print_id=should_print_id,
                         print_confidence=self.print_confidence,
                     )
+
 
 class FullDetection(DefaultDetection):
     def __init__(self):
         super().__init__(print_id=True, print_confidence=True)
+
 
 class DebugDetection(DetectionVisualizer):
     """
@@ -35,6 +43,7 @@ class DebugDetection(DetectionVisualizer):
         - Yellow is False Positive
         - Red is False Negative
     """
+
     def __init__(self, threshold=0.5):
         self.threshold = threshold
         super().__init__()
@@ -43,17 +52,36 @@ class DebugDetection(DetectionVisualizer):
         if detection_gt is not None:  # GT exists
             if detection_pred is None:  # pred is not detected
                 draw_bbox(detection_gt, image, (255, 0, 0))  # FN
-            elif metric and metric > self.threshold and not np.isnan(detection_pred.track_id):  # pred is correct
+            elif (
+                metric
+                and metric > self.threshold
+                and hasattr(detection_pred, "track_id")
+                and "track_id" in detection_pred.index
+                and not np.isnan(detection_pred.track_id)
+            ):  # pred is correct
                 draw_bbox(detection_pred, image, (0, 255, 0))  # TP
             else:  # pred is not correct
                 draw_bbox(detection_gt, image, (255, 0, 0))  # FN
-        elif detection_pred is not None and not np.isnan(detection_pred.track_id):  # no GT and pred is assigned
+        elif (
+            detection_pred is not None
+            and hasattr(detection_pred, "track_id")
+            and "track_id" in detection_pred.index
+            and not np.isnan(detection_pred.track_id)
+        ):  # no GT and pred is assigned
             draw_bbox(detection_pred, image, (255, 255, 0))  # FP
 
+
 class DetectionStats(DetectionVisualizer):
-    def __init__(self,
-            print_stats=["state", "hits", "age", "time_since_update", "matched_with"],  # FIXME "costs" is too long for display
-     ):
+    def __init__(
+        self,
+        print_stats=[
+            "state",
+            "hits",
+            "age",
+            "time_since_update",
+            "matched_with",
+        ],  # FIXME "costs" is too long for display
+    ):
         self.print_stats = print_stats
         super().__init__()
 
@@ -68,9 +96,11 @@ class DetectionStats(DetectionVisualizer):
                     bbox_color=color_bbox,
                 )
 
+
 class SimpleDetectionStats(DetectionStats):
     def __init__(self):
         super().__init__(print_stats=["state", "hits", "age", "time_since_update"])
+
 
 class EllipseDetection(DetectionVisualizer):
     def __init__(self, print_id=True):

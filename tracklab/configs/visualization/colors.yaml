@@ -1,12 +1,16 @@
 video_fps: 25
 
 colors:
+  default:
+    no_id: [255, 0, 0]  # Red color for objects with no ID (detection-only mode)
+    prediction: "track_id"
+    ground_truth: [0,255,0]
   bbox:
-    no_id: null
+    no_id: [255, 0, 0]  # Red color for objects with no ID (detection-only mode)
     prediction: "track_id"
     ground_truth: [0,255,0]
   text:
-    no_id: null
+    no_id: [255, 255, 255]  # White text for objects with no ID
     prediction: "track_id"
     ground_truth: [0,255,0]
   keypoint:

@@ -3,16 +3,21 @@ import pandas as pd
 
 from distinctipy import get_rgb256
 
-from tracklab.visualization import Visualizer, DefaultDetection, EllipseDetection, get_fixed_colors
+from tracklab.visualization import (
+    Visualizer,
+    DefaultDetection,
+    EllipseDetection,
+    get_fixed_colors,
+)
 from tracklab.utils.cv2 import draw_text
 
 import logging
 
 log = logging.getLogger(__name__)
 
+
 class TeamVisualizer(Visualizer):
     def post_init(self, colors, **kwargs):
-        super().post_init(colors, **kwargs)
         self.colors = colors
         cmap = get_fixed_colors(colors["cmap"])
         self.cmap = [get_rgb256(i) for i in cmap]
@@ -20,8 +25,14 @@ class TeamVisualizer(Visualizer):
     def color(self, detection, is_prediction, color_type="default"):
         assert self.colors is not None
         if color_type not in self.colors:
-            raise ValueError(f"{color_type} not declared in the colors dict for visualization")
-        if pd.isna(detection.track_id):
+            raise ValueError(
+                f"{color_type} not declared in the colors dict for visualization"
+            )
+
+        # Check if track_id column exists (it won't exist if tracking is disabled)
+        has_track_id = hasattr(detection, "track_id") and "track_id" in detection.index
+
+        if not has_track_id or pd.isna(detection.track_id):
             color = self.colors[color_type].no_id
         else:
             cmap_key = "prediction" if is_prediction else "ground_truth"
@@ -38,14 +49,23 @@ class TeamVisualizer(Visualizer):
                 color = self.colors[color_type][cmap_key]
         return color
 
+
 class Player(TeamVisualizer, DefaultDetection):
     pass
+
 
 class PlayerEllipse(TeamVisualizer, EllipseDetection):
     pass
 
+
 class CompletePlayerEllipse(TeamVisualizer, EllipseDetection):
-    def __init__(self, display_track_id=True, display_jersey=True, display_role=True, display_team=False):
+    def __init__(
+        self,
+        display_track_id=True,
+        display_jersey=True,
+        display_role=True,
+        display_team=False,
+    ):
         self.display_list = [
             "track_id" if display_track_id else None,
             "jersey_number" if display_jersey else None,
@@ -74,7 +94,10 @@ class CompletePlayerEllipse(TeamVisualizer, EllipseDetection):
                         thickness=2,
                         lineType=cv2.LINE_AA,
                     )
-                    txt = [pprint(v, getattr(detection, v, lambda: None)) for v in self.display_list]
+                    txt = [
+                        pprint(v, getattr(detection, v, lambda: None))
+                        for v in self.display_list
+                    ]
                     txt = "\n".join([v for v in txt if v != ""])
                     draw_text(
                         image,
@@ -90,6 +113,7 @@ class CompletePlayerEllipse(TeamVisualizer, EllipseDetection):
                         alpha_bg=0.6,
                     )
 
+
 def pprint(key, value):
     if key == "track_id" and not pd.isna(value):
         return f"ID: {int(value)}"
@@ -101,12 +125,9 @@ def pprint(key, value):
             "player": "R: P",
             "goalkeeper": "R: GK",
             "other": "OT",
-            "ball": "R: B"
+            "ball": "R: B",
         }.get(value, "")
     elif key == "team":
-        return {
-            "left": "T: L",
-            "right": "T: R"
-        }.get(value, "")
+        return {"left": "T: L", "right": "T: R"}.get(value, "")
     else:
         return ""
