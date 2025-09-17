@@ -4,10 +4,10 @@
 # to create the final config file. This item *must* be
 # the first element in the file.
 defaults:
-  - dataset: soccernet_gs
+  - dataset: video
   - eval: trackeval
   - engine: offline
-  - visualization: bbox
+  - visualization: keypoints
   - modules/bbox_detector: yolo_ultralytics
   - modules/pose_estimator: yolo_ultralytics-pose
   - modules/reid: kpr
@@ -27,7 +27,7 @@ pipeline:
 num_cores: 4
 
 # Logging
-experiment_name: "soccernet_gs"
+experiment_name: "tracklab"
 print_config: false
 use_wandb: false
 
@@ -42,22 +42,10 @@ state:
   load_from_public_dets: false
   load_from_groundtruth: false
 
-# Dataset
-dataset:
-  nvid: 1  # For a quick first inference, only the first video is processed. Use "-1" to process all the videos.
-#  nframes: -1 # For testing on only a few frames, set to a positive number. Will disable evaluation !
-  eval_set: "valid"  # Tracking is performed on the SoccerNet validation set. Choose from {"train", "valid", "test", "challenge"}.
-  dataset_path: ${data_dir}/SoccerNetGS  # The SoccerNet game state dataset is located under the data path (defined above) in the 'SoccerNetGS' folder
-  vids_dict: # Use one key per split (valid, test, etc)
-    valid: []  # Specify explicitly which video to apply tracking on, e.g. ['SNGS-04', 'SNGS-51'] . Ignored when left empty.
-
-
 # Flag parameters
 test_tracking: true
 eval_tracking: true
 use_rich: true
-
-
 
 # configure Hydra to use the current working directory
 # and set up the output directory according to experiment_name
