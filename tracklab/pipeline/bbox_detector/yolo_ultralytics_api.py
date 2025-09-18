@@ -40,6 +40,7 @@ class YOLOUltralytics(ImageLevelModule):
         self.cfg = cfg
         self.device = device
         self.training_enabled = training_enabled
+        self.id = 0
 
         # Load or initialize model
         if hasattr(cfg, "path_to_checkpoint") and cfg.path_to_checkpoint:
@@ -390,7 +391,6 @@ class YOLOUltralytics(ImageLevelModule):
             "patience": train_cfg.get("patience", 10),
             "plots": train_cfg.get("plots", True),
             "verbose": train_cfg.get("verbose", True),
-           
         }
 
         # Add augmentation settings if available
