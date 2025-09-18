@@ -56,7 +56,7 @@ cfg:
     device: ""
     workers: 8
     val: true
-    save_period: 5
+    save_period: 2
     patience: 10
     plots: true
     verbose: true

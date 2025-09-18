@@ -15,6 +15,15 @@ from tracklab.pipeline.module import Pipeline
 from tracklab.utils.coordinates import ltrb_to_ltwh
 from pathlib import Path
 from tqdm import tqdm
+from mmcv.ops import soft_nms
+
+log = logging.getLogger(__name__)
+from tracklab.pipeline.imagelevel_module import ImageLevelModule
+from tracklab.pipeline.module import Pipeline
+from tracklab.utils.coordinates import ltrb_to_ltwh
+from pathlib import Path
+from tqdm import tqdm
+from mmcv.ops import soft_nms
 
 log = logging.getLogger(__name__)
 
@@ -44,6 +53,26 @@ class YOLOUltralytics(ImageLevelModule):
         self.training_enabled = training_enabled
         self.id = 0
 
+        # Extract TTA and post-processing configuration
+        self.enable_tta = False
+        if hasattr(cfg, "tta") and cfg.tta:
+            if isinstance(cfg.tta, list) and "horizontal_flip" in cfg.tta:
+                self.enable_tta = True
+            elif isinstance(cfg.tta, bool):
+                self.enable_tta = cfg.tta
+
+        # Extract post-processing configuration
+        self.enable_soft_nms = False
+        self.size_filter_min_area_ratio = 0.0
+        if hasattr(cfg, "postproc"):
+            postproc = cfg.postproc
+            if hasattr(postproc, "soft_nms"):
+                self.enable_soft_nms = bool(postproc.soft_nms)
+            if hasattr(postproc, "size_filter_min_area_ratio"):
+                self.size_filter_min_area_ratio = float(
+                    postproc.size_filter_min_area_ratio
+                )
+
         # Load or initialize model
         if hasattr(cfg, "path_to_checkpoint") and cfg.path_to_checkpoint:
             self.model = YOLO(cfg.path_to_checkpoint)
@@ -67,28 +96,126 @@ class YOLOUltralytics(ImageLevelModule):
         metadatas: pd.DataFrame,
     ) -> List[pd.Series]:
         images, shapes = batch
-        results_by_image = self.model(images, verbose=False)
+
+        # Enable TTA if configured
+        augment = self.enable_tta
+        results_by_image = self.model(images, augment=augment, verbose=False)
+
         detections_out: List[pd.Series] = []
         for results, shape, (_, metadata) in zip(
             results_by_image, shapes, metadatas.iterrows()
         ):
+            # Extract detections for this image
+            detections = []
             for bbox in results.boxes.cpu().numpy():
                 # check for `person` class
                 if bbox.cls == 0 and bbox.conf >= self.cfg.min_confidence:
+                    detection = {
+                        "bbox": bbox.xyxy[0],  # [x1, y1, x2, y2]
+                        "conf": bbox.conf[0],
+                        "image_id": metadata.name,
+                        "video_id": metadata.video_id,
+                        "shape": shape,
+                    }
+                    detections.append(detection)
+
+                # Apply post-processing if configured
+                if detections:
+                    detections = self._apply_post_processing(
+                        detections, tuple(shape)
+                    )  # Convert to TrackLab format
+                for detection in detections:
                     detections_out.append(
                         pd.Series(
                             dict(
-                                image_id=metadata.name,
-                                bbox_ltwh=ltrb_to_ltwh(bbox.xyxy[0], shape),
-                                bbox_conf=bbox.conf[0],
-                                video_id=metadata.video_id,
+                                image_id=detection["image_id"],
+                                bbox_ltwh=ltrb_to_ltwh(
+                                    detection["bbox"], detection["shape"]
+                                ),
+                                bbox_conf=detection["conf"],
+                                video_id=detection["video_id"],
                                 category_id=1,  # `person` class in posetrack
                             ),
                             name=self.id,
                         )
                     )
                     self.id += 1
+
         return detections_out
+
+    def _apply_post_processing(
+        self, detections: List[Dict], image_shape: tuple
+    ) -> List[Dict]:
+        """
+        Apply post-processing to detections including soft NMS and size filtering.
+
+        Args:
+            detections: List of detection dictionaries
+            image_shape: (width, height) of the image
+
+        Returns:
+            Filtered list of detections
+        """
+        if not detections:
+            return detections
+
+        # Convert detections to format expected by soft_nms
+        if self.enable_soft_nms:
+            # Prepare data for soft_nms: [x1, y1, x2, y2, score]
+            boxes = []
+            scores = []
+            for det in detections:
+                boxes.append(det["bbox"])
+                scores.append(det["conf"])
+
+            boxes = np.array(boxes)
+            scores = np.array(scores)
+
+            # Apply soft NMS
+            try:
+                boxes, scores = soft_nms(
+                    boxes=boxes.astype(np.float32),  # Ensure float32 type
+                    scores=scores.astype(np.float32),  # Ensure float32 type
+                    iou_threshold=0.5,  # Standard IoU threshold
+                    sigma=0.5,  # Soft NMS sigma parameter
+                    min_score=0.001,  # Minimum score to keep
+                )
+
+                # Update detections with soft NMS results
+                filtered_detections = []
+                for i, (box, score) in enumerate(zip(boxes, scores)):
+                    if score > self.cfg.min_confidence:  # Re-apply confidence threshold
+                        det = detections[i].copy()
+                        det["bbox"] = box
+                        det["conf"] = score
+                        filtered_detections.append(det)
+
+                detections = filtered_detections
+
+            except Exception as e:
+                log.warning(f"Soft NMS failed, using original detections: {e}")
+
+        # Apply size filtering
+        if self.size_filter_min_area_ratio > 0:
+            image_area = image_shape[0] * image_shape[1]  # width * height
+            min_area = image_area * self.size_filter_min_area_ratio
+
+            filtered_detections = []
+            for det in detections:
+                bbox = det["bbox"]
+                bbox_area = (bbox[2] - bbox[0]) * (
+                    bbox[3] - bbox[1]
+                )  # (x2-x1) * (y2-y1)
+
+                if bbox_area >= min_area:
+                    filtered_detections.append(det)
+
+            log.debug(
+                f"Size filtering: {len(detections)} -> {len(filtered_detections)} detections"
+            )
+            detections = filtered_detections
+
+        return detections
 
     def train(
         self,

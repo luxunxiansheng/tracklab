@@ -1,0 +1,77 @@
+_target_: tracklab.pipeline.bbox_detector.yolo_ultralytics_api.YOLOUltralytics
+
+# Offline / high-accuracy preset for football (soccer) games
+# Follows same `cfg:` structure as `yolo_ultralytics_soccernet.yaml` so the wrapper
+# receives expected keys like `path_to_checkpoint` and `training`.
+batch_size: 4
+training_enabled: True
+cfg:
+  # Path to pretrained checkpoint (can be local model_dir or a full path)
+  path_to_checkpoint: "${model_dir}/yolo/yolo11x.pt"
+  # Low-level default if no path provided by the user
+  default_model: "yolo11x.pt"
+
+    # Save path for trained model
+  save_path: "${project_dir}/pretrained_models/yolo/yolo11x_finetuned_soccernet.pt"
+
+  # Detector-level minimum confidence used by the wrapper
+  min_confidence: 0.18
+
+  # Model-specific runtime settings (used by helper scripts / upstream wrappers)
+  model:
+    model_name: "yolo11x.pt"
+    imgsz: 1280
+    conf: 0.20
+    iou: 0.60
+    max_det: 2000
+    half: True
+    batch_size: 4
+
+  # Optional offline-only hints (not strictly required by the YOLO API)
+  tta: ["horizontal_flip"]
+  postproc:
+    soft_nms: True
+    size_filter_min_area_ratio: 0.0008
+
+ 
+  training:
+    # Training tuned for a single RTX 4090. Adjust `img_size` and `batch_size` if you
+    # require different memory/speed trade-offs.
+    epochs: 60
+    batch_size: 4        # batch size per GPU (for imgsz 1280 reduce to 2 or use accumulation)
+    img_size: 640        # train at 640 for stable/faster training, fine-tune at 1280 if needed
+    data_path: null      # set to your dataset path or leave as TrackingDataset input
+
+    # Optimizer and lr schedule
+    optimizer: AdamW
+    lr0: 0.0001
+    lrf: 0.01
+    momentum: 0.9
+    weight_decay: 0.0005
+
+    # Augmentation (stronger to handle poor-quality video)
+    augmentation:
+      hsv_h: 0.015
+      hsv_s: 0.7
+      hsv_v: 0.4
+      degrees: 5.0
+      translate: 0.1
+      scale: 0.5
+      shear: 0.0
+      perspective: 0.0
+      flipud: 0.0
+      fliplr: 0.5
+      mosaic: 1.0
+      mixup: 0.2
+      copy_paste: 0.0
+
+    # Standard training settings
+    amp: True
+    cache: False
+    device: ""
+    workers: 8
+    val: True
+    save_period: 2
+    patience: 10
+    plots: True
+    verbose: True
