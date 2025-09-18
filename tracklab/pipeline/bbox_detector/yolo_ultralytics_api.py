@@ -63,19 +63,19 @@ class YOLOUltralytics(ImageLevelModule):
     def process(
         self,
         batch: tuple[list, tuple[list, list]],
-        detections: pd.DataFrame,
+        detections_df: pd.DataFrame,
         metadatas: pd.DataFrame,
-    ) -> pd.DataFrame:
+    ) -> List[pd.Series]:
         images, shapes = batch
         results_by_image = self.model(images, verbose=False)
-        detections = []
+        detections_out: List[pd.Series] = []
         for results, shape, (_, metadata) in zip(
             results_by_image, shapes, metadatas.iterrows()
         ):
             for bbox in results.boxes.cpu().numpy():
                 # check for `person` class
                 if bbox.cls == 0 and bbox.conf >= self.cfg.min_confidence:
-                    detections.append(
+                    detections_out.append(
                         pd.Series(
                             dict(
                                 image_id=metadata.name,
@@ -88,7 +88,7 @@ class YOLOUltralytics(ImageLevelModule):
                         )
                     )
                     self.id += 1
-        return detections
+        return detections_out
 
     def train(
         self,
@@ -239,6 +239,7 @@ class YOLOUltralytics(ImageLevelModule):
         """
         from PIL import Image
         import cv2
+        import shutil
 
         images_dir = output_path / "images" / split_name
         labels_dir = output_path / "labels" / split_name
@@ -262,21 +263,31 @@ class YOLOUltralytics(ImageLevelModule):
                 # Get image metadata
                 image_meta = tracking_set.image_metadatas.loc[image_id]
 
-                # Load image
-                image_path = Path(dataset_path) / image_meta.file_path
+                # Load image (ensure file path is a string to satisfy type checkers)
+                file_path_str = str(image_meta.file_path)
+                image_path = Path(dataset_path) / file_path_str
                 if not image_path.exists():
                     log.warning(f"Image not found: {image_path}")
                     continue
 
-                # Copy image to YOLO format directory
-                img = cv2.imread(str(image_path))
-                if img is None:
-                    log.warning(f"Could not load image: {image_path}")
+                # Copy image to YOLO format directory (preserve original format)
+                # Use shutil.copy for lossless, faster operation
+                suffix = image_path.suffix or ".jpg"
+                yolo_image_path = images_dir / f"{image_id}{suffix}"
+                try:
+                    shutil.copy(str(image_path), str(yolo_image_path))
+                except Exception as e:
+                    log.warning(
+                        f"Could not copy image {image_path} to {yolo_image_path}: {e}"
+                    )
                     continue
 
+                # Read image dimensions using cv2 for bbox normalization
+                img = cv2.imread(str(yolo_image_path))
+                if img is None:
+                    log.warning(f"Could not load image after copy: {yolo_image_path}")
+                    continue
                 height, width = img.shape[:2]
-                yolo_image_path = images_dir / f"{image_id}.jpg"
-                cv2.imwrite(str(yolo_image_path), img)
 
                 # Create label file
                 label_path = labels_dir / f"{image_id}.txt"
@@ -332,7 +343,9 @@ class YOLOUltralytics(ImageLevelModule):
             "total_detections": total_detections,
         }
 
-    def _map_category_to_person(self, detection_row: dict, tracking_set: object) -> int:
+    def _map_category_to_person(
+        self, detection_row: pd.Series, tracking_set: object
+    ) -> int:
         """Map any category to person class (0) for bbox_detector training.
 
         Args:
