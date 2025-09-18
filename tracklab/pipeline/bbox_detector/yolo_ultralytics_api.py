@@ -26,6 +26,7 @@ import yaml
 from pathlib import Path
 import shutil
 from tqdm import tqdm
+from PIL import Image
 
 log = logging.getLogger(__name__)
 
@@ -68,72 +69,6 @@ class YOLOUltralytics(ImageLevelModule):
         # Initialize class mappings (will be set during training or from config)
         self.yolo_to_source_mapping = None
         self.source_to_yolo_mapping = None
-
-    def _cleanup_memory(self):
-        """Clean up GPU memory after training operations"""
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-            torch.cuda.synchronize()
-            log.debug("GPU memory cleaned up")
-
-    def _setup_paths(self):
-        """Setup and standardize path configuration following TrackLab's framework"""
-        # Use Hydra's current working directory pattern (following TrackLab framework)
-        # TrackLab uses outputs/${experiment_name}/${date}/${time} structure
-        import os
-        from datetime import datetime
-
-        # Get current working directory (set by Hydra)
-        cwd = Path.cwd()
-
-        # Follow TrackLab's output directory structure
-        # If we're in a Hydra output dir, use it; otherwise create our own
-        if "outputs" in str(cwd):
-            # We're already in a Hydra output directory
-            base_output_dir = cwd
-        else:
-            # Create output directory following TrackLab pattern
-            timestamp = datetime.now().strftime("%Y-%m-%d/%H-%M-%S")
-            experiment_name = self.cfg.get("experiment_name", "yolo_training")
-            base_output_dir = cwd / "outputs" / experiment_name / timestamp
-
-        # Get base paths from config or use TrackLab-style defaults
-        self.base_training_dir = Path(
-            self.cfg.get("base_training_dir", base_output_dir / "yolo_training")
-        )
-        self.base_data_dir = Path(
-            self.cfg.get("base_data_dir", base_output_dir / "yolo_data")
-        )
-        self.base_incremental_dir = Path(
-            self.cfg.get("base_incremental_dir", base_output_dir / "yolo_incremental")
-        )
-
-        # Model type for naming - use dataset name if available, otherwise fallback to model_type or "custom"
-        self.model_type = self.cfg.get("dataset_name") or self.cfg.get(
-            "model_type", "custom"
-        )
-
-        # Create standard path templates
-        self.training_paths = {
-            "project": str(self.base_training_dir),
-            "name": f"yolo_{self.model_type}",
-            "weights_dir": self.base_training_dir
-            / f"yolo_{self.model_type}"
-            / "weights",
-            "best_model": self.base_training_dir
-            / f"yolo_{self.model_type}"
-            / "weights"
-            / "best.pt",
-            "data_yaml": self.base_data_dir / "data.yaml",
-            "incremental_project": str(self.base_incremental_dir),
-            "incremental_name": "incremental_yolo",
-            "incremental_best": self.base_incremental_dir
-            / "incremental_yolo"
-            / "weights"
-            / "best.pt",
-        }
-
-        log.debug(f"Initialized training paths: {self.training_paths}")
 
     def train(self, tracking_dataset, pipeline, evaluator, dataset_config):
         """Train YOLO model following TrackLab's simple training pattern
@@ -197,7 +132,7 @@ class YOLOUltralytics(ImageLevelModule):
         log.info("✅ Dataset validation passed - proceeding with training")
 
         # Get training configuration (simple TrackLab style)
-        train_cfg = self.training_config
+        train_cfg = getattr(self.cfg, "training", None)
         if not train_cfg:
             log.warning("No training configuration found, using defaults")
             train_cfg = {"epochs": 100, "batch_size": 16, "img_size": 640}
@@ -434,6 +369,10 @@ class YOLOUltralytics(ImageLevelModule):
                     dest_image_path = images_dir / split_name / image_filename
                     shutil.copy2(image_path, dest_image_path)
 
+                    # Get image dimensions for normalization
+                    with Image.open(dest_image_path) as img:
+                        width, height = img.size
+
                     # Create annotation file (delegate coordinate processing to data loader)
                     label_filename = f"{image_id}.txt"
                     label_path = labels_dir / split_name / label_filename
@@ -442,11 +381,15 @@ class YOLOUltralytics(ImageLevelModule):
                     image_dets = video_detections[video_detections.image_id == image_id]
 
                     # Write YOLO annotations (data loader should handle coordinate normalization)
-                    self._write_yolo_annotations(label_path, image_dets, dataset_config)
+                    self._write_yolo_annotations(
+                        label_path, image_dets, dataset_config, width, height
+                    )
 
                     pbar.update(1)
 
-    def _write_yolo_annotations(self, label_path, image_dets, dataset_config):
+    def _write_yolo_annotations(
+        self, label_path, image_dets, dataset_config, width, height
+    ):
         """Write YOLO format annotations for an image
 
         NOTE: This is a temporary implementation. Best practice would be to:
@@ -464,16 +407,22 @@ class YOLOUltralytics(ImageLevelModule):
 
                     if category_id in source_to_yolo:
                         class_id = source_to_yolo[category_id]
-                        # TODO: Use data loader for proper coordinate normalization
-                        # For now, assume bbox is already in YOLO format or will be processed by loader
+                        # Normalize coordinates to YOLO format
                         bbox = det["bbox_ltwh"]
                         if isinstance(bbox, str):
                             bbox = [float(x) for x in bbox.strip("[]").split()]
 
-                        # Write YOLO format: class_id center_x center_y width height
-                        # Data loader should handle proper normalization
+                        # Convert ltwh to normalized center_x, center_y, width, height
                         x, y, w, h = bbox
-                        f.write(f"{class_id} {x:.6f} {y:.6f} {w:.6f} {h:.6f}\n")
+                        center_x = (x + w / 2) / width
+                        center_y = (y + h / 2) / height
+                        norm_w = w / width
+                        norm_h = h / height
+
+                        # Write YOLO format: class_id center_x center_y width height (normalized)
+                        f.write(
+                            f"{class_id} {center_x:.6f} {center_y:.6f} {norm_w:.6f} {norm_h:.6f}\n"
+                        )
                     # Skip categories we don't want
 
     @torch.no_grad()
@@ -523,3 +472,69 @@ class YOLOUltralytics(ImageLevelModule):
                     )
                     self.id += 1
         return detection_list
+
+    def _cleanup_memory(self):
+        """Clean up GPU memory after training operations"""
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            torch.cuda.synchronize()
+            log.debug("GPU memory cleaned up")
+
+    def _setup_paths(self):
+        """Setup and standardize path configuration following TrackLab's framework"""
+        # Use Hydra's current working directory pattern (following TrackLab framework)
+        # TrackLab uses outputs/${experiment_name}/${date}/${time} structure
+        import os
+        from datetime import datetime
+
+        # Get current working directory (set by Hydra)
+        cwd = Path.cwd()
+
+        # Follow TrackLab's output directory structure
+        # If we're in a Hydra output dir, use it; otherwise create our own
+        if "outputs" in str(cwd):
+            # We're already in a Hydra output directory
+            base_output_dir = cwd
+        else:
+            # Create output directory following TrackLab pattern
+            timestamp = datetime.now().strftime("%Y-%m-%d/%H-%M-%S")
+            experiment_name = self.cfg.get("experiment_name", "yolo_training")
+            base_output_dir = cwd / "outputs" / experiment_name / timestamp
+
+        # Get base paths from config or use TrackLab-style defaults
+        self.base_training_dir = Path(
+            self.cfg.get("base_training_dir", base_output_dir / "yolo_training")
+        )
+        self.base_data_dir = Path(
+            self.cfg.get("base_data_dir", base_output_dir / "yolo_data")
+        )
+        self.base_incremental_dir = Path(
+            self.cfg.get("base_incremental_dir", base_output_dir / "yolo_incremental")
+        )
+
+        # Model type for naming - use dataset name if available, otherwise fallback to model_type or "custom"
+        self.model_type = self.cfg.get("dataset_name") or self.cfg.get(
+            "model_type", "custom"
+        )
+
+        # Create standard path templates
+        self.training_paths = {
+            "project": str(self.base_training_dir),
+            "name": f"yolo_{self.model_type}",
+            "weights_dir": self.base_training_dir
+            / f"yolo_{self.model_type}"
+            / "weights",
+            "best_model": self.base_training_dir
+            / f"yolo_{self.model_type}"
+            / "weights"
+            / "best.pt",
+            "data_yaml": self.base_data_dir / "data.yaml",
+            "incremental_project": str(self.base_incremental_dir),
+            "incremental_name": "incremental_yolo",
+            "incremental_best": self.base_incremental_dir
+            / "incremental_yolo"
+            / "weights"
+            / "best.pt",
+        }
+
+        log.debug(f"Initialized training paths: {self.training_paths}")

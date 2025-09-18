@@ -508,8 +508,16 @@ def load_set(dataset_path, nvid=-1, vids_filter_set=None):
 
         # Concatenate dataframes
         video_metadata = pd.DataFrame(video_metadatas_list)
-        image_metadata = pd.concat(image_metadata_list, ignore_index=True)
-        detections = pd.concat(detections_list, ignore_index=True)
+        image_metadata = (
+            pd.concat(image_metadata_list, ignore_index=True)
+            if image_metadata_list
+            else pd.DataFrame()
+        )
+        detections = (
+            pd.concat(detections_list, ignore_index=True)
+            if detections_list
+            else pd.DataFrame()
+        )
 
         # Person id as unique 0-based index
         detections["person_id"] = pd.factorize(detections["person_id"])[0]

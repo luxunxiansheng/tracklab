@@ -378,7 +378,7 @@ class MOT(TrackingDataset):
             image_gt,
         )
         if self.public_dets_subpath is not None:
-            tracking_set.detections_public = public_detections
+            tracking_set.detections_public = public_detections  # type: ignore
 
         return tracking_set
 
