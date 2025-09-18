@@ -5,15 +5,7 @@ _target_: tracklab.pipeline.bbox_detector.yolo_ultralytics_api.YOLOUltralytics
 batch_size: 16
 training_enabled: True  # Enable training
 cfg:
-  # Dataset name for model naming
-  dataset_name: "soccernet"
-  
-  # Dataset split names for SoccerNet (uses standard names)
-  # split_names:
-  #   train: "train"
-  #   val: "val"
-  #   eval: "eval"
-  #   test: "test"
+
   
   # Start with medium pretrained model for better performance
   path_to_checkpoint: "${model_dir}/yolo/yolo11m.pt"
@@ -21,28 +13,7 @@ cfg:
   # Detection threshold
   min_confidence: 0.3
 
-  # Class mapping for SoccerNet dataset
-  # SoccerNet categories: ball(4), goalkeeper(2), other(7), player(1), referee(3)
-  # Map to YOLO classes: ball(0), goalkeeper(1), other(2), player(3), referee(4)
-  class_mapping:
-    names:
-      0: "ball"
-      1: "goalkeeper"
-      2: "other"
-      3: "player"
-      4: "referee"
-    source_to_yolo:
-      4: 0  # SoccerNet ball -> YOLO class 0
-      2: 1  # SoccerNet goalkeeper -> YOLO class 1
-      7: 2  # SoccerNet other -> YOLO class 2
-      1: 3  # SoccerNet player -> YOLO class 3
-      3: 4  # SoccerNet referee -> YOLO class 4
-    yolo_to_source:
-      0: 4  # YOLO class 0 -> SoccerNet ball
-      1: 2  # YOLO class 1 -> SoccerNet goalkeeper
-      2: 7  # YOLO class 2 -> SoccerNet other
-      3: 1  # YOLO class 3 -> SoccerNet player
-      4: 3  # YOLO class 4 -> SoccerNet referee
+  # Class 
 
   # Training configuration optimized for SoccerNet fine-tuning
   training:
