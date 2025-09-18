@@ -5,7 +5,6 @@ YOLO Ultralytics detector for TrackLab with automatic class detection.
 
 import logging
 from typing import Any
-from matplotlib.pyplot import cla
 import torch
 import pandas as pd
 from ultralytics import YOLO
