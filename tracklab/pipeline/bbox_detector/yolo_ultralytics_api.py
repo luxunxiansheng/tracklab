@@ -4,12 +4,14 @@ YOLO Ultralytics detector for TrackLab with automatic class detection.
 """
 
 import logging
-from typing import Any
+from typing import Any, Dict, Union, List
+from tracklab.datastruct.tracking_dataset import TrackingDataset
 import torch
 import pandas as pd
 import numpy as np
 from ultralytics import YOLO
 from tracklab.pipeline.imagelevel_module import ImageLevelModule
+from tracklab.pipeline.module import Pipeline
 from tracklab.utils.coordinates import ltrb_to_ltwh
 from pathlib import Path
 from tqdm import tqdm
@@ -58,7 +60,12 @@ class YOLOUltralytics(ImageLevelModule):
         }
 
     @torch.no_grad()
-    def process(self, batch: Any, detections: pd.DataFrame, metadatas: pd.DataFrame):
+    def process(
+        self,
+        batch: tuple[list, tuple[list, list]],
+        detections: pd.DataFrame,
+        metadatas: pd.DataFrame,
+    ) -> pd.DataFrame:
         images, shapes = batch
         results_by_image = self.model(images, verbose=False)
         detections = []
@@ -83,7 +90,13 @@ class YOLOUltralytics(ImageLevelModule):
                     self.id += 1
         return detections
 
-    def train(self, tracking_dataset, pipeline, evaluator, dataset_config):
+    def train(
+        self,
+        tracking_dataset: TrackingDataset,
+        pipeline: Pipeline,
+        evaluator: object,
+        dataset_config: dict,
+    ) -> None:
         """Train the YOLO model using the TrackingDataset.
 
         Args:
@@ -130,8 +143,12 @@ class YOLOUltralytics(ImageLevelModule):
         log.info("🎉 YOLO training pipeline completed successfully!")
 
     def _prepare_yolo_dataset(
-        self, tracking_dataset, output_path, dataset_config, dataset_path
-    ):
+        self,
+        tracking_dataset: TrackingDataset,
+        output_path: Path,
+        dataset_config: dict,
+        dataset_path: Union[str, Path],
+    ) -> Path:
         """Convert TrackingDataset to YOLO format and create dataset YAML.
 
         Args:
@@ -200,9 +217,15 @@ class YOLOUltralytics(ImageLevelModule):
         log.info(f"📊 Dataset summary: {splits_info}")
         return yaml_path
 
+    from tracklab.datastruct.tracking_dataset import TrackingSet
+
     def _process_tracking_set(
-        self, tracking_set, output_path, split_name, dataset_path
-    ):
+        self,
+        tracking_set: TrackingSet,
+        output_path: Path,
+        split_name: str,
+        dataset_path: Union[str, Path],
+    ) -> dict:
         """Process a TrackingSet and convert to YOLO format.
 
         Args:
@@ -309,7 +332,7 @@ class YOLOUltralytics(ImageLevelModule):
             "total_detections": total_detections,
         }
 
-    def _map_category_to_person(self, detection_row, tracking_set):
+    def _map_category_to_person(self, detection_row: dict, tracking_set: object) -> int:
         """Map any category to person class (0) for bbox_detector training.
 
         Args:
@@ -349,7 +372,9 @@ class YOLOUltralytics(ImageLevelModule):
         else:
             return -1
 
-    def _run_yolo_training(self, data_yaml_path, epochs, batch_size, img_size):
+    def _run_yolo_training(
+        self, data_yaml_path: Path, epochs: int, batch_size: int, img_size: int
+    ) -> Any:
         """Run YOLO training with the prepared dataset.
 
         Args:
