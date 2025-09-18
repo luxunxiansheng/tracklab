@@ -1,5 +1,8 @@
 """
-YOLO Ultralytics detector for TrackLab with configurable class mappings.
+YOLO Ultralytics detector for TrackLab with automatic class detection.
+
+The system automatically detects categories from the dataset and handles all mappings.
+No manual class mapping configuration is required - works with any TrackLab dataset.
 
 TRAINING REQUIREMENTS:
 - The DATASET is responsible for providing proper train/val/test splits
@@ -9,10 +12,8 @@ TRAINING REQUIREMENTS:
 - No fallback logic in detector - dataset handles split management
 
 CONFIG EXAMPLE:
-  class_mapping:
-    names: {0: "person", 1: "ball"}
-    source_to_yolo: {0: 0, 1: 1}
-    yolo_to_source: {0: 0, 1: 1}
+  # No class_mapping needed - system auto-detects from dataset
+  # Works with SoccerNet (100+ categories), MOT (few categories), PoseTrack, etc.
 """
 
 import logging
@@ -73,74 +74,30 @@ class YOLOUltralytics(ImageLevelModule):
     def train(self, tracking_dataset, pipeline, evaluator, dataset_config):
         """Train YOLO model following TrackLab's simple training pattern
 
+        All dataset information comes from tracking_dataset object.
         The dataset is responsible for providing proper train/val/test splits.
-        This method assumes the dataset has already validated and prepared the splits.
 
         Args:
-            tracking_dataset: Dataset object with train/val/test splits
+            tracking_dataset: Dataset object with train/val/test splits and configuration
             pipeline: TrackLab pipeline object
             evaluator: Evaluation object
-            dataset_config: Dataset configuration
+            dataset_config: Dataset configuration (deprecated - use tracking_dataset)
 
         Raises:
             ValueError: If dataset doesn't provide required splits
         """
         log.info("Starting YOLO training...")
 
-        # Get eval_set from dataset config if available (e.g., MOT17 uses "train" for eval)
-        dataset_eval_set = None
-        try:
-            # Try dictionary access first (most common case)
-            dataset_eval_set = dataset_config["eval_set"]
-        except (KeyError, TypeError, AttributeError):
-            # Fall back to attribute access
-            dataset_eval_set = getattr(dataset_config, "eval_set", None)
-
-        if dataset_eval_set:
-            log.info(f"📊 Dataset specifies eval_set: '{dataset_eval_set}'")
-            log.info(
-                f"✅ Using '{dataset_eval_set}' split for validation (from dataset config)"
-            )
-
-        # Dataset should provide these splits - just use them
-        available_sets = list(tracking_dataset.sets.keys())
-        log.info(f"Available dataset splits: {available_sets}")
-
-        # Assume dataset provides standard splits, but be flexible
-        train_split = dataset_config.get("train_split", "train")
-        val_split = dataset_config.get(
-            "val_split",
-            dataset_eval_set if dataset_eval_set in available_sets else "val",
-        )
-        test_split = dataset_config.get("test_split", "test")
-
-        # Basic validation - dataset should handle the heavy lifting
-        if train_split not in available_sets:
-            raise ValueError(
-                f"Dataset must provide '{train_split}' split. Available: {available_sets}"
-            )
-
-        if (
-            val_split not in available_sets
-            and "val" not in available_sets
-            and "eval" not in available_sets
-        ):
-            raise ValueError(
-                f"Dataset must provide validation split ('{val_split}', 'val', or 'eval'). Available: {available_sets}"
-            )
-
-        log.info("✅ Dataset validation passed - proceeding with training")
-
+        
+ 
         # Get training configuration (simple TrackLab style)
         train_cfg = getattr(self.cfg, "training", None)
         if not train_cfg:
             log.warning("No training configuration found, using defaults")
             train_cfg = {"epochs": 100, "batch_size": 16, "img_size": 640}
 
-        # Prepare training data
-        data_path = train_cfg.get("data_path")
-        if not data_path:
-            data_path = self._prepare_training_data(tracking_dataset, dataset_config)
+
+        data_path = self._prepare_training_data(tracking_dataset)
 
         # Simple training arguments (TrackLab style)
         training_args = {
@@ -181,15 +138,14 @@ class YOLOUltralytics(ImageLevelModule):
         finally:
             self._cleanup_memory()
 
-    def _prepare_training_data(self, tracking_dataset, dataset_config):
+    def _prepare_training_data(self, tracking_dataset):
         """Prepare training data from TrackLab dataset in YOLO format
 
-        The dataset is responsible for providing proper splits. This method
-        assumes the dataset has already validated and prepared the splits.
+        All dataset information comes from tracking_dataset object.
+        The dataset is responsible for providing proper splits and configuration.
 
         Args:
-            tracking_dataset: Dataset with train/val/test splits
-            dataset_config: Dataset configuration
+            tracking_dataset: Dataset with train/val/test splits and configuration
 
         Returns:
             str: Path to generated data.yaml file
@@ -199,8 +155,8 @@ class YOLOUltralytics(ImageLevelModule):
         log.info("Preparing training data from TrackLab dataset...")
 
         # Set up class mappings for this training session
-        self.source_to_yolo_mapping = self._get_source_to_yolo_mapping(dataset_config)
-        self.yolo_to_source_mapping = self._get_yolo_to_source_mapping(dataset_config)
+        self.source_to_yolo_mapping = self._get_source_to_yolo_mapping(tracking_dataset)
+        self.yolo_to_source_mapping = self._get_yolo_to_source_mapping(tracking_dataset)
 
         # Create directory structure using standardized paths
         base_path = self.base_data_dir
@@ -216,20 +172,20 @@ class YOLOUltralytics(ImageLevelModule):
         if not available_sets:
             raise ValueError("Dataset must provide training splits")
 
-        # Get eval_set from dataset config if available
-        dataset_eval_set = None
-        try:
-            dataset_eval_set = dataset_config["eval_set"]
-        except (KeyError, TypeError, AttributeError):
-            dataset_eval_set = getattr(dataset_config, "eval_set", None)
+        # Get eval_set from tracking_dataset
+        dataset_eval_set = getattr(tracking_dataset, "eval_set", None)
 
-        # Determine which splits to use
-        train_split = "train"
-        val_split = dataset_eval_set if dataset_eval_set in available_sets else "val"
-        test_split = "test"
+        # Get split names from tracking_dataset or use defaults
+        train_split = getattr(tracking_dataset, "train_split", "train")
+        val_split = getattr(
+            tracking_dataset,
+            "val_split",
+            dataset_eval_set if dataset_eval_set in available_sets else "val",
+        )
+        test_split = getattr(tracking_dataset, "test_split", "test")
 
-        # Get class mapping from dataset config or use defaults
-        class_mapping = self._get_class_mapping(dataset_config)
+        # Get class mapping from tracking_dataset
+        class_mapping = self._get_class_mapping(tracking_dataset)
 
         log.info(f"Available dataset splits: {available_sets}")
         log.info(f"Using train split: '{train_split}', val split: '{val_split}'")
@@ -268,7 +224,7 @@ class YOLOUltralytics(ImageLevelModule):
                 class_mapping,
                 images_dir,
                 labels_dir,
-                dataset_config,
+                tracking_dataset,
             )
 
         # Create data.yaml
@@ -289,64 +245,39 @@ class YOLOUltralytics(ImageLevelModule):
         log.info(f"Class mapping: {class_mapping}")
         return str(data_path)
 
-    def _get_class_mapping(self, dataset_config):
-        """Simple and robust class mapping that works with any dataset"""
-        # First priority: Manual config
-        if hasattr(self.cfg, "class_mapping") and self.cfg.class_mapping:
-            class_cfg = self.cfg.class_mapping
-            if "names" in class_cfg:
-                return class_cfg["names"]
-
-        # Second priority: Dataset's built-in names
-        if hasattr(dataset_config, "get") and "names" in dataset_config:
-            return dataset_config["names"]
-
-        # Third priority: Auto-extract from detections (simple approach)
+    def _get_class_mapping(self, tracking_dataset):
+        """Auto-detect class mapping from dataset categories"""
+        # Auto-detect from dataset detections
         if (
-            hasattr(dataset_config, "detections_gt")
-            and dataset_config.detections_gt is not None
+            hasattr(tracking_dataset, "detections_gt")
+            and tracking_dataset.detections_gt is not None
         ):
-            if "category" in dataset_config.detections_gt.columns:
-                unique_categories = sorted(
-                    dataset_config.detections_gt["category"].unique()
-                )
-                log.info(
-                    f"Auto-detected {len(unique_categories)} categories: {unique_categories[:5]}{'...' if len(unique_categories) > 5 else ''}"
-                )
+            if "category" in tracking_dataset.detections_gt.columns:
+                categories = sorted(tracking_dataset.detections_gt["category"].unique())
+                log.info(f"Auto-detected {len(categories)} categories from dataset")
 
-                # For YOLO, limit to reasonable number of categories
-                if len(unique_categories) <= 20:
-                    return {i: cat for i, cat in enumerate(unique_categories)}
-                else:
-                    log.warning(
-                        f"Too many categories ({len(unique_categories)}), using generic mapping"
-                    )
-                    return {0: "object"}
+                # Use categories if reasonable number, otherwise use generic
+                if len(categories) <= 20:
+                    return {i: cat for i, cat in enumerate(categories)}
 
-        # Fallback: Generic mapping
+        # Simple fallback
         return {0: "object"}
 
-    def _get_source_to_yolo_mapping(self, dataset_config):
-        """Get source dataset category_id to YOLO class_id mapping"""
-        # Check if mapping is specified in cfg
-        if hasattr(self.cfg, "class_mapping") and self.cfg.class_mapping:
-            class_cfg = self.cfg.class_mapping
-            if "source_to_yolo" in class_cfg:
-                return class_cfg["source_to_yolo"]
+    def _get_source_to_yolo_mapping(self, tracking_dataset):
+        """Auto-generate source to YOLO mapping from dataset categories"""
+        # Get categories from dataset
+        class_mapping = self._get_class_mapping(tracking_dataset)
 
-        # Default mapping (identity for simple cases)
-        return {0: 0, 1: 1}
+        # Create identity mapping for detected categories
+        return {i: i for i in range(len(class_mapping))}
 
-    def _get_yolo_to_source_mapping(self, dataset_config):
-        """Get YOLO class_id to source dataset category_id mapping"""
-        # Check if mapping is specified in cfg
-        if hasattr(self.cfg, "class_mapping") and self.cfg.class_mapping:
-            class_cfg = self.cfg.class_mapping
-            if "yolo_to_source" in class_cfg:
-                return class_cfg["yolo_to_source"]
+    def _get_yolo_to_source_mapping(self, tracking_dataset):
+        """Auto-generate YOLO to source mapping from dataset categories"""
+        # Get categories from dataset
+        class_mapping = self._get_class_mapping(tracking_dataset)
 
-        # Default mapping (identity for simple cases)
-        return {0: 0, 1: 1}
+        # Create identity mapping for detected categories
+        return {i: i for i in range(len(class_mapping))}
 
     def _process_dataset_split(
         self,
@@ -355,7 +286,7 @@ class YOLOUltralytics(ImageLevelModule):
         class_mapping,
         images_dir,
         labels_dir,
-        dataset_config,
+        tracking_dataset,
     ):
         """Process a complete dataset split (train/val/test)"""
         # Count total images across all videos in this split
@@ -404,13 +335,13 @@ class YOLOUltralytics(ImageLevelModule):
 
                     # Write YOLO annotations (data loader should handle coordinate normalization)
                     self._write_yolo_annotations(
-                        label_path, image_dets, dataset_config, width, height
+                        label_path, image_dets, tracking_dataset, width, height
                     )
 
                     pbar.update(1)
 
     def _write_yolo_annotations(
-        self, label_path, image_dets, dataset_config, width, height
+        self, label_path, image_dets, tracking_dataset, width, height
     ):
         """Write YOLO format annotations for an image
 
@@ -425,7 +356,7 @@ class YOLOUltralytics(ImageLevelModule):
                 for _, det in image_dets.iterrows():
                     # Get class id using configurable mapping
                     category_id = det.get("category_id", 1)
-                    source_to_yolo = self._get_source_to_yolo_mapping(dataset_config)
+                    source_to_yolo = self._get_source_to_yolo_mapping(tracking_dataset)
 
                     if category_id in source_to_yolo:
                         class_id = source_to_yolo[category_id]
