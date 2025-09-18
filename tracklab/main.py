@@ -21,7 +21,9 @@ log = logging.getLogger(__name__)
 warnings.filterwarnings("ignore")
 
 
-@hydra.main(version_base=None, config_path="pkg://tracklab.configs", config_name="config")
+@hydra.main(
+    version_base=None, config_path="pkg://tracklab.configs", config_name="config"
+)
 def main(cfg):
     device = init_environment(cfg)
 
@@ -35,21 +37,36 @@ def main(cfg):
     if cfg.pipeline is not None:
         for name in cfg.pipeline:
             module = cfg.modules[name]
-            inst_module = instantiate(module, device=device, tracking_dataset=tracking_dataset)
+            inst_module = instantiate(
+                module, device=device, tracking_dataset=tracking_dataset
+            )
             modules.append(inst_module)
 
     pipeline = Pipeline(models=modules)
 
     # Train tracking modules
-    for module in modules:
-        if module.training_enabled:
-            module.train(tracking_dataset, pipeline, evaluator, OmegaConf.to_container(cfg.dataset, resolve=True))
+    training_modules = [module for module in modules if module.training_enabled]
+    if training_modules:
+        log.info(f"🎯 Starting training for {len(training_modules)} module(s)")
+        for i, module in enumerate(training_modules, 1):
+            log.info(f"📚 Training module {i}/{len(training_modules)}: {module.name}")
+            module.train(
+                tracking_dataset,
+                pipeline,
+                evaluator,
+                OmegaConf.to_container(cfg.dataset, resolve=True),
+            )
+            log.info(f"✅ Module {module.name} training completed")
+        log.info("🎉 All module training completed!")
+    else:
+        log.info("ℹ️ No modules require training")
 
     # Test tracking
     if cfg.test_tracking:
-        log.info(f"Starting tracking operation on {cfg.dataset.eval_set} set.")
+        log.info(f"🚀 Starting tracking operation on {cfg.dataset.eval_set} set.")
 
         # Init tracker state and tracking engine
+        log.info("🔧 Initializing tracker state and engine...")
         tracking_set = tracking_dataset.sets[cfg.dataset.eval_set]
         tracker_state = TrackerState(tracking_set, pipeline=pipeline, **cfg.state)
         tracking_engine = instantiate(
@@ -59,14 +76,20 @@ def main(cfg):
         )
 
         # Run tracking and visualization
+        log.info("🎬 Running tracking on dataset...")
         tracking_engine.track_dataset()
+        log.info("✅ Tracking completed!")
 
         # Evaluation
+        log.info("📊 Running evaluation...")
         evaluate(cfg, evaluator, tracker_state)
+        log.info("✅ Evaluation completed!")
 
         # Save tracker state
         if tracker_state.save_file is not None:
-            log.info(f"Saved state at : {tracker_state.save_file.resolve()}")
+            log.info(f"💾 Saved state at : {tracker_state.save_file.resolve()}")
+
+        log.info("🎉 Tracking pipeline completed successfully!")
 
     close_environment()
 
@@ -74,9 +97,7 @@ def main(cfg):
 
 
 def set_sharing_strategy():
-    torch.multiprocessing.set_sharing_strategy(
-        "file_system"
-    )
+    torch.multiprocessing.set_sharing_strategy("file_system")
 
 
 def init_environment(cfg):

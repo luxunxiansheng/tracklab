@@ -12,6 +12,7 @@ from ultralytics import YOLO
 from tracklab.pipeline.imagelevel_module import ImageLevelModule
 from tracklab.utils.coordinates import ltrb_to_ltwh
 from pathlib import Path
+from tqdm import tqdm
 
 log = logging.getLogger(__name__)
 
@@ -110,6 +111,7 @@ class YOLOUltralytics(ImageLevelModule):
             yolo_dataset_path = temp_path / "dataset"
             yolo_dataset_path.mkdir()
 
+            log.info("📊 Step 1/3: Converting TrackingDataset to YOLO format...")
             # Convert TrackingDataset to YOLO format
             yolo_data_yaml = self._prepare_yolo_dataset(
                 tracking_dataset,
@@ -117,11 +119,14 @@ class YOLOUltralytics(ImageLevelModule):
                 dataset_config,
                 tracking_dataset.dataset_path,
             )
+            log.info("✅ Dataset conversion completed!")
 
+            log.info("🎯 Step 2/3: Running YOLO training...")
             # Train the model
             self._run_yolo_training(yolo_data_yaml, epochs, batch_size, img_size)
+            log.info("✅ Model training completed!")
 
-        log.info("YOLO training completed successfully!")
+        log.info("🎉 YOLO training pipeline completed successfully!")
 
     def _prepare_yolo_dataset(
         self, tracking_dataset, output_path, dataset_config, dataset_path
@@ -159,12 +164,22 @@ class YOLOUltralytics(ImageLevelModule):
 
         # Process each split
         splits_info = {}
-        for split_name in ["train", "valid", "test"]:
-            if split_name in tracking_dataset.sets:
-                tracking_set = tracking_dataset.sets[split_name]
-                splits_info[split_name] = self._process_tracking_set(
-                    tracking_set, output_path, split_name, dataset_path
-                )
+        available_splits = [
+            split_name
+            for split_name in ["train", "valid", "test"]
+            if split_name in tracking_dataset.sets
+        ]
+
+        log.info(
+            f"Processing {len(available_splits)} dataset splits: {available_splits}"
+        )
+        for split_name in tqdm(
+            available_splits, desc="Processing dataset splits", unit="split"
+        ):
+            tracking_set = tracking_dataset.sets[split_name]
+            splits_info[split_name] = self._process_tracking_set(
+                tracking_set, output_path, split_name, dataset_path
+            )
 
         # Create dataset YAML
         data_yaml = {
@@ -180,7 +195,8 @@ class YOLOUltralytics(ImageLevelModule):
         with open(yaml_path, "w") as f:
             yaml.dump(data_yaml, f, default_flow_style=False)
 
-        log.info(f"Created YOLO dataset YAML at {yaml_path}")
+        log.info(f"📄 Created YOLO dataset YAML at {yaml_path}")
+        log.info(f"📊 Dataset summary: {splits_info}")
         return yaml_path
 
     def _process_tracking_set(
@@ -208,8 +224,16 @@ class YOLOUltralytics(ImageLevelModule):
 
         # Group detections by image
         image_groups = tracking_set.detections_gt.groupby("image_id")
+        total_images = len(image_groups)
 
-        for image_id, detections in image_groups:
+        log.info(f"Processing {total_images} images for {split_name} split")
+
+        for image_id, detections in tqdm(
+            image_groups,
+            desc=f"Processing {split_name} images",
+            unit="img",
+            total=total_images,
+        ):
             try:
                 # Get image metadata
                 image_meta = tracking_set.image_metadatas.loc[image_id]
@@ -233,7 +257,14 @@ class YOLOUltralytics(ImageLevelModule):
                 # Create label file
                 label_path = labels_dir / f"{image_id}.txt"
                 with open(label_path, "w") as f:
-                    for _, detection in detections.iterrows():
+                    # Process detections with progress bar
+                    for _, detection in tqdm(
+                        detections.iterrows(),
+                        desc=f"Processing detections for image {image_id}",
+                        unit="det",
+                        total=len(detections),
+                        leave=False,
+                    ):
                         # Filter and merge categories to person only
                         category_id = self._map_category_to_person(
                             detection, tracking_set
@@ -270,7 +301,7 @@ class YOLOUltralytics(ImageLevelModule):
                 continue
 
         log.info(
-            f"Processed {processed_count} images for {split_name} split with {total_detections} detections"
+            f"✅ Processed {processed_count}/{total_images} images for {split_name} split with {total_detections} detections"
         )
         return {
             "processed_images": processed_count,
@@ -383,7 +414,9 @@ class YOLOUltralytics(ImageLevelModule):
             )
 
         # Train the model
+        log.info("🚀 Starting YOLO model training...")
         results = self.model.train(**train_args)
+        log.info("✅ YOLO training completed!")
 
         # Save the trained model
         if hasattr(self.cfg, "save_path") and self.cfg.save_path:
