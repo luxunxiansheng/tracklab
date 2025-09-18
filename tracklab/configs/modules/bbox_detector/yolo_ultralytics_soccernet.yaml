@@ -9,6 +9,9 @@ cfg:
   # Use appropriate pretrained model based on dataset
   path_to_checkpoint: "${model_dir}/yolo/yolo11m.pt"
 
+  # Save path for trained model
+  save_path: "${project_dir}/pretrained_models/yolo/yolo_finetuned_soccernet.pt"
+
   # Detection confidence threshold
   min_confidence: 0.3
 
