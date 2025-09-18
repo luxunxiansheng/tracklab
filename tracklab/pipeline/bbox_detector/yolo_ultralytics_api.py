@@ -390,6 +390,7 @@ class YOLOUltralytics(ImageLevelModule):
             "patience": train_cfg.get("patience", 10),
             "plots": train_cfg.get("plots", True),
             "verbose": train_cfg.get("verbose", True),
+           
         }
 
         # Add augmentation settings if available

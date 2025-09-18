@@ -7,7 +7,7 @@ training_enabled: True
 cfg:
 
   # Use appropriate pretrained model based on dataset
-  path_to_checkpoint: "${model_dir}/yolo/yolo11m.pt"
+  path_to_checkpoint: "${model_dir}/yolo/yolo11x.pt"
   # Save path for trained model
   save_path: "${project_dir}/pretrained_models/yolo/yolo_finetuned_soccernet.pt"
 
@@ -29,10 +29,11 @@ cfg:
     warmup_epochs: 3
     warmup_momentum: 0.8
     warmup_bias_lr: 0.1
+   
 
     # Adaptive freezing based on dataset complexity
     freeze: 10
-
+    
     # Conservative augmentation that works for all datasets
     augmentation:
       hsv_h: 0.015
