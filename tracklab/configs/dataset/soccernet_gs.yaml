@@ -7,6 +7,11 @@ dataset_path: ${data_dir}/SoccerNetGS
 annotation_path: ${data_dir}/SoccerNetGS
 eval_set: "valid"
 
+# Configurable split names for training (adapt for different datasets)
+train_split: "train"
+val_split: "valid"
+test_split: "test"
+
 track_eval:  # Used by tracklab/configs/eval/trackeval.yaml
   dataset_class: SoccerNetGS
   GT_FOLDER: "eval/gt" # Location of GT data

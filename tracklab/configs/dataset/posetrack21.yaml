@@ -7,6 +7,11 @@ dataset_path: ${data_dir}/PoseTrack21
 annotation_path: ${data_dir}/PoseTrack21/posetrack_data
 eval_set: "val"
 
+# Configurable split names for training (adapt for different datasets)
+train_split: "train"
+val_split: "val"
+test_split: "test"
+
 # nframes: 100  # Number of frames to process; set to -1 or leave unset to process all frames
 # nvid: -1  # Number of videos to process; set to -1 or leave unset to process all videos
 # vids_dict:  # Video names for each split (e.g., train, val, test)

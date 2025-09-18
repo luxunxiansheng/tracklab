@@ -1,10 +1,13 @@
 import os
 import json
+import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
 
 from tracklab.datastruct import TrackingDataset, TrackingSet
+
+log = logging.getLogger(__name__)
 
 
 class PoseTrack21(TrackingDataset):
@@ -23,7 +26,7 @@ class PoseTrack21(TrackingDataset):
         annotation_path: str,
         posetrack_version=21,
         *args,
-        **kwargs
+        **kwargs,
     ):
         self.dataset_path = Path(dataset_path)
         assert self.dataset_path.exists(), "'{}' directory does not exist".format(
@@ -34,15 +37,23 @@ class PoseTrack21(TrackingDataset):
             self.annotation_path
         )
 
-        train_set = load_tracking_set(
-            self.annotation_path / "train", self.dataset_path, posetrack_version
-        )
-        val_set = load_tracking_set(
-            self.annotation_path / "val", self.dataset_path, posetrack_version
-        )
-        test_set = None  # TODO
-
-        sets = {"train": train_set, "val": val_set, "test": test_set}
+        # Dynamically discover splits by listing subdirectories in annotation_path
+        potential_splits = [
+            d
+            for d in os.listdir(self.annotation_path)
+            if (self.annotation_path / d).is_dir()
+        ]
+        sets = {}
+        for split in potential_splits:
+            split_path = self.annotation_path / split
+            if split_path.exists():
+                sets[split] = load_tracking_set(
+                    split_path, self.dataset_path, posetrack_version
+                )
+            else:
+                log.warning(
+                    f"Split '{split}' directory does not exist at '{split_path}'."
+                )
 
         super().__init__(dataset_path, sets, *args, **kwargs)
 

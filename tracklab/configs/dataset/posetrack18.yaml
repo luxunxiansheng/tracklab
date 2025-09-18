@@ -6,3 +6,8 @@ _target_: tracklab.pipeline.PoseTrack18
 dataset_path: ${data_dir}/PoseTrack18
 annotation_path: ${data_dir}/PoseTrack18
 eval_set: "val"
+
+# Configurable split names for training (adapt for different datasets)
+train_split: "train"
+val_split: "val"
+test_split: "test"

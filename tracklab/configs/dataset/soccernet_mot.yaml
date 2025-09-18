@@ -7,6 +7,11 @@ dataset_path: ${data_dir}/SoccerNetMOT
 annotation_path: ${data_dir}/SoccerNetMOT
 eval_set: "val"
 
+# Configurable split names for training (adapt for different datasets)
+train_split: "train"
+val_split: "val"
+test_split: "test"
+
 track_eval:
   dataset_class: MotChallenge2DBox
   BENCHMARK: "SoccerNetMOT"

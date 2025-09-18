@@ -36,7 +36,7 @@ state:
 # Dataset configuration
 dataset:
   nvid: 2  # Process all videos (-1 means full dataset)
-  eval_set: "valid"  # Use validation set for evaluation during training
+  
 
 # Configure Hydra to use the current working directory
 project_dir: "${hydra:runtime.cwd}"

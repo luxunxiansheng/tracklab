@@ -47,15 +47,12 @@ class YOLOUltralytics(ImageLevelModule):
         "bbox_ltwh",
         "bbox_conf",
     ]
-    
 
-    def __init__(self, cfg, device, batch_size,training_enabled=False, **kwargs):
+    def __init__(self, cfg, device, batch_size, training_enabled=False, **kwargs):
         super().__init__(batch_size)
         self.cfg = cfg
         self.device = device
         self.training_enabled = training_enabled
-       
-
 
         # Initialize path configuration
         self._setup_paths()
@@ -78,8 +75,6 @@ class YOLOUltralytics(ImageLevelModule):
             torch.cuda.empty_cache()
             torch.cuda.synchronize()
             log.debug("GPU memory cleaned up")
-
-
 
     def _setup_paths(self):
         """Setup and standardize path configuration following TrackLab's framework"""
@@ -177,9 +172,12 @@ class YOLOUltralytics(ImageLevelModule):
         log.info(f"Available dataset splits: {available_sets}")
 
         # Assume dataset provides standard splits, but be flexible
-        train_split = "train"
-        val_split = dataset_eval_set if dataset_eval_set in available_sets else "val"
-        test_split = "test"
+        train_split = dataset_config.get("train_split", "train")
+        val_split = dataset_config.get(
+            "val_split",
+            dataset_eval_set if dataset_eval_set in available_sets else "val",
+        )
+        test_split = dataset_config.get("test_split", "test")
 
         # Basic validation - dataset should handle the heavy lifting
         if train_split not in available_sets:

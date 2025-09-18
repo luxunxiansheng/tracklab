@@ -9,6 +9,7 @@ from pathlib import Path
 from SoccerNet.Downloader import SoccerNetDownloader
 from rich.prompt import Confirm
 from multiprocessing import Pool
+from typing import Optional
 
 from tracklab.datastruct import TrackingDataset, TrackingSet
 from tracklab.utils import xywh_to_ltwh
@@ -19,7 +20,12 @@ log = logging.getLogger(__name__)
 
 class SoccerNetGameState(TrackingDataset):
     def __init__(
-        self, dataset_path: str, nvid: int = -1, vids_dict: list = None, *args, **kwargs
+        self,
+        dataset_path: str,
+        nvid: int = -1,
+        vids_dict: Optional[dict] = None,
+        *args,
+        **kwargs,
     ):
         self.dataset_path = Path(dataset_path)
         if not self.dataset_path.exists():
@@ -28,11 +34,16 @@ class SoccerNetGameState(TrackingDataset):
             self.dataset_path.exists()
         ), f"'{self.dataset_path}' directory does not exist. Please check the path or download the dataset following the instructions here: https://github.com/SoccerNet/sn-gamestate"
 
+        # Dynamically discover splits by listing subdirectories
+        potential_splits = [
+            d for d in os.listdir(self.dataset_path) if (self.dataset_path / d).is_dir()
+        ]
         sets = {}
-        for split in ["train", "valid", "test", "challenge"]:
-            if os.path.exists(self.dataset_path / split):
+        for split in potential_splits:
+            split_path = self.dataset_path / split
+            if split_path.exists():
                 sets[split] = load_set(
-                    self.dataset_path / split, nvid, vids_dict.get(split, [])
+                    split_path, nvid, vids_dict.get(split, []) if vids_dict else []
                 )
             else:
                 log.warning(
