@@ -88,14 +88,11 @@ class YOLOUltralytics(ImageLevelModule):
         """
         log.info("Starting YOLO training...")
 
-        
- 
         # Get training configuration (simple TrackLab style)
         train_cfg = getattr(self.cfg, "training", None)
         if not train_cfg:
             log.warning("No training configuration found, using defaults")
             train_cfg = {"epochs": 100, "batch_size": 16, "img_size": 640}
-
 
         data_path = self._prepare_training_data(tracking_dataset)
 
@@ -153,10 +150,6 @@ class YOLOUltralytics(ImageLevelModule):
         import shutil
 
         log.info("Preparing training data from TrackLab dataset...")
-
-        # Set up class mappings for this training session
-        self.source_to_yolo_mapping = self._get_source_to_yolo_mapping(tracking_dataset)
-        self.yolo_to_source_mapping = self._get_yolo_to_source_mapping(tracking_dataset)
 
         # Create directory structure using standardized paths
         base_path = self.base_data_dir
@@ -247,6 +240,9 @@ class YOLOUltralytics(ImageLevelModule):
 
     def _get_class_mapping(self, tracking_dataset):
         """Auto-detect class mapping from dataset categories"""
+        # Check if category filtering is configured
+        category_filter = getattr(self.cfg, "category_filter", None)
+
         # Auto-detect from dataset detections
         if (
             hasattr(tracking_dataset, "detections_gt")
@@ -256,28 +252,25 @@ class YOLOUltralytics(ImageLevelModule):
                 categories = sorted(tracking_dataset.detections_gt["category"].unique())
                 log.info(f"Auto-detected {len(categories)} categories from dataset")
 
+                # Apply category filtering if configured
+                if category_filter:
+                    filtered_categories = []
+                    for category in categories:
+                        # Check if this category should be included
+                        for filter_term in category_filter:
+                            if filter_term in category:
+                                filtered_categories.append(category)
+                                break
+
+                    categories = sorted(filtered_categories)
+                    log.info(f"Filtered to {len(categories)} categories: {categories}")
+
                 # Use categories if reasonable number, otherwise use generic
                 if len(categories) <= 20:
                     return {i: cat for i, cat in enumerate(categories)}
 
         # Simple fallback
         return {0: "object"}
-
-    def _get_source_to_yolo_mapping(self, tracking_dataset):
-        """Auto-generate source to YOLO mapping from dataset categories"""
-        # Get categories from dataset
-        class_mapping = self._get_class_mapping(tracking_dataset)
-
-        # Create identity mapping for detected categories
-        return {i: i for i in range(len(class_mapping))}
-
-    def _get_yolo_to_source_mapping(self, tracking_dataset):
-        """Auto-generate YOLO to source mapping from dataset categories"""
-        # Get categories from dataset
-        class_mapping = self._get_class_mapping(tracking_dataset)
-
-        # Create identity mapping for detected categories
-        return {i: i for i in range(len(class_mapping))}
 
     def _process_dataset_split(
         self,
@@ -354,12 +347,20 @@ class YOLOUltralytics(ImageLevelModule):
         with open(label_path, "w") as f:
             if len(image_dets) > 0:
                 for _, det in image_dets.iterrows():
-                    # Get class id using configurable mapping
-                    category_id = det.get("category_id", 1)
-                    source_to_yolo = self._get_source_to_yolo_mapping(tracking_dataset)
+                    # Get original category
+                    category = det.get("category", "")
 
-                    if category_id in source_to_yolo:
-                        class_id = source_to_yolo[category_id]
+                    # Get class mapping
+                    class_mapping = self._get_class_mapping(tracking_dataset)
+
+                    # Find class ID for category
+                    class_id = None
+                    for cid, cname in class_mapping.items():
+                        if cname == category:
+                            class_id = cid
+                            break
+
+                    if class_id is not None:
                         # Normalize coordinates to YOLO format
                         bbox = det["bbox_ltwh"]
                         if isinstance(bbox, str):
@@ -376,7 +377,6 @@ class YOLOUltralytics(ImageLevelModule):
                         f.write(
                             f"{class_id} {center_x:.6f} {center_y:.6f} {norm_w:.6f} {norm_h:.6f}\n"
                         )
-                    # Skip categories we don't want
 
     @torch.no_grad()
     def preprocess(self, image, detections, metadata: pd.Series):

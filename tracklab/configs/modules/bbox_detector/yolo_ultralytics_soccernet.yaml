@@ -12,6 +12,12 @@ cfg:
   # Detection confidence threshold
   min_confidence: 0.3
 
+  # Filter to only include player-related categories
+  category_filter:
+    - "player"      # Include all player categories
+    - "goalkeeper"  # Include all goalkeeper categories
+    # Excludes: referee, ball, other
+
   # NO manual class mapping needed - system auto-detects and handles categories
   # Works with SoccerNet (100+ categories), MOT (few categories), PoseTrack, etc.
 
