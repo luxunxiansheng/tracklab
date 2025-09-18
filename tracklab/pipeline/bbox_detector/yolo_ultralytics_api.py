@@ -389,42 +389,27 @@ class YOLOUltralytics(ImageLevelModule):
     def process(self, batch: Any, detections: pd.DataFrame, metadatas: pd.DataFrame):
         images, shapes = batch
         results_by_image = self.model(images, verbose=False)
-        detection_list = []
-
-        # Use configured mapping or fallback to defaults
-        if self.yolo_to_source_mapping is not None:
-            yolo_to_source = self.yolo_to_source_mapping
-        else:
-            # Fallback to identity mapping if no training was done
-            yolo_to_source = {0: 0, 1: 1}
-
+        detections = []
         for results, shape, (_, metadata) in zip(
             results_by_image, shapes, metadatas.iterrows()
         ):
             for bbox in results.boxes.cpu().numpy():
-                # Check if this is one of our target classes and meets confidence threshold
-                yolo_class = int(bbox.cls[0])
-                if (
-                    yolo_class in yolo_to_source
-                    and bbox.conf[0] >= self.cfg.min_confidence
-                ):
-                    # Map back to source dataset category_id
-                    category_id = yolo_to_source[yolo_class]
-
-                    detection_list.append(
+                # check for `person` class
+                if bbox.cls == 0 and bbox.conf >= self.cfg.min_confidence:
+                    detections.append(
                         pd.Series(
                             dict(
                                 image_id=metadata.name,
                                 bbox_ltwh=ltrb_to_ltwh(bbox.xyxy[0], shape),
                                 bbox_conf=bbox.conf[0],
                                 video_id=metadata.video_id,
-                                category_id=category_id,
+                                category_id=1,  # `person` class in posetrack
                             ),
                             name=self.id,
                         )
                     )
                     self.id += 1
-        return detection_list
+        return detections
 
     def _cleanup_memory(self):
         """Clean up GPU memory after training operations"""
