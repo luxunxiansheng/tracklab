@@ -6,37 +6,6 @@ cfg:
   # those models will be downloaded automatically if not found in the path
   path_to_checkpoint: "${model_dir}/yolo/yolo11m.pt"
 
-  # Dataset name for model naming (optional - will use "custom" if not specified)
-  # dataset_name: "your_dataset_name"
 
-  # Dataset split names (optional - will use standard names if not specified)
-  # split_names:
-  #   train: "train"      # or "training", "train_set", etc.
-  #   val: "val"          # or "validation", "valid", etc.
-  #   eval: "eval"        # or "evaluation", etc.
-  #   test: "test"        # or "testing", "test_set", etc.
 
   min_confidence: 0.4
-
-  # Training configuration (only used when training_enabled: true)
-  training:
-    epochs: 100
-    batch_size: 16
-    img_size: 640
-    data_path: null  # Will be auto-generated from TrackLab dataset if null
-    optimizer: SGD
-    lr0: 0.01
-    lrf: 0.1
-    augmentation:
-      hsv_h: 0.015
-      hsv_s: 0.7
-      hsv_v: 0.4
-      degrees: 0.0
-      translate: 0.1
-      scale: 0.5
-      shear: 0.0
-      perspective: 0.0
-      flipud: 0.0
-      fliplr: 0.5
-      mosaic: 1.0
-      mixup: 0.0

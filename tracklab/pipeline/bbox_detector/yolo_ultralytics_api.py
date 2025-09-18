@@ -185,7 +185,7 @@ class YOLOUltralytics(ImageLevelModule):
         data_yaml = {
             "path": str(output_path),
             "train": "images/train",
-            "valid": "images/valid",
+            "val": "images/valid",
             "test": "images/test",
             "names": {0: "person"},  # Only person class for bbox_detector
             "nc": 1,  # Number of classes

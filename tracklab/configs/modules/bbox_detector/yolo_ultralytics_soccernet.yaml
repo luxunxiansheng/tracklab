@@ -8,21 +8,11 @@ cfg:
 
   # Use appropriate pretrained model based on dataset
   path_to_checkpoint: "${model_dir}/yolo/yolo11m.pt"
-
   # Save path for trained model
   save_path: "${project_dir}/pretrained_models/yolo/yolo_finetuned_soccernet.pt"
 
   # Detection confidence threshold
   min_confidence: 0.3
-
-  # Filter to only include player-related categories
-  category_filter:
-    - "player"      # Include all player categories
-    - "goalkeeper"  # Include all goalkeeper categories
-    # Excludes: referee, ball, other
-
-  # NO manual class mapping needed - system auto-detects and handles categories
-  # Works with SoccerNet (100+ categories), MOT (few categories), PoseTrack, etc.
 
   training:
     epochs: 50
