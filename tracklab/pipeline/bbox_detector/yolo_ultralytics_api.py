@@ -290,19 +290,41 @@ class YOLOUltralytics(ImageLevelModule):
         return str(data_path)
 
     def _get_class_mapping(self, dataset_config):
-        """Get class mapping from dataset config or use defaults"""
-        # Check if class mapping is specified in cfg
+        """Simple and robust class mapping that works with any dataset"""
+        # First priority: Manual config
         if hasattr(self.cfg, "class_mapping") and self.cfg.class_mapping:
             class_cfg = self.cfg.class_mapping
             if "names" in class_cfg:
                 return class_cfg["names"]
 
-        # Try to extract from dataset config
+        # Second priority: Dataset's built-in names
         if hasattr(dataset_config, "get") and "names" in dataset_config:
             return dataset_config["names"]
 
-        # Default mapping for common tracking datasets
-        return {0: "person", 1: "ball"}
+        # Third priority: Auto-extract from detections (simple approach)
+        if (
+            hasattr(dataset_config, "detections_gt")
+            and dataset_config.detections_gt is not None
+        ):
+            if "category" in dataset_config.detections_gt.columns:
+                unique_categories = sorted(
+                    dataset_config.detections_gt["category"].unique()
+                )
+                log.info(
+                    f"Auto-detected {len(unique_categories)} categories: {unique_categories[:5]}{'...' if len(unique_categories) > 5 else ''}"
+                )
+
+                # For YOLO, limit to reasonable number of categories
+                if len(unique_categories) <= 20:
+                    return {i: cat for i, cat in enumerate(unique_categories)}
+                else:
+                    log.warning(
+                        f"Too many categories ({len(unique_categories)}), using generic mapping"
+                    )
+                    return {0: "object"}
+
+        # Fallback: Generic mapping
+        return {0: "object"}
 
     def _get_source_to_yolo_mapping(self, dataset_config):
         """Get source dataset category_id to YOLO class_id mapping"""

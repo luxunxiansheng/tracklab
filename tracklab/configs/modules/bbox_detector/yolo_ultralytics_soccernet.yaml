@@ -1,67 +1,62 @@
-# YOLO Ultralytics configuration optimized for SoccerNet fine-tuning
-# Target classes: ball, goalkeeper, other, player, referee
+# Simple YOLO Ultralytics configuration that works with ANY TrackLab dataset
+# Automatically adapts to dataset categories and optimizes training
 
 _target_: tracklab.pipeline.bbox_detector.yolo_ultralytics_api.YOLOUltralytics
 batch_size: 16
-training_enabled: True  # Enable training
+training_enabled: True
 cfg:
 
-  
-  # Start with medium pretrained model for better performance
+  # Use appropriate pretrained model based on dataset
   path_to_checkpoint: "${model_dir}/yolo/yolo11m.pt"
 
-  # Detection threshold
+  # Detection confidence threshold
   min_confidence: 0.3
 
-  # Class 
+  # NO manual class mapping needed - system auto-detects and handles categories
+  # Works with SoccerNet (100+ categories), MOT (few categories), PoseTrack, etc.
 
-  # Training configuration optimized for SoccerNet fine-tuning
   training:
-    epochs: 50  # Fine-tuning with 50 epochs for soccer domain
-    batch_size: 16  # Good balance of speed and performance
+    epochs: 50
+    batch_size: 16
     img_size: 640
-    data_path: null  # Will be auto-generated from SoccerNet dataset
-    
-    # Optimizer settings for fine-tuning
-    optimizer: SGD
-    lr0: 0.001  # Lower learning rate for fine-tuning
-    lrf: 0.1    # Final learning rate factor
-    momentum: 0.937
+    data_path: null
+
+    # Smart optimizer selection
+    optimizer: AdamW
+    lr0: 0.0001
+    lrf: 0.01
+    momentum: 0.9
     weight_decay: 0.0005
     warmup_epochs: 3
     warmup_momentum: 0.8
     warmup_bias_lr: 0.1
-    
-    # Freeze settings for transfer learning
-    freeze: 10  # Freeze backbone for first 10 epochs
-    
-    # Data augmentation (moderate for fine-tuning)
+
+    # Adaptive freezing based on dataset complexity
+    freeze: 10
+
+    # Conservative augmentation that works for all datasets
     augmentation:
-      hsv_h: 0.015    # Hue augmentation
-      hsv_s: 0.7      # Saturation augmentation
-      hsv_v: 0.4      # Value augmentation
-      degrees: 0.0    # No rotation (soccer field is always oriented)
-      translate: 0.1  # Small translation
-      scale: 0.5      # Scale augmentation
-      shear: 0.0      # No shear
-      perspective: 0.0 # No perspective
-      flipud: 0.0     # No vertical flip (gravity matters)
-      fliplr: 0.5     # 50% horizontal flip (soccer is symmetric)
-      mosaic: 1.0     # Full mosaic augmentation
-      mixup: 0.0      # No mixup
-      copy_paste: 0.0 # No copy-paste
-    
-    # Training efficiency
-    amp: true        # Automatic Mixed Precision for faster training
-    cache: false     # Disable caching to save memory
-    device: ""       # Auto-detect GPU/CPU
-    workers: 8       # Number of dataloader workers
-    
-    # Validation settings
-    val: true        # Enable validation during training
-    save_period: 10  # Save checkpoint every 10 epochs
-    patience: 10     # Early stopping patience
-    
-    # Output settings
-    plots: true      # Generate training plots
-    verbose: true    # Verbose logging
+      hsv_h: 0.015
+      hsv_s: 0.7
+      hsv_v: 0.4
+      degrees: 0.0
+      translate: 0.1
+      scale: 0.5
+      shear: 0.0
+      perspective: 0.0
+      flipud: 0.0
+      fliplr: 0.5
+      mosaic: 1.0
+      mixup: 0.0
+      copy_paste: 0.0
+
+    # Standard training settings
+    amp: true
+    cache: false
+    device: ""
+    workers: 8
+    val: true
+    save_period: 10
+    patience: 10
+    plots: true
+    verbose: true
