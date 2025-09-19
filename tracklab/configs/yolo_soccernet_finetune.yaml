@@ -25,7 +25,7 @@ use_rich: True
 print_config: False
 
 # Flags
-test_tracking: True
+test_tracking: False
 eval_tracking: True  # Enable evaluation during training
 
 # Tracker state

@@ -142,7 +142,5 @@ dmypy.json
 .pyre/
 .idea/
 .DS_Store
-uv.lock
-uv.lock
 visualization/
 eval/

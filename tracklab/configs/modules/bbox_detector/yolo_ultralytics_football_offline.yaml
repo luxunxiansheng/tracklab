@@ -20,7 +20,7 @@ cfg:
   # Model-specific runtime settings (used by helper scripts / upstream wrappers)
   model:
     model_name: "yolo11x.pt"
-    imgsz: 1280
+    imgsz: 640
     conf: 0.20
     iou: 0.60
     max_det: 2000
@@ -37,7 +37,7 @@ cfg:
   training:
     # Training tuned for a single RTX 4090. Adjust `img_size` and `batch_size` if you
     # require different memory/speed trade-offs.
-    epochs: 20
+    epochs: 12
     batch_size: 8        # batch size per GPU (for imgsz 1280 reduce to 2 or use accumulation)
     accumulate: 2        # New: gradient accumulation for effective larger batch
     img_size: 640        # train at 640 for stable/faster training, fine-tune at 1280 if needed
@@ -48,7 +48,7 @@ cfg:
     lr0: 0.0001
     lrf: 0.01
     momentum: 0.9
-    weight_decay: 0.0005
+    weight_decay: 0.0008
 
     # Augmentation (stronger to handle poor-quality video)
     augmentation:
@@ -62,8 +62,8 @@ cfg:
       perspective: 0.0
       flipud: 0.0
       fliplr: 0.5
-      mosaic: 1.0
-      mixup: 0.2
+      mosaic: 0.5
+      mixup: 0.1
       copy_paste: 0.0
 
     # Standard training settings
@@ -72,7 +72,7 @@ cfg:
     device: ""
     workers: 16         # Increased: more data loading workers
     val: True
-    save_period: 10     # Increased: save checkpoints less frequently
-    patience: 10
+    save_period: 2    # Increased: save checkpoints less frequently
+    patience: 3
     plots: True
     verbose: True

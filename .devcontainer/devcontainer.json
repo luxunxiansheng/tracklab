@@ -10,9 +10,9 @@
 		"--network=host"
 	],
 	"containerEnv": {
-	  "http_proxy": "${localEnv:http_proxy}",
-      "https_proxy": "${localEnv:https_proxy}",
-      "no_proxy": "${localEnv:no_proxy}"
+	   "http_proxy": "${localEnv:http_proxy}",
+       "https_proxy": "${localEnv:https_proxy}",
+       "no_proxy": "${localEnv:no_proxy}"
 	},
 	"mounts": [
 		"source=${localEnv:HOME}/data,target=/workspaces/${localWorkspaceFolderBasename}/data,type=bind,consistency=cached"

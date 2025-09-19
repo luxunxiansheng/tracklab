@@ -12,7 +12,7 @@ authors = [
 requires-python = ">=3.9,<3.10"
 dependencies = [
     "hydra-core",
-    "lightning==2.0.9",
+    "lightning",
     "pytorch_lightning",
     "numpy<2.0",
     "ultralytics",
@@ -42,6 +42,7 @@ dependencies = [
     "scipy",
     "yacs",
     "scikit-image",
+    "scikit-learn",
     "tensorboard>=2.20.0,<3.0",  # compatible with PyTorch 1.13.1
     "easyocr>=1.7.1,<2.0",
     "mmocr==1.0.1",  # specific version for compatibility
@@ -50,7 +51,7 @@ dependencies = [
     "mmcv>=2.0.0,<2.1.0",  # required for mmocr with CUDA support
     "mmengine",  # required for some modules
     "openmim==0.3.9",
-    "albumentations>=0.5.2,<2.0",  # downgraded for prtreid compatibility (no is_check_shapes parameter)
+    "albumentations>=1.4.6,<2.0",  # downgraded for prtreid compatibility (no is_check_shapes parameter)
     "kornia==0.6.3",
     "lsq-ellipse>=2.2.1",
 ]
