@@ -102,6 +102,12 @@ class YOLOUltralytics(ImageLevelModule):
         for results, shape, (_, metadata) in zip(
             results_by_image, shapes, metadatas.iterrows()
         ):
+            # Check for missing video_id in metadata
+            if not hasattr(metadata, "video_id"):
+                log.warning(
+                    f"Metadata missing video_id for image {metadata.name}: {dict(metadata)}"
+                )
+
             # Extract detections for this image
             detections = []
             for bbox in results.boxes.cpu().numpy():
@@ -111,7 +117,7 @@ class YOLOUltralytics(ImageLevelModule):
                         "bbox": bbox.xyxy[0],  # [x1, y1, x2, y2]
                         "conf": bbox.conf[0],
                         "image_id": metadata.name,
-                        "video_id": metadata.video_id,
+                        "video_id": getattr(metadata, "video_id", 0),
                         "shape": shape,
                     }
                     detections.append(detection)
@@ -520,7 +526,18 @@ class YOLOUltralytics(ImageLevelModule):
             batch_size: Batch size for training
             img_size: Image size for training
         """
-        from ultralytics import YOLO
+        from ultralytics import YOLO, settings
+
+        # Set Ultralytics cache directory to avoid downloading to root
+        cache_dir = Path(self.cfg.path_to_checkpoint).parent
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        settings.update(weights_dir=str(cache_dir))
+
+        # Change working directory to cache_dir for downloads
+        import os
+
+        original_cwd = os.getcwd()
+        os.chdir(cache_dir)
 
         log.info(
             f"Starting YOLO training with {epochs} epochs, batch size {batch_size}"
@@ -580,6 +597,9 @@ class YOLOUltralytics(ImageLevelModule):
         log.info("🚀 Starting YOLO model training...")
         results = self.model.train(**train_args)
         log.info("✅ YOLO training completed!")
+
+        # Restore original working directory
+        os.chdir(original_cwd)
 
         # Save the trained model
         if hasattr(self.cfg, "save_path") and self.cfg.save_path:
