@@ -19,7 +19,7 @@ data_dir: "${project_dir}/data"
 model_dir: "${project_dir}/pretrained_models"
 
 # Machine configuration
-num_cores: 32
+num_cores: 16
 use_wandb: False  # Set to True if you want to use Weights & Biases logging
 use_rich: True
 print_config: False

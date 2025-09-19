@@ -56,10 +56,7 @@ class YOLOUltralytics(ImageLevelModule):
         # Extract TTA and post-processing configuration
         self.enable_tta = False
         if hasattr(cfg, "tta") and cfg.tta:
-            if isinstance(cfg.tta, list) and "horizontal_flip" in cfg.tta:
-                self.enable_tta = True
-            elif isinstance(cfg.tta, bool):
-                self.enable_tta = cfg.tta
+            self.enable_tta = True
 
         # Extract post-processing configuration
         self.enable_soft_nms = False
