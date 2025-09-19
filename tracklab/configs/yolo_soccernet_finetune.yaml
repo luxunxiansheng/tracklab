@@ -5,7 +5,7 @@ defaults:
   - eval: detection  # Use detection evaluator 
   - engine: offline
   - visualization: none  # Disable visualization for faster training
-  - modules/bbox_detector: yolo_ultralytics_soccernet  # Use SoccerNet-specific YOLO module
+  - modules/bbox_detector: yolo_ultralytics_football_offline  # Use SoccerNet-specific YOLO module
   - _self_
 
 # Pipeline - only training the YOLO detector
@@ -19,7 +19,7 @@ data_dir: "${project_dir}/data"
 model_dir: "${project_dir}/pretrained_models"
 
 # Machine configuration
-num_cores: 8
+num_cores: 32
 use_wandb: False  # Set to True if you want to use Weights & Biases logging
 use_rich: True
 print_config: False
@@ -35,7 +35,7 @@ state:
 
 # Dataset configuration
 dataset:
-  nvid: -1  # Process all videos (-1 means full dataset)
+  nvid: 2  # Process all videos (-1 means full dataset)
   
 
 # Configure Hydra to use the current working directory
