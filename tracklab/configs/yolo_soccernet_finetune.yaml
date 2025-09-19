@@ -35,7 +35,7 @@ state:
 
 # Dataset configuration
 dataset:
-  nvid: 2  # Process all videos (-1 means full dataset)
+  nvid: -1  # Process all videos (-1 means full dataset)
   
 
 # Configure Hydra to use the current working directory

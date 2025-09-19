@@ -37,7 +37,7 @@ cfg:
   training:
     # Training tuned for a single RTX 4090. Adjust `img_size` and `batch_size` if you
     # require different memory/speed trade-offs.
-    epochs: 5
+    epochs: 100
     batch_size: 4        # batch size per GPU (for imgsz 1280 reduce to 2 or use accumulation)
     img_size: 640        # train at 640 for stable/faster training, fine-tune at 1280 if needed
     data_path: null      # set to your dataset path or leave as TrackingDataset input
@@ -71,7 +71,7 @@ cfg:
     device: ""
     workers: 8
     val: True
-    save_period: 2
+    save_period: 5
     patience: 10
     plots: True
     verbose: True
