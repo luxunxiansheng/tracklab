@@ -37,7 +37,8 @@ cfg:
   training:
     # Training tuned for a single RTX 4090. Adjust `img_size` and `batch_size` if you
     # require different memory/speed trade-offs.
-    epochs: 12
+
+    epochs: 50
     batch_size: 8        # batch size per GPU (for imgsz 1280 reduce to 2 or use accumulation)
     accumulate: 2        # New: gradient accumulation for effective larger batch
     img_size: 640        # train at 640 for stable/faster training, fine-tune at 1280 if needed
@@ -45,34 +46,34 @@ cfg:
 
     # Optimizer and lr schedule
     optimizer: AdamW
-    lr0: 0.0001
+    lr0: 0.00005         # Lower initial learning rate
     lrf: 0.01
     momentum: 0.9
-    weight_decay: 0.0008
+    weight_decay: 0.002  # Increased weight decay for stronger regularization
 
     # Augmentation (stronger to handle poor-quality video)
     augmentation:
-      hsv_h: 0.015
-      hsv_s: 0.7
-      hsv_v: 0.4
-      degrees: 5.0
-      translate: 0.1
-      scale: 0.5
-      shear: 0.0
-      perspective: 0.0
-      flipud: 0.0
+      hsv_h: 0.02
+      hsv_s: 0.8
+      hsv_v: 0.5
+      degrees: 7.0
+      translate: 0.12
+      scale: 0.6
+      shear: 2.0
+      perspective: 0.001
+      flipud: 0.1
       fliplr: 0.5
-      mosaic: 0.5
-      mixup: 0.1
-      copy_paste: 0.0
+      mosaic: 0.7
+      mixup: 0.2
+      copy_paste: 0.1
 
     # Standard training settings
     amp: True
     cache: True         # Changed: enable data caching for faster loading
     device: ""
-    workers: 16         # Increased: more data loading workers
+    workers: 32         # Increased: more data loading workers
     val: True
     save_period: 2    # Increased: save checkpoints less frequently
-    patience: 3
+    patience: 10       # Increased patience for more tolerance to val fluctuations
     plots: True
     verbose: True

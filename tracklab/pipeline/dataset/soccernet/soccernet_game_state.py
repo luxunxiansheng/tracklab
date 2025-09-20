@@ -128,22 +128,29 @@ class SoccerNetGameState(TrackingDataset):
         if supercategory == "object":
             # Remove detections that don't have mandatory columns
             # Detections with no track_id will therefore be removed and not count as FP at evaluation
-            mandatory_columns = ["bbox_ltwh"]
+            mandatory_columns = []
+            if "bbox_ltwh" in dataframe.columns:
+                mandatory_columns.append("bbox_ltwh")
             if "track_id" in dataframe.columns:
                 mandatory_columns.append("track_id")
             if "bbox_pitch" in dataframe.columns:
                 mandatory_columns.append("bbox_pitch")
-            dataframe.dropna(
-                subset=mandatory_columns,
-                how="any",
-                inplace=True,
-            )
+            if mandatory_columns:
+                dataframe.dropna(
+                    subset=mandatory_columns,
+                    how="any",
+                    inplace=True,
+                )
             # Add track_id if missing (for detection-only runs)
             if "track_id" not in dataframe.columns:
                 dataframe["track_id"] = -1  # Default for detections without tracking
-            dataframe = dataframe.rename(
-                columns={"bbox_ltwh": "bbox_image", "jersey_number": "jersey"}
-            )
+            # Rename columns if they exist
+            rename_dict = {}
+            if "bbox_ltwh" in dataframe.columns:
+                rename_dict["bbox_ltwh"] = "bbox_image"
+            if "jersey_number" in dataframe.columns:
+                rename_dict["jersey_number"] = "jersey"
+            dataframe = dataframe.rename(columns=rename_dict)
             dataframe["track_id"] = dataframe["track_id"]
             dataframe["attributes"] = [
                 {
@@ -154,25 +161,26 @@ class SoccerNetGameState(TrackingDataset):
                 for n, x in dataframe.iterrows()
             ]
             dataframe["id"] = dataframe.index
-            dataframe = dataframe[
-                dataframe.columns.intersection(
-                    [
-                        "id",
-                        "image_id",
-                        "video_id",
-                        "track_id",
-                        "supercategory",
-                        "category_id",
-                        "attributes",
-                        "bbox_image",
-                        "bbox_pitch",
-                    ]
-                )
+            # Keep only relevant columns that exist
+            columns_to_keep = [
+                "id",
+                "image_id",
+                "video_id",
+                "track_id",
+                "supercategory",
+                "category_id",
+                "attributes",
             ]
+            if "bbox_image" in dataframe.columns:
+                columns_to_keep.append("bbox_image")
+            if "bbox_pitch" in dataframe.columns:
+                columns_to_keep.append("bbox_pitch")
+            dataframe = dataframe[dataframe.columns.intersection(columns_to_keep)]
 
-            dataframe["bbox_image"] = dataframe["bbox_image"].apply(
-                transform_bbox_image
-            )
+            if "bbox_image" in dataframe.columns:
+                dataframe["bbox_image"] = dataframe["bbox_image"].apply(
+                    transform_bbox_image
+                )
         elif supercategory == "camera":
             dataframe["image_id"] = dataframe.index
             dataframe["category_id"] = 6

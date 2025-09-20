@@ -2,9 +2,9 @@
 
 defaults:
   - dataset: soccernet_gs
-  - eval: detection  # Use detection evaluator 
+  - eval: gs_hota  # Use detection evaluator 
   - engine: offline
-  - visualization: none  # Disable visualization for faster training
+  - visualization: debug  # Disable visualization for faster training
   - modules/bbox_detector: yolo_ultralytics_football_offline  # Use SoccerNet-specific YOLO module
   - _self_
 
@@ -19,13 +19,13 @@ data_dir: "${project_dir}/data"
 model_dir: "${project_dir}/pretrained_models"
 
 # Machine configuration
-num_cores: 16
+num_cores: 32
 use_wandb: False  # Set to True if you want to use Weights & Biases logging
 use_rich: True
 print_config: False
 
 # Flags
-test_tracking: True
+test_tracking: False
 eval_tracking: True  # Enable evaluation during training
 
 # Tracker state
