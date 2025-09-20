@@ -1,8 +1,7 @@
-from .prtreid_api import PRTReId
-
-# from .kpreid_api import KPReId  # Temporarily disabled due to torchreid compatibility
+from .prtreid import PRTReId
+from .kpreid import KPReId
 
 __all__ = [
     "PRTReId",
-    # "KPReId",  # Temporarily disabled
+    "KPReId",
 ]
