@@ -31,8 +31,6 @@ def main(cfg):
     tracking_dataset = instantiate(cfg.dataset)
     evaluator = instantiate(cfg.eval, tracking_dataset=tracking_dataset)
 
-    log.info(f"{tracking_dataset}")
-
     modules = []
     if cfg.pipeline is not None:
         for name in cfg.pipeline:
@@ -47,26 +45,19 @@ def main(cfg):
     # Train tracking modules
     training_modules = [module for module in modules if module.training_enabled]
     if training_modules:
-        log.info(f"🎯 Starting training for {len(training_modules)} module(s)")
         for i, module in enumerate(training_modules, 1):
-            log.info(f"📚 Training module {i}/{len(training_modules)}: {module.name}")
             module.train(
                 tracking_dataset,
                 pipeline,
                 evaluator,
                 OmegaConf.to_container(cfg.dataset, resolve=True),
             )
-            log.info(f"✅ Module {module.name} training completed")
-        log.info("🎉 All module training completed!")
     else:
-        log.info("ℹ️ No modules require training")
+        pass
 
     # Test tracking
     if cfg.test_tracking:
-        log.info(f"🚀 Starting tracking operation on {cfg.dataset.eval_set} set.")
-
         # Init tracker state and tracking engine
-        log.info("🔧 Initializing tracker state and engine...")
         tracking_set = tracking_dataset.sets[cfg.dataset.eval_set]
         tracker_state = TrackerState(tracking_set, pipeline=pipeline, **cfg.state)
         tracking_engine = instantiate(
@@ -76,20 +67,14 @@ def main(cfg):
         )
 
         # Run tracking and visualization
-        log.info("🎬 Running tracking on dataset...")
         tracking_engine.track_dataset()
-        log.info("✅ Tracking completed!")
 
         # Evaluation
-        log.info("📊 Running evaluation...")
         evaluate(cfg, evaluator, tracker_state)
-        log.info("✅ Evaluation completed!")
 
         # Save tracker state
         if tracker_state.save_file is not None:
             log.info(f"💾 Saved state at : {tracker_state.save_file.resolve()}")
-
-        log.info("🎉 Tracking pipeline completed successfully!")
 
     close_environment()
 
@@ -135,15 +120,11 @@ def close_environment():
 
 def evaluate(cfg, evaluator, tracker_state):
     if cfg.get("eval_tracking", True):  # and cfg.dataset.nframes == -1:
-        log.info("Starting evaluation.")
         evaluator.run(tracker_state)
     elif not cfg.get("eval_tracking", True):
-        log.warning("Skipping evaluation because 'eval_tracking' was set to False.")
+        pass
     else:
-        log.warning(
-            "Skipping evaluation because only part of video was tracked (i.e. 'cfg.dataset.nframes' was not set "
-            "to -1)"
-        )
+        pass
 
 
 if __name__ == "__main__":
