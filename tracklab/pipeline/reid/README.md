@@ -1,3 +1,192 @@
+# Person Re-Identification (ReID) — Comprehensive Guide
+
+This document is a domain-level reference for person Re-Identification (ReID). It is intended to serve as a single comprehensive README for the TrackLab ReID pipeline: covering problem taxonomy, datasets, evaluation metrics, architecture families, training recipes and losses, domain adaptation and unsupervised approaches, integration with multi-object tracking (MOT), practical engineering tips, and a focused section on sports/video (soccer) considerations.
+
+If you maintain or extend the TrackLab ReID code, this guide should help pick models, datasets, losses, and evaluation protocols and explain why certain design choices are commonly used in the ReID literature.
+
+Table of contents
+- Problem definition & taxonomy
+- Datasets and benchmarks
+- Evaluation metrics
+- Model families and architectural patterns
+- Loss functions and training recipes
+- Supervised → Unsupervised → Few-shot ReID
+- Domain adaptation and cross-domain strategies
+- ReID in the tracking loop (MOT integration)
+- Practical engineering & deployment tips
+- Soccer / sports-specific section
+- Toolkits, datasets, and further reading
+
+## Problem definition & taxonomy
+
+Person Re-Identification (ReID) is the task of matching images (or tracklets) of the same person across disjoint camera views or non-contiguous frames. Unlike face recognition, ReID deals with full-body images with wide variations in pose, viewpoint, clothing, occlusion, and illumination.
+
+Taxonomy of ReID settings:
+
+- Image-based ReID: query and gallery consist of still images.
+- Video-based ReID: embeddings are computed from video frames or tracklets and often use temporal aggregation.
+- Closed-world supervised ReID: labeled identities available during training (classic setting).
+- Unsupervised ReID: no identity labels available on target domain; methods use clustering and self-training.
+- Domain-adaptive ReID: source domain labeled, target domain unlabeled; adaptation methods bridge the domain gap.
+- Cross-modality ReID: e.g., visible-infrared (VI-ReID) where inputs come from different sensors.
+
+Problem goals (typical use-cases):
+
+- For analytics and post-match analysis: maximize offline Rank-1 / mAP and tracklet-level IDF1/HOTA.
+- For live tracking: optimize latency and reliability (low false associations), prefer simple, robust embeddings and temporal smoothing.
+
+## Datasets and benchmarks
+
+batch_size: 32
+cfg:
+  model:
+    kpr:
+      keypoints:
+        enabled: true
+        prompt_masks: keypoints_gaussian
+      backbone:
+        name: resnet50_ibn_a
+        pretrained: true
+    loss:
+      ce_weight: 0.5
+      triplet_margin: 0.3
+  training:
+    epochs: 60
+    lr: 3.5e-4
+```
+
+Real-time PRTReId (live tracking):
+
+```yaml
+_target_: tracklab.pipeline.reid.prtreid_api.PRTReId
+training_enabled: false
+batch_size: 128
+cfg:
+  model:
+    name: bpbreid
+    bpbreid:
+      pooling: gwap
+      last_stride: 1
+      test_embeddings: [global]
+  use_keypoints_visibility_scores_for_reid: false
+```
+
+### Classic and recent datasets for supervised and unsupervised ReID (2025 update):
+
+- **Market-1501**: large, widely-used surveillance dataset with cropped pedestrian bounding boxes.
+- **DukeMTMC-reID**: cross-camera surveillance dataset derived from multi-camera DukeMTMC.
+- **MSMT17**: large-scale dataset with many cameras and high variability.
+- **CUHK03, VIPeR**: older but still referenced datasets.
+- **PersonX**: synthetic dataset allowing controlled variation (used for domain adaptation research).
+- **LaST**: Large-scale, diverse, and realistic dataset for ReID, with more challenging scenarios.
+- **PRCC**: Person ReID in Clothing Change, for robustness to appearance change.
+- **VeRi-776, VehicleID**: Vehicle ReID datasets (for cross-domain and multi-object ReID research).
+- **MARS, iLIDS-VID, DukeMTMC-VideoReID**: Video-based ReID datasets with tracklets and temporal info.
+- **SportsMOT, SoccerNet, SoccerNetGS, Dancetrack**: Sports and multi-person tracking datasets with ReID labels.
+- **SYSU-MM01, RegDB**: Cross-modality (visible-infrared) ReID datasets.
+- **MSMT21, LUPerson**: Large-scale, recent datasets for pretraining and benchmarking.
+
+---
+
+## Example Configurations (moved from above)
+
+High-accuracy KPReId (fine-tune on domain):
+```yaml
+_target_: tracklab.pipeline.reid.kpreid_api.KPReId
+training_enabled: true
+batch_size: 32
+cfg:
+  model:
+    kpr:
+      keypoints:
+        enabled: true
+        prompt_masks: keypoints_gaussian
+      backbone:
+        name: resnet50_ibn_a
+        pretrained: true
+    loss:
+      ce_weight: 0.5
+      triplet_margin: 0.3
+  training:
+    epochs: 60
+    lr: 3.5e-4
+```
+
+Real-time PRTReId (live tracking):
+```yaml
+_target_: tracklab.pipeline.reid.prtreid_api.PRTReId
+training_enabled: false
+batch_size: 128
+cfg:
+  model:
+    name: bpbreid
+    bpbreid:
+      pooling: gwap
+      last_stride: 1
+      test_embeddings: [global]
+  use_keypoints_visibility_scores_for_reid: false
+```
+
+## Usage snippets
+
+Basic extraction example:
+
+```python
+from tracklab.pipeline.reid.kpreid_api import KPReId
+import torch
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+reid = KPReId(cfg=cfg, device=device, training_enabled=False)
+
+# detections: list of crops or DataFrame with 'bbox_ltwh' and optional 'keypoints'
+results = reid.process_batch(detections_df, metadata_df)
+embeddings = results['embeddings']
+visibility = results.get('visibility_scores')
+```
+
+Fine-tuning example (high-level):
+
+```python
+reid = KPReId(cfg=cfg, device=device, training_enabled=True)
+reid.train()
+```
+
+Integration tip: compute embeddings in batches and cache recent tracklet embeddings to avoid repeated computation during tracking.
+
+## Evaluation and benchmarks
+
+TrackLab evaluates ReID models using both classic ReID metrics (Rank-1, mAP) and tracker-aware metrics (IDF1, HOTA). For soccer, we recommend reporting IDF1 and HOTA alongside Rank-1/mAP because they capture identity continuity across frames.
+
+Typical offline evaluation pipeline:
+
+1. Run detector + tracker to produce tracklets
+2. Extract ReID embeddings per-tracklet
+3. Compute Rank-1/mAP on a held-out labeled set (frame-level)
+4. Compute IDF1/HOTA on the tracking outputs (track-level)
+
+## Implementation notes
+
+- Models and weights: KPReId and PRTReId can download pretrained weights from configured sources (Hugging Face / Zenodo) — paths controlled via config variables `model_dir` and `cfg.model.load_weights`.
+- Backbones: swapable via config; layers and embedding dims must match fusion heads.
+- Keypoint format: the module expects COCO-style keypoints (x,y,confidence) by default; check `kpreid_api` and `prtreid_api` for preprocessing options.
+- Temporal pooling: short track-level GRU or attention pooling are implemented as options; average pooling is the default lightweight choice.
+
+## References and further reading
+
+- FastReID: https://github.com/JDAI-CV/fast-reid
+- OSNet: https://github.com/KaiyangZhou/deep-person-reid/tree/master/OSNet
+- TransReID / ViT ReID: look up recent ViT-based ReID repos (many implementations exist on GitHub)
+- MGN / PCB / AGW papers and implementations (search respective names)
+
+---
+
+Notes: this README is organized to make the ReID module easier to understand and extend. If you want, I can:
+
+- Add an architecture diagram (SVG) for KPReId and PRTReId
+- Add explicit code examples for fine-grained steps (heatmap generation, part pooling)
+- Add direct repository links and BibTeX citations for the models named in the survey
+
+If you'd like any of the above, tell me which and I'll add them.
 # TrackLab Re-Identification (ReID) Module
 
 The ReID module provides state-of-the-art person and object re-identification capabilities for the TrackLab multi-object tracking framework. This module enables robust identity association across frames and cameras by extracting discriminative feature embeddings from detected objects.
@@ -398,6 +587,87 @@ def forward(self, x, keypoints=None, mask=None):
 |---------------|--------|-----|-------------|
 | **Baseline (no keypoints)** | 87.3% | 78.4% | - |
 | **+ Keypoint Heatmaps** | 91.7% | 82.1% | +4.4% / +3.7% |
+
+## Broader SOTA ReID Algorithms (short survey)
+
+Below is a concise list of widely used and recent state-of-the-art (SOTA) person ReID algorithms and toolkits that are relevant when choosing or benchmarking a ReID backbone for TrackLab. We focus on methods with open-source implementations and proven performance across common ReID benchmarks.
+
+- **OSNet / OSNet-IBN**: Lightweight, omni-scale network designed specifically for ReID; strong accuracy with low FLOPs and frequently used as a good trade-off between speed and accuracy.
+- **BoT (Bag of Tricks) / BoT-SORT (ReID backbone use)**: Bag-of-Tricks (BoT) improvements (e.g., warmup, label smoothing, random erasing) applied to ResNet backbones produce strong baselines; BoT is often used as a high-quality baseline for ReID embedding extraction. BoT-SORT is a tracker that leverages strong ReID features.
+- **TransReID / ViT-based methods**: Vision Transformers adapted for ReID, often combined with part-based or token-level designs to capture fine-grained discriminative cues. Tend to be more compute-heavy but provide strong performance on large datasets.
+- **MGN (Multiple Granularity Network)**: Part-based multi-branch architecture that aggregates features at multiple granularities (global + parts), effective for occlusion and fine-grained matching.
+- **AGW (Arbitrary Granularity Weighting)**: Introduces improved pooling and weighting strategies to better aggregate multi-granularity features.
+- **PCB / MPN**: Part-based Convolutional Baseline which divides the body into stripes and learns part-level features. Simple and effective baseline for many tasks.
+- **Circle Loss / Batch Hard / Triplet Loss variants**: Training objectives matter — margin-based losses (e.g., triplet with hard mining, circle loss) combined with classification losses (cross-entropy with label smoothing) produce stronger embeddings.
+- **FastReID**: A widely-used PyTorch toolbox from MSRA that provides implementations of many SOTA architectures and training protocols; often used for quick experimentation and reproducible baselines.
+- **Strong Baseline ReID**: Collections of training tricks and hyperparameter recipes (learning rate schedules, data augmentation, embedding dimensions) that lift baseline backbones to SOTA levels.
+
+## Practical Recommendations for Soccer Video ReID
+
+Soccer and other sports-video domains have specific characteristics that affect ReID performance. Below are actionable recommendations and considerations when applying or fine-tuning ReID models in TrackLab for soccer footage.
+
+1. Dataset and Domain Differences
+
+  - Soccer videos differ from surveillance datasets (Market-1501, Duke) in camera motion (panning/zoom), motion blur, wide field-of-view, uniform-like clothing, and frequent occlusions. Expect domain gap.
+  - Use domain adaptation or fine-tuning on soccer-specific datasets (SoccerNet, SportsMOT, custom annotated clips). If labelled data is scarce, consider self-supervised pretraining on unlabeled soccer frames followed by supervised fine-tuning.
+
+2. Backbone choice and compute tradeoffs
+
+  - For real-time/near-real-time tracking on GPU-equipped systems, prefer lightweight but accurate backbones: OSNet, ResNet50-BoT with moderate input size (e.g., 256x128), or FastReID-weighted small ViT variants.
+  - For high-accuracy offline analysis (post-match analytics), consider larger backbones or ViT-based TransReID variants with part/token-level heads.
+
+3. Use pose and part-aware cues
+
+  - KPReId and PRTReId architectures that condition on keypoints or parts improve robustness to pose and partial occlusion common in soccer (players bending, diving, tackling).
+  - When keypoints are noisy (low resolution, motion blur), fuse keypoint cues softly (learned weights) rather than hard-masking.
+
+4. Exploit temporal and tracklet-level aggregation
+
+  - Soccer benefits from aggregating embeddings over short tracklets (5–30 frames) rather than single-frame matching. Average pooling, attention-weighted pooling, or a short temporal network (1–3 layer GRU/LSTM) reduces frame-level noise.
+  - Use re-ranking and tracklet-level matching (e.g., k-reciprocal re-ranking) when offline accuracy is prioritized.
+
+5. Occlusion and group scenes
+
+  - Part-based models (MGN, PCB) and visibility-aware pooling help when players form dense groups or are partially occluded by other players or objects.
+  - Use appearance + motion cues: fuse optical flow or tracklet motion descriptors with appearance embeddings to disambiguate crossing trajectories.
+
+6. Role and jersey semantics
+
+  - Role-aware features (PRTReId) are beneficial: goalkeepers, referees, or staff often have different apparel and motion patterns and can be modeled as auxiliary classes.
+  - For team jersey colors, use color histograms or simple color-similarity features appended to embeddings to increase discrimination between teams.
+
+7. Training recipes and losses
+
+  - Combine cross-entropy with label smoothing and a margin-based metric loss (triplet with hard mining or circle loss). Use batch sampling strategies that ensure multiple instances per identity per batch (PK-sampling).
+  - Aggressive augmentation (random erasing, color jitter, random crop, motion blur) improves robustness to match soccer video artifacts.
+
+8. Evaluation in soccer context
+
+  - Beyond Rank-1/mAP, evaluate on tracklet-level IDF1 and HOTA metrics for integrated tracking+ReID performance — these are more relevant for multi-object tracking scenarios like soccer analytics.
+
+9. Practical deployment tips
+
+  - Use mixed-precision inference and model pruning/quantization for CPU/edge deployment.
+  - Cache embeddings for recent tracklets and only recompute when appearance changes significantly (fast cosine distance checks + thresholding).
+  - Monitor role confidence — low role-confidence predictions should rely more on appearance and temporal continuity.
+
+## Quick model selection cheat-sheet for soccer
+
+- Low-latency live tracking (GPU available): OSNet / ResNet50-BoT with small input, KPReId-lite for pose fusion.
+- High-accuracy offline analytics: TransReID / ViT + MGN / part-aggregation + temporal fusion.
+- Occlusion-heavy scenes: MGN / PCB + visibility-aware pooling + tracklet aggregation.
+- Few-shot or limited labels: FastReID toolbox with domain-adaptation methods or self-supervised pretraining.
+
+## References and Implementations
+
+- FastReID: https://github.com/JDAI-CV/fast-reid
+- OSNet: https://github.com/KaiyangZhou/deep-person-reid/tree/master/OSNet
+- TransReID / ViT-ReID papers and repos (search recent ViT-based ReID implementations)
+- MGN / PCB original implementations (many forks on GitHub)
+
+--
+
+Notes: the above recommendations are written with practical soccer/video-tracking constraints in mind and aim to help choose and fine-tune ReID models inside TrackLab. They are intentionally pragmatic — prioritize temporal aggregation and domain adaptation for best real-world performance on soccer footage.
 | **+ Pose Normalization** | 93.2% | 84.6% | +1.5% / +2.5% |
 | **+ Multi-Part Features** | 94.2% | 85.6% | +1.0% / +1.0% |
 | **Full KPReId** | 94.2% | 85.6% | +6.9% / +7.2% |

@@ -7,12 +7,12 @@ batch_size: 8
 training_enabled: True
 cfg:
   # Path to pretrained checkpoint (can be local model_dir or a full path)
-  path_to_checkpoint: "${model_dir}/yolo/yolo11m.pt"
+  path_to_checkpoint: "${model_dir}/yolo/yolo11x.pt"
   # Low-level default if no path provided by the user
-  default_model: "yolo11m.pt"
+  default_model: "yolo11x.pt"
 
     # Save path for trained model
-  save_path: "${project_dir}/pretrained_models/yolo/yolo11m_finetuned_soccernet.pt"
+  save_path: "${project_dir}/pretrained_models/yolo/yolo11x_finetuned_soccernet.pt"
 
   # Detector-level minimum confidence used by the wrapper
   min_confidence: 0.18
@@ -38,16 +38,16 @@ cfg:
     # Training tuned for a single RTX 4090. Adjust `img_size` and `batch_size` if you
     # require different memory/speed trade-offs.
 
-    epochs: 50
-    batch_size: 8        # batch size per GPU (for imgsz 1280 reduce to 2 or use accumulation)
-    accumulate: 2        # New: gradient accumulation for effective larger batch
-    img_size: 640        # train at 640 for stable/faster training, fine-tune at 1280 if needed
+    epochs: 100
+    batch_size: 8        # Increased for better GPU utilization with 24GB VRAM
+    accumulate: 2        # Adjusted to maintain effective batch size
+    img_size: 1280       # Keep high for accuracy
     data_path: null      # set to your dataset path or leave as TrackingDataset input
 
     # Optimizer and lr schedule
     optimizer: AdamW
-    lr0: 0.00005         # Lower initial learning rate
-    lrf: 0.01
+    lr0: 0.00002         # Even lower initial LR for stability
+    lrf: 0.005           # Lower final LR for finer tuning
     momentum: 0.9
     weight_decay: 0.002  # Increased weight decay for stronger regularization
 
@@ -63,9 +63,9 @@ cfg:
       perspective: 0.001
       flipud: 0.1
       fliplr: 0.5
-      mosaic: 0.7
-      mixup: 0.2
-      copy_paste: 0.1
+      mosaic: 0.5      # Reduced from 0.7 for slight speed gain
+      mixup: 0.1       # Reduced from 0.2 for slight speed gain
+      copy_paste: 0.0  # Disabled for speed (minimal accuracy impact)
 
     # Standard training settings
     amp: True
@@ -74,6 +74,6 @@ cfg:
     workers: 32         # Increased: more data loading workers
     val: True
     save_period: 2    # Increased: save checkpoints less frequently
-    patience: 10       # Increased patience for more tolerance to val fluctuations
+    patience: 20       # Increased patience for longer training
     plots: True
     verbose: True
