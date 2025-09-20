@@ -3,16 +3,16 @@ _target_: tracklab.pipeline.bbox_detector.yolo_ultralytics_api.YOLOUltralytics
 # Offline / high-accuracy preset for football (soccer) games
 # Follows same `cfg:` structure as `yolo_ultralytics_soccernet.yaml` so the wrapper
 # receives expected keys like `path_to_checkpoint` and `training`.
-batch_size: 4
+batch_size: 8
 training_enabled: True
 cfg:
   # Path to pretrained checkpoint (can be local model_dir or a full path)
-  path_to_checkpoint: "${model_dir}/yolo/yolo11x.pt"
+  path_to_checkpoint: "${model_dir}/yolo/yolo11m.pt"
   # Low-level default if no path provided by the user
-  default_model: "yolo11x.pt"
+  default_model: "yolo11m.pt"
 
     # Save path for trained model
-  save_path: "${project_dir}/pretrained_models/yolo/yolo11x_finetuned_soccernet.pt"
+  save_path: "${project_dir}/pretrained_models/yolo/yolo11m_finetuned_soccernet.pt"
 
   # Detector-level minimum confidence used by the wrapper
   min_confidence: 0.18
@@ -25,7 +25,7 @@ cfg:
     iou: 0.60
     max_det: 2000
     half: True
-    batch_size: 4
+    batch_size: 8
 
   # Optional offline-only hints (not strictly required by the YOLO API)
   tta: ["horizontal_flip"]
