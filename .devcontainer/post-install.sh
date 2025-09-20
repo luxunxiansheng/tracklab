@@ -1,5 +1,10 @@
 #!/bin/bash
+
 set -e
+
+# Configure git user for reproducible commit attribution
+git config --global user.name "OrNot"
+git config --global user.email "bin.li@kickerlab.com"
 
 echo "� TrackLab post-install setup..."
 
