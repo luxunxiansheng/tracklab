@@ -38,7 +38,7 @@ class OfflineTrackingEngine(TrackingEngine):
             for batch_idx, batch in enumerate(
                 tqdm(
                     self.dataloaders[model_name],
-                    desc=f"Processing {model_name} batches",
+                    desc=f"Processing {model_name}",
                     unit="batch",
                     total=total_batches,
                     leave=False,
