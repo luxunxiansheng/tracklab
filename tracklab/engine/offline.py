@@ -38,15 +38,7 @@ class OfflineTrackingEngine(TrackingEngine):
 
             # Get total number of batches for progress bar
             total_batches = len(self.dataloaders[model_name])
-            for batch_idx, batch in enumerate(
-                tqdm(
-                    self.dataloaders[model_name],
-                    desc=f"{model_name}",
-                    unit="batch",
-                    total=total_batches,
-                    leave=False,
-                )
-            ):
+            for batch_idx, batch in enumerate(self.dataloaders[model_name]):
                 detections, image_pred = self.default_step(
                     batch, model_name, detections, image_pred
                 )
