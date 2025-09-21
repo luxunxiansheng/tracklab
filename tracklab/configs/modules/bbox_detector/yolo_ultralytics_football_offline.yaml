@@ -7,7 +7,7 @@ batch_size: 8
 training_enabled: False
 cfg:
   # Path to pretrained checkpoint (can be local model_dir or a full path)
-  path_to_checkpoint: "${model_dir}/yolo/yolo11x.pt"
+  path_to_checkpoint: "${project_dir}/pretrained_models/yolo/yolo11x.pt"
   # Low-level default if no path provided by the user
   default_model: "yolo11x.pt"
 
@@ -15,7 +15,7 @@ cfg:
   save_path: "${project_dir}/pretrained_models/yolo/yolo11x_finetuned_soccernet.pt"
 
   # Detector-level minimum confidence used by the wrapper
-  min_confidence: 0.18
+  min_confidence: 0.2
 
 
   # Optional offline-only hints (not strictly required by the YOLO API)
