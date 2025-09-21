@@ -4,11 +4,16 @@ import pandas as pd
 import torch
 from huggingface_hub import hf_hub_download
 from omegaconf import OmegaConf
-from torchreid.data import ImageDataset, masks_preprocess_all
+from torchreid.data import ImageDataset
+from torchreid.data.masks_transforms import masks_preprocess_all
 from torchreid.data.datasets.image.occluded_posetrack21 import clip_keypoints_to_image
 from torchreid.data.datasets.keypoints_to_masks import KeypointsToMasks
 from torchreid.data.transforms import build_transforms
-from torchreid.scripts.builder import build_config, build_torchreid_model_engine, build_model
+from torchreid.scripts.builder import (
+    build_config,
+    build_torchreid_model_engine,
+    build_model,
+)
 from torchreid.scripts.default_config import engine_run_kwargs
 from torchreid.utils.tools import extract_test_embeddings
 from yacs.config import CfgNode as CN
@@ -32,16 +37,18 @@ class KPReId(DetectionLevelModule):
         batch_size,
         job_id=0,
         *args,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(batch_size)
         self.cfg = cfg
         self.device = device
 
         # registering Tracklab's datasets with Torchreid (only the ones required by Torchreid)
-        all_configured_datasets = set(cfg.data.sources + cfg.data.targets)  # all datasets required by Torchreid
-        #tracking_datasets = [d for _, d in datasets.items() if d.name in all_configured_datasets]
-        #for tracking_dataset in tracking_datasets:
+        all_configured_datasets = set(
+            cfg.data.sources + cfg.data.targets
+        )  # all datasets required by Torchreid
+        # tracking_datasets = [d for _, d in datasets.items() if d.name in all_configured_datasets]
+        # for tracking_dataset in tracking_datasets:
         #    self.dataset_cfg = dataset
         #    self.use_keypoints_visibility_scores_for_reid = use_keypoints_visibility_scores_for_reid
         #    additional_args = {
@@ -69,37 +76,43 @@ class KPReId(DetectionLevelModule):
         self.feature_extractor = None
         self.model = None
 
-        self.coco_transform = masks_preprocess_all[self.cfg.model.kpr.masks.preprocess]() if \
-            self.cfg.model.kpr.masks.preprocess \
-        != 'none' else None
+        self.coco_transform = (
+            masks_preprocess_all[self.cfg.model.kpr.masks.preprocess]()
+            if self.cfg.model.kpr.masks.preprocess != "none"
+            else None
+        )
 
-        self.keypoints_to_prompt_masks = KeypointsToMasks(mode=self.cfg.model.kpr.keypoints.prompt_masks,
-                                                          vis_thresh=self.cfg.model.kpr.keypoints.vis_thresh,
-                                                          vis_continous=self.cfg.model.kpr.keypoints.vis_continous,
-                                                          )
+        self.keypoints_to_prompt_masks = KeypointsToMasks(
+            mode=self.cfg.model.kpr.keypoints.prompt_masks,
+            vis_thresh=self.cfg.model.kpr.keypoints.vis_thresh,
+            vis_continous=self.cfg.model.kpr.keypoints.vis_continous,
+        )
 
-        self.keypoints_to_target_masks = KeypointsToMasks(mode=self.cfg.model.kpr.keypoints.target_masks,
-                                                          vis_thresh=self.cfg.model.kpr.keypoints.vis_thresh,
-                                                          vis_continous=False,
-                                                          )
+        self.keypoints_to_target_masks = KeypointsToMasks(
+            mode=self.cfg.model.kpr.keypoints.target_masks,
+            vis_thresh=self.cfg.model.kpr.keypoints.vis_thresh,
+            vis_continous=False,
+        )
 
         self.model = build_model(self.cfg, 0, verbose=False)
         self.model.eval()
 
-        _, self.transforms, self.target_preprocess, self.prompt_preprocess = build_transforms(
-            self.cfg.data.height,
-            self.cfg.data.width,
-            self.cfg,
-            transforms=self.cfg.data.transforms,
-            norm_mean=self.cfg.data.norm_mean,
-            norm_std=self.cfg.data.norm_std,
-            remove_background_mask=False,
-            masks_preprocess=self.cfg.model.kpr.masks.preprocess,
-            softmax_weight=self.cfg.model.kpr.masks.softmax_weight,
-            background_computation_strategy=self.cfg.model.kpr.masks.background_computation_strategy,
-            mask_filtering_threshold=self.cfg.model.kpr.masks.mask_filtering_threshold,
-            train_dir=None,
-            verbose=False,
+        _, self.transforms, self.target_preprocess, self.prompt_preprocess = (
+            build_transforms(
+                self.cfg.data.height,
+                self.cfg.data.width,
+                self.cfg,
+                transforms=self.cfg.data.transforms,
+                norm_mean=self.cfg.data.norm_mean,
+                norm_std=self.cfg.data.norm_std,
+                remove_background_mask=False,
+                masks_preprocess=self.cfg.model.kpr.masks.preprocess,
+                softmax_weight=self.cfg.model.kpr.masks.softmax_weight,
+                background_computation_strategy=self.cfg.model.kpr.masks.background_computation_strategy,
+                mask_filtering_threshold=self.cfg.model.kpr.masks.mask_filtering_threshold,
+                train_dir=None,
+                verbose=False,
+            )
         )
 
     def download_models(self, load_weights):
@@ -108,7 +121,7 @@ class KPReId(DetectionLevelModule):
             hf_hub_download(
                 repo_id="trackinglaboratory/keypoint_promptable_reid",
                 filename=load_weights.name,
-                local_dir=load_weights.parent
+                local_dir=load_weights.parent,
             )
 
     @torch.no_grad()
@@ -125,10 +138,14 @@ class KPReId(DetectionLevelModule):
         }
 
         if "keypoints" in detection:
-            sample["keypoints_xyc"] = clip_keypoints_to_image(detection.keypoints.keypoints_bbox_xyc(),
-                                                     (crop.shape[1] - 1, crop.shape[0] - 1))
+            sample["keypoints_xyc"] = clip_keypoints_to_image(
+                detection.keypoints.keypoints_bbox_xyc(),
+                (crop.shape[1] - 1, crop.shape[0] - 1),
+            )
         if "negative_kps" in detection:
-            sample["negative_kps"] = clip_keypoints_to_image(detection.negative_kps, (crop.shape[1] - 1, crop.shape[0] - 1))
+            sample["negative_kps"] = clip_keypoints_to_image(
+                detection.negative_kps, (crop.shape[1] - 1, crop.shape[0] - 1)
+            )
 
         batch = ImageDataset.getitem(
             sample,
@@ -156,14 +173,12 @@ class KPReId(DetectionLevelModule):
             visibility_scores,
             parts_masks,
             pixels_cls_scores,
-        ) = extract_test_embeddings(
-            model_output, self.cfg.model.kpr.test_embeddings
-        )
+        ) = extract_test_embeddings(model_output, self.cfg.model.kpr.test_embeddings)
 
         embeddings = embeddings.cpu().detach().numpy()
         visibility_scores = visibility_scores.cpu().detach().numpy()
 
-        #if self.use_keypoints_visibility_scores_for_reid:
+        # if self.use_keypoints_visibility_scores_for_reid:
         #    kp_visibility_scores = batch["visibility_scores"].numpy()
         #    if visibility_scores.shape[1] > kp_visibility_scores.shape[1]:
         #        kp_visibility_scores = np.concatenate(
