@@ -21,7 +21,10 @@ class OfflineTrackingEngine(TrackingEngine):
         log.info(f"🎯 Processing {len(model_names)} modules for video {video_id}")
 
         for model_name in tqdm(
-            model_names, desc=f"Processing modules for video {video_id}", unit="module"
+            model_names,
+            desc=f"Processing modules for video {video_id}",
+            unit="module",
+            leave=False,
         ):
             if self.models[model_name].level == "video":
                 detections = self.models[model_name].process(detections, image_pred)
@@ -38,7 +41,7 @@ class OfflineTrackingEngine(TrackingEngine):
             for batch_idx, batch in enumerate(
                 tqdm(
                     self.dataloaders[model_name],
-                    desc=f"Processing {model_name}",
+                    desc=f"{model_name}",
                     unit="batch",
                     total=total_batches,
                     leave=False,

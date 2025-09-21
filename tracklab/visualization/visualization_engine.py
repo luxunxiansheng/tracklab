@@ -194,7 +194,7 @@ class VisualizationEngine(Callback):
                 )
             except Exception as e:
                 log.warning(
-                    f"Visualizer {Visualizer} raised error : {e} during drawing."
+                    f"Visualizer {type(visualizer).__name__} raised error : {e} during drawing."
                 )
         return final_patch(image)
 

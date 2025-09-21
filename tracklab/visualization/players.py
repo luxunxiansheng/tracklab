@@ -95,7 +95,7 @@ class CompletePlayerEllipse(TeamVisualizer, EllipseDetection):
                         lineType=cv2.LINE_AA,
                     )
                     txt = [
-                        pprint(v, getattr(detection, v, lambda: None))
+                        pprint(v, getattr(detection, v, None))
                         for v in self.display_list
                     ]
                     txt = "\n".join([v for v in txt if v != ""])
