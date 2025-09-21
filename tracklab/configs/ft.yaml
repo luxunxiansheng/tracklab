@@ -2,13 +2,13 @@
 
 defaults:
   - dataset: soccernet_gs
-  - eval: gs_hota  # Use detection evaluator 
+  - eval: detection_only  # Use detection-only evaluator
   - engine: offline
   - visualization: debug  # Disable visualization for faster training
   - modules/bbox_detector: yolo_ultralytics_football_offline  # Use SoccerNet-specific YOLO module
   - _self_
 
-# Pipeline - only training the YOLO detector
+# Pipeline - YOLO detector only for detection evaluation
 pipeline:
   - bbox_detector  # This will train the YOLO model on SoccerNet data
 
@@ -26,7 +26,7 @@ print_config: False
 
 # Flags
 test_tracking: True
-eval_tracking: True  # Enable evaluation during training
+eval_tracking: True  # Enable evaluation to test our detection evaluator
 
 # Tracker state
 state:

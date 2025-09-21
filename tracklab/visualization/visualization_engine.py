@@ -127,8 +127,30 @@ class VisualizationEngine(Callback):
                 )
         total = self.max_frames or len(image_metadatas.index)
         progress.init_progress_bar("vis", "Visualization", total)
-        detection_preds_by_image = detections.groupby("image_id")
-        detection_gts_by_image = tracker_state.detections_gt.groupby("image_id")
+
+        # Handle empty or malformed detections DataFrame
+        if detections.empty or "image_id" not in detections.columns:
+            log.debug(
+                f"Detections DataFrame is empty or missing 'image_id' column. Available columns: {list(detections.columns)}"
+            )
+            # Create a dummy DataFrame with the expected column to allow groupby to work
+            detections_for_groupby = pd.DataFrame(columns=["image_id"])
+        else:
+            detections_for_groupby = detections
+        detection_preds_by_image = detections_for_groupby.groupby("image_id")
+
+        # Handle empty or malformed ground truth detections DataFrame
+        if (
+            tracker_state.detections_gt.empty
+            or "image_id" not in tracker_state.detections_gt.columns
+        ):
+            log.debug(
+                f"Ground truth detections DataFrame is empty or missing 'image_id' column. Available columns: {list(tracker_state.detections_gt.columns)}"
+            )
+            detections_gt_for_groupby = pd.DataFrame(columns=["image_id"])
+        else:
+            detections_gt_for_groupby = tracker_state.detections_gt
+        detection_gts_by_image = detections_gt_for_groupby.groupby("image_id")
         args = [
             create_draw_args(
                 image_id,

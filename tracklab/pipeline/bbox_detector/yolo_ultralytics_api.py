@@ -110,17 +110,24 @@ class YOLOUltralytics(ImageLevelModule):
 
             # Extract detections for this image
             detections = []
-            for bbox in results.boxes.cpu().numpy():
-                # check for `person` class
-                if bbox.cls == 0 and bbox.conf >= self.cfg.min_confidence:
-                    detection = {
-                        "bbox": bbox.xyxy[0],  # [x1, y1, x2, y2]
-                        "conf": bbox.conf[0],
-                        "image_id": metadata.name,
-                        "video_id": getattr(metadata, "video_id", 0),
-                        "shape": shape,
-                    }
-                    detections.append(detection)
+            if results.boxes is not None and len(results.boxes) > 0:
+                boxes = results.boxes
+                # Filter for person class (class 0) with sufficient confidence
+                person_mask = (boxes.cls == 0) & (boxes.conf >= self.cfg.min_confidence)
+
+                if person_mask.sum() > 0:
+                    person_boxes = boxes.xyxy[person_mask]
+                    person_confs = boxes.conf[person_mask]
+
+                    for i in range(len(person_boxes)):
+                        detection = {
+                            "bbox": person_boxes[i].cpu().numpy(),  # [x1, y1, x2, y2]
+                            "conf": person_confs[i].cpu().numpy(),
+                            "image_id": metadata.name,
+                            "video_id": getattr(metadata, "video_id", 0),
+                            "shape": shape,
+                        }
+                        detections.append(detection)
 
                 # Apply post-processing if configured
                 if detections:
@@ -189,7 +196,9 @@ class YOLOUltralytics(ImageLevelModule):
                 for i, (box, score) in enumerate(zip(boxes, scores)):
                     if score > self.cfg.min_confidence:  # Re-apply confidence threshold
                         det = detections[i].copy()
-                        det["bbox"] = box
+                        det["bbox"] = box[
+                            :4
+                        ]  # Only take the first 4 elements (coordinates)
                         det["conf"] = score
                         filtered_detections.append(det)
 
