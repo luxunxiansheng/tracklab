@@ -4,7 +4,7 @@ _target_: tracklab.pipeline.bbox_detector.yolo_ultralytics_api.YOLOUltralytics
 # Follows same `cfg:` structure as `yolo_ultralytics_soccernet.yaml` so the wrapper
 # receives expected keys like `path_to_checkpoint` and `training`.
 batch_size: 8
-training_enabled: False
+training_enabled: True
 cfg:
   # Path to pretrained checkpoint (can be local model_dir or a full path)
   path_to_checkpoint: "${project_dir}/pretrained_models/yolo/yolo11x.pt"
@@ -60,7 +60,7 @@ cfg:
 
     # Standard training settings
     amp: True
-    cache: True         # Changed: enable data caching for faster loading
+    cache: False         # Changed: enable data caching for faster loading
     device: ""
     workers: 32         # Increased: more data loading workers
     val: True
