@@ -161,6 +161,8 @@ class VisualizationEngine(Callback):
                 (image.shape[1], image.shape[0]),
             )
         with Pool() as p:
+            log.info(f"Starting visualization saving for video '{video_name}'")
+            counter = 0
             for output_image, file_name in p.imap(process_frame, args):
                 if self.save_images:
                     filepath = self.save_dir / "images" / str(video_name) / file_name
@@ -175,6 +177,9 @@ class VisualizationEngine(Callback):
                     assert cv2.imwrite(str(filepath), output_image)
                 if self.save_videos:
                     video_writer.write(output_image)
+                counter += 1
+                if counter % 10 == 0 or counter == total:
+                    log.info(f"Saved {counter}/{total} frames for video '{video_name}'")
                 progress.on_module_step_end(None, "vis", None, None)
 
     def draw_frame(
