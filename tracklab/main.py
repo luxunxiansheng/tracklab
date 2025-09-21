@@ -69,6 +69,8 @@ def main(cfg):
         # Run tracking and visualization
         tracking_engine.track_dataset()
 
+        log.info("Tracking finished, running evaluation...")
+
         # Evaluation
         evaluate(cfg, evaluator, tracker_state)
 

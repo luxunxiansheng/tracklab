@@ -8,4 +8,4 @@ cfg:
 
 
 
-  min_confidence: 0.4
+  min_confidence: 0.6

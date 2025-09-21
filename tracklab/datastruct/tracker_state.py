@@ -17,6 +17,8 @@ from tracklab.utils.coordinates import generate_bbox_from_keypoints, ltrb_to_ltw
 
 import logging
 
+from rich.progress import Progress, SpinnerColumn, TextColumn
+
 log = logging.getLogger(__name__)
 
 
@@ -308,8 +310,10 @@ class TrackerState(AbstractContextManager):
         assert (
             self.detections_pred is not None
         ), "The detections_pred should not be empty when saving"
+
         if "body_masks" in self.detections_pred:
             self.detections_pred = self.detections_pred.drop(["body_masks"], axis=1)
+
         if f"{self.video_id}.pkl" not in self.zf["save"].namelist():
             if "summary.json" not in self.zf["save"].namelist():
                 with self.zf["save"].open("summary.json", "w", force_zip64=True) as fp:
@@ -330,7 +334,13 @@ class TrackerState(AbstractContextManager):
                     detections_pred = self.detections_pred[
                         self.detections_pred.video_id == self.video_id
                     ]
-                    pickle.dump(detections_pred, fp, protocol=pickle.DEFAULT_PROTOCOL)
+                    with Progress(
+                        SpinnerColumn(), TextColumn("Saving detections...")
+                    ) as progress:
+                        progress.add_task("", total=None)
+                        pickle.dump(
+                            detections_pred, fp, protocol=pickle.DEFAULT_PROTOCOL
+                        )
             if not self.image_pred.empty:
                 with self.zf["save"].open(
                     f"{self.video_id}_image.pkl", "w", force_zip64=True
@@ -338,7 +348,11 @@ class TrackerState(AbstractContextManager):
                     image_pred = self.image_pred[
                         self.image_pred.video_id == self.video_id
                     ]
-                    pickle.dump(image_pred, fp, protocol=pickle.DEFAULT_PROTOCOL)
+                    with Progress(
+                        SpinnerColumn(), TextColumn("Saving image metadata...")
+                    ) as progress:
+                        progress.add_task("", total=None)
+                        pickle.dump(image_pred, fp, protocol=pickle.DEFAULT_PROTOCOL)
         else:
             log.info(f"{self.video_id} already exists in {self.save_file} file")
 
