@@ -83,7 +83,9 @@ class TrackingEngine(ABC):
         # super().__init__()
         self.module_names = [module.name for module in modules]
         self.callbacks = callbacks or {}
-        module_callbacks = {module.name:module for module in modules if isinstance(module, Callback)}
+        module_callbacks = {
+            module.name: module for module in modules if isinstance(module, Callback)
+        }
         callbacks = {**self.callbacks, **module_callbacks}
         callbacks_before = [c for c in callbacks.values() if not c.after_saved_state]
         callbacks_after = [c for c in callbacks.values() if c.after_saved_state]
@@ -100,7 +102,9 @@ class TrackingEngine(ABC):
         self.dataloaders = {}
         for model_name, model in self.models.items():
             self.datapipes[model_name] = getattr(model, "datapipe", None)
-            self.dataloaders[model_name] = getattr(model, "dataloader", lambda **kwargs: ...)(engine=self)
+            self.dataloaders[model_name] = getattr(
+                model, "dataloader", lambda **kwargs: ...
+            )(engine=self)
 
     def track_dataset(self):
         """Run tracking on complete dataset."""
@@ -115,7 +119,9 @@ class TrackingEngine(ABC):
                     video_idx=video_idx,
                     index=i,
                 )
-                detections, image_pred = self.video_loop(tracker_state, video_metadata, video_idx)
+                detections, image_pred = self.video_loop(
+                    tracker_state, video_metadata, video_idx
+                )
                 self.callback(
                     "on_video_loop_end",
                     video_metadata=video_metadata,
@@ -145,8 +151,14 @@ class TrackingEngine(ABC):
         """
         pass
 
-    def default_step(self, batch: Any, task: str, detections: pd.DataFrame,
-                     image_pred: pd.DataFrame, **kwargs):
+    def default_step(
+        self,
+        batch: Any,
+        task: str,
+        detections: pd.DataFrame,
+        image_pred: pd.DataFrame,
+        **kwargs,
+    ):
         model = self.models[task]
         self.callback(f"on_module_step_start", task=task, batch=batch)
         idxs, batch = batch
@@ -160,13 +172,14 @@ class TrackingEngine(ABC):
             else:
                 batch_input_detections = detections
             batch_detections = self.models[task].process(
-                batch,
-                batch_input_detections,
-                batch_metadatas)
+                batch, batch_input_detections, batch_metadatas
+            )
         else:
             batch_detections = detections.loc[list(idxs)]
             if not image_pred.empty:
-                batch_metadatas = image_pred.loc[np.isin(image_pred.index, batch_detections.image_id)]
+                batch_metadatas = image_pred.loc[
+                    np.isin(image_pred.index, batch_detections.image_id)
+                ]
             else:
                 batch_metadatas = image_pred
             batch_detections = self.models[task].process(
