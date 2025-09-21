@@ -26,6 +26,7 @@ class OfflineTrackingEngine(TrackingEngine):
             unit="module",
             leave=False,
         ):
+            log.info(f"🔄 Processing module: {model_name}")
             if self.models[model_name].level == "video":
                 detections = self.models[model_name].process(detections, image_pred)
                 continue

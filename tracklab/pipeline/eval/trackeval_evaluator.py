@@ -134,12 +134,10 @@ class TrackEvalEvaluator(EvaluatorBase):
         evaluator = trackeval.Evaluator(eval_config)
 
         # Run evaluation
-        with redirect_stdout(io.StringIO()) as stream:
-            output_res, output_msg = evaluator.evaluate(
-                [dataset], metrics_list, show_progressbar=self.show_progressbar
-            )
-        printed_results = stream.getvalue()
-        log.info(printed_results)
+        output_res, output_msg = evaluator.evaluate(
+            [dataset], metrics_list, show_progressbar=self.show_progressbar
+        )
+        log.info(output_msg)
 
         # Log results
         results = output_res[dataset.get_name()][tracker_name]
