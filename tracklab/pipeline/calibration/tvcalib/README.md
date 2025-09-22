@@ -2,6 +2,13 @@
 
 A state-of-the-art deep learning approach for soccer camera calibration using segmentation and optimization.
 
+## Code Repository
+
+**TVCalib Repository**: [tvcalib](https://github.com/MM4SPA/tvcalib)  
+
+
+This module is based on the original TVCalib implementation. For the core TVCalib code, issues, and contributions, please visit the official TVCalib repository. For TrackLab-specific integration, use the TrackLab repository.
+
 ## Overview
 
 TVCalib implements an advanced camera calibration pipeline that combines:
@@ -317,6 +324,8 @@ TVCalib represents the state-of-the-art in deep learning-based camera calibratio
 
 #### Official Repositories
 
+- **TVCalib**: [tvcalib](https://github.com/tvcalib)
+  - *Official TVCalib repository with core implementation*
 - **SoccerNet**: [SoccerNet/sn-calibration](https://github.com/SoccerNet/sn-calibration)
   - *Official SoccerNet calibration challenge repository*
 - **DeepLabV3+**: [jfzhang95/pytorch-deeplab-xception](https://github.com/jfzhang95/pytorch-deeplab-xception)

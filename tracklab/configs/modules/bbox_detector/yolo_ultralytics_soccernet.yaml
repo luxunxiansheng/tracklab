@@ -19,6 +19,7 @@ cfg:
     batch_size: 16
     img_size: 640
     data_path: null
+    resume: true
 
     # Smart optimizer selection
     optimizer: AdamW
