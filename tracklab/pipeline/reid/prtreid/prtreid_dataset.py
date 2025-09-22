@@ -1,6 +1,5 @@
 from __future__ import absolute_import, division, print_function
 
-import sys
 import cv2
 import torch
 import numpy as np
@@ -19,7 +18,6 @@ from tracklab.datastruct import TrackingDataset
 from tracklab.utils.coordinates import rescale_keypoints
 
 from tracklab.utils.cv2 import overlay_heatmap
-import tracklab
 
 from prtreid.data import ImageDataset
 from prtreid.utils.imagetools import (

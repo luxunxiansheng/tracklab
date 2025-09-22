@@ -60,37 +60,30 @@ graph TD
 
 ### COCO Keypoint Format
 
-```mermaid
-graph TD
-    A[COCO 17-Keypoint Format] --> B[Face: 0-4]
-    A --> C[Upper Body: 5-12]
-    A --> D[Lower Body: 13-16]
+| Keypoint Index | Body Part          | Description          |
+|----------------|---------------------|----------------------|
+| 0              | Nose               | Center of the nose   |
+| 1              | Left Eye           | Left eye center      |
+| 2              | Right Eye          | Right eye center     |
+| 3              | Left Ear           | Left ear center      |
+| 4              | Right Ear          | Right ear center     |
+| 5              | Left Shoulder      | Left shoulder joint  |
+| 6              | Right Shoulder     | Right shoulder joint |
+| 7              | Left Elbow         | Left elbow joint     |
+| 8              | Right Elbow        | Right elbow joint    |
+| 9              | Left Wrist         | Left wrist joint     |
+| 10             | Right Wrist        | Right wrist joint    |
+| 11             | Left Hip           | Left hip joint       |
+| 12             | Right Hip          | Right hip joint      |
+| 13             | Left Knee          | Left knee joint      |
+| 14             | Right Knee         | Right knee joint     |
+| 15             | Left Ankle         | Left ankle joint     |
+| 16             | Right Ankle        | Right ankle joint    |
 
-    B --> B1[nose (0)]
-    B --> B2[left_eye (1)]
-    B --> B3[right_eye (2)]
-    B --> B4[left_ear (3)]
-    B --> B5[right_ear (4)]
-
-    C --> C1[left_shoulder (5)]
-    C --> C2[right_shoulder (6)]
-    C --> C3[left_elbow (7)]
-    C --> C4[right_elbow (8)]
-    C --> C5[left_wrist (9)]
-    C --> C6[right_wrist (10)]
-    C --> C7[left_hip (11)]
-    C --> C8[right_hip (12)]
-
-    D --> D1[left_knee (13)]
-    D --> D2[right_knee (14)]
-    D --> D3[left_ankle (15)]
-    D --> D4[right_ankle (16)]
-
-    style A fill:#e3f2fd
-    style B fill:#f3e5f5
-    style C fill:#e8f5e8
-    style D fill:#fff3e0
-```
+**Body Part Groups:**
+- **Face**: Keypoints 0-4 (nose, eyes, ears)
+- **Upper Body**: Keypoints 5-12 (shoulders, elbows, wrists, hips)
+- **Lower Body**: Keypoints 13-16 (knees, ankles)
 
 ## 🏗️ Architecture
 
@@ -1069,9 +1062,7 @@ def augment_training_data(dataset, augmentation_config):
     augmented_samples = []
 
     for sample in dataset:
-        img = sample['img']
-        keypoints = sample['keypoints']
-        role = sample['role']
+        img, keypoints, role = sample
 
         # Original sample
         augmented_samples.append(sample)
@@ -1354,9 +1345,9 @@ def validate_training_data(data_loader, quality_checks):
             role = batch['role'][i]
 
             # Check keypoint visibility
-            visible_count = torch.sum(keypoints[:, 2] > 0.5)
-            if visible_count < quality_checks['min_visible_kpts']:
-                issues.append(f"Sample {i}: Low keypoint visibility ({visible_count})")
+            visible_kpts = torch.sum(keypoints[:, 2] > 0.5)
+            if visible_kpts < quality_checks['min_visible_kpts']:
+                issues.append(f"Sample {i}: Low keypoint visibility ({visible_kpts})")
 
             # Check image quality
             if is_blurry(img):
@@ -1803,7 +1794,7 @@ def batch_process_detections(detections_batch, model):
         vis_scores = detection['visibility_scores']
 
         heatmaps = preprocess_keypoints(keypoints, vis_scores, heatmap_size)
-        body_masks, role_masks = generate_multi_part_masks(heatmaps)
+        body_masks, role_masks = generate_pose_masks(heatmaps)
 
         batch_heatmaps.append(heatmaps)
         batch_masks.append((body_masks, role_masks))
@@ -1929,13 +1920,6 @@ ReidDataset(
     **kwargs
 )
 ```
-
-**Parameters:**
-- `tracking_dataset`: TrackingDataset instance
-- `reid_config`: ReID configuration dictionary
-- `role_mapping`: Mapping from role names to indices
-- `pose_model`: Optional pose estimation model
-- `masks_dir`: Directory containing pre-computed masks
 
 #### Key Methods
 
@@ -2176,541 +2160,3 @@ This project is licensed under the MIT License - see the [LICENSE](../LICENSE) f
 - Uses [HRNet](https://github.com/HRNet/HRNet-Image-Classification) backbone
 - Inspired by [PoseTrack](https://posetrack.net/) and [COCO](https://cocodataset.org/) datasets
 - Thanks to the TrackLab team for integration support
-
-## Installation
-
-### Prerequisites
-
-```bash
-# Core dependencies
-pip install torch>=1.9.0 torchvision torchaudio
-pip install prtreid>=0.1.0  # Pose-aware ReID library
-pip install opencv-python numpy pandas
-pip install hydra-core omegaconf yacs
-
-# Optional for training
-pip install tqdm scikit-learn matplotlib
-```
-
-### Model Weights
-
-The package automatically downloads required model weights:
-
-```python
-# SoccerNet baseline model
-model_path = "prtreid-soccernet-baseline.pth.tar"
-md5 = "9633825232bc89f23a94522c5561650e"
-
-# HRNet backbone weights
-hrnet_path = "hrnetv2_w32_imagenet_pretrained.pth"
-md5 = "58ea12b0420aa3adaa2f74114c9f9721"
-```
-
-## Usage
-
-### Basic Inference
-
-```python
-from prtreid import PRTReId
-import pandas as pd
-import torch
-
-# Initialize PRTReID module
-config = {
-    "model": {
-        "load_weights": "prtreid-soccernet-baseline.pth.tar",
-        "bpbreid": {
-            "hrnet_pretrained_path": "pretrained_models/",
-            "backbone": "hrnet32"
-        }
-    },
-    "data": {
-        "height": 256,
-        "width": 128
-    }
-}
-
-prtreid = PRTReId(
-    cfg=config,
-    tracking_dataset=your_dataset,
-    dataset=dataset_config,
-    device='cuda',
-    save_path='outputs/',
-    job_id='inference_001',
-    use_keypoints_visibility_scores_for_reid=True,
-    training_enabled=False,
-    batch_size=32
-)
-
-# Process detections
-detections_df = pd.DataFrame({
-    'bbox': [[100, 200, 150, 300]],  # [x, y, w, h]
-    'keypoints': [keypoints_array],   # (17, 3) keypoints
-    'visibility_scores': [visibility_array]  # (17,) visibility
-})
-
-metadata_df = pd.DataFrame({
-    'image_path': ['path/to/image.jpg']
-})
-
-# Run inference
-results = prtreid.process_batch(detections_df, metadata_df)
-
-print("Embeddings shape:", results['embeddings'].shape)
-print("Detected roles:", results['role_detection'])
-print("Role confidence:", results['role_confidence'])
-```
-
-### Integration with TrackLab
-
-```python
-# In your TrackLab pipeline configuration
-pipeline_config = {
-    "modules": {
-        "reid": {
-            "name": "prtreid",
-            "config": {
-                "model": {
-                    "load_weights": "prtreid-soccernet-baseline.pth.tar",
-                    "bpbreid": {
-                        "backbone": "hrnet32",
-                        "hrnet_pretrained_path": "pretrained_models/"
-                    }
-                },
-                "use_keypoints_visibility_scores_for_reid": True,
-                "training_enabled": False
-            }
-        }
-    }
-}
-```
-
-## Configuration
-
-### Model Configuration
-
-```yaml
-# config.yaml
-model:
-  load_weights: "prtreid-soccernet-baseline.pth.tar"
-  bpbreid:
-    backbone: "hrnet32"  # Options: hrnet32, hrnet48
-    hrnet_pretrained_path: "pretrained_models/"
-    test_embeddings: "global"  # Options: global, parts, both
-
-data:
-  height: 256
-  width: 128
-  save_dir: "outputs/"
-
-project:
-  job_id: "training_001"
-
-use_gpu: true
-```
-
-### Advanced Configuration
-
-```python
-# Custom mask configuration
-mask_config = {
-    "type": "gaussian_keypoints",  # Options: gaussian_joints, gaussian_keypoints, pose_on_img
-    "sigma": 2.0,                  # Gaussian kernel standard deviation
-    "threshold": 0.5,              # Keypoint visibility threshold
-    "num_parts": 17                # Number of body parts
-}
-
-# Role detection configuration
-role_config = {
-    "num_classes": 5,
-    "classes": ["ball", "goalkeeper", "other", "player", "referee"],
-    "confidence_threshold": 0.7
-}
-```
-
-## Training
-
-### Data Preparation
-
-#### Required Data Format
-
-```python
-# Training data structure
-training_data = {
-    "images": ["path/to/person1.jpg", "path/to/person2.jpg", ...],
-    "keypoints": [keypoints_array1, keypoints_array2, ...],  # (N, 17, 3)
-    "roles": ["player", "referee", "goalkeeper", ...],        # Role labels
-    "person_ids": [1, 2, 3, ...],                            # Identity labels
-    "camera_ids": [1, 1, 2, ...]                             # Camera identifiers
-}
-```
-
-#### Dataset Class
-
-```python
-from prtreid.data import ImageDataset
-
-class CustomPRTReIDDataset(ImageDataset):
-    """
-    Custom dataset for PRTReID training
-    """
-
-    def __init__(self, data_list, transform=None):
-        self.data_list = data_list
-        self.transform = transform
-
-    def __getitem__(self, index):
-        data = self.data_list[index]
-
-        # Load image
-        img = cv2.imread(data['image_path'])
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-        # Load keypoints and role
-        keypoints = data['keypoints']
-        role = data['role']
-
-        # Apply transformations
-        if self.transform:
-            img, keypoints = self.transform(img, keypoints)
-
-        return {
-            'img': img,
-            'keypoints': keypoints,
-            'pid': data['person_id'],
-            'camid': data['camera_id'],
-            'role': self.role_mapping[role]
-        }
-```
-
-### Training Script
-
-```python
-from prtreid.scripts.main import build_config, build_torchreid_model_engine
-from prtreid.scripts.default_config import engine_run_kwargs
-
-def train_prtreid(config_path):
-    """
-    Train PRTReID model
-    """
-    # Load configuration
-    cfg = CN(OmegaConf.load(config_path))
-
-    # Build engine and model
-    engine, model = build_torchreid_model_engine(cfg)
-
-    # Start training
-    engine.run(**engine_run_kwargs(cfg))
-
-if __name__ == "__main__":
-    train_prtreid("configs/prtreid_train.yaml")
-```
-
-### Training Configuration
-
-```yaml
-# training_config.yaml
-model:
-  bpbreid:
-    backbone: "hrnet32"
-    pretrained: true
-    num_classes: 751  # Number of identities in training set
-
-data:
-  type: "image"
-  sources: ["market1501", "custom_dataset"]
-  targets: ["market1501"]
-  height: 256
-  width: 128
-  transforms: ["random_flip", "random_crop", "color_jitter"]
-
-train:
-  optim: "adam"
-  lr: 0.0003
-  weight_decay: 0.0005
-  max_epoch: 60
-  batch_size: 32
-
-  lr_scheduler:
-    type: "multi_step"
-    milestones: [20, 40]
-    gamma: 0.1
-
-test:
-  batch_size: 32
-  dist_metric: "cosine"
-  normalize_feature: true
-  evaluate: true
-```
-
-## API Reference
-
-### PRTReId Class
-
-#### Constructor
-
-```python
-PRTReId(
-    cfg: dict,
-    tracking_dataset: TrackingDataset,
-    dataset: DatasetConfig,
-    device: str = 'cuda',
-    save_path: str = 'outputs/',
-    job_id: str = 'inference',
-    use_keypoints_visibility_scores_for_reid: bool = True,
-    training_enabled: bool = False,
-    batch_size: int = 32
-)
-```
-
-#### Methods
-
-##### `preprocess(image, detection, metadata)`
-Preprocesses input data for inference.
-
-**Parameters:**
-- `image`: Input image tensor (3, H, W)
-- `detection`: Detection data with bbox information
-- `metadata`: Additional metadata
-
-**Returns:**
-- Preprocessed batch dictionary
-
-##### `process(batch, detections, metadatas)`
-Runs inference on preprocessed batch.
-
-**Parameters:**
-- `batch`: Preprocessed batch from `preprocess()`
-- `detections`: DataFrame with detection information
-- `metadatas`: DataFrame with metadata
-
-**Returns:**
-- DataFrame with ReID results including embeddings, visibility scores, body masks, role detection, and confidence
-
-##### `train()`
-Starts the training process using configured engine.
-
-### ReidDataset Class
-
-#### Constructor
-
-```python
-ReidDataset(
-    tracking_dataset: TrackingDataset,
-    reid_config: dict,
-    role_mapping: dict,
-    pose_model: Optional[nn.Module] = None,
-    masks_dir: str = "",
-    **kwargs
-)
-```
-
-#### Key Methods
-
-##### `gallery_filter(q_pid, q_camid, q_ann, g_pids, g_camids, g_anns)`
-Filters gallery samples based on evaluation metric.
-
-##### `get_masks_config(masks_dir)`
-Returns mask configuration for specified directory.
-
-## Mask Types
-
-### 1. Gaussian Joints (`gaussian_joints`)
-- **Parts**: 10 body parts
-- **Format**: Individual joint heatmaps
-- **Use Case**: Fine-grained pose attention
-
-### 2. Gaussian Keypoints (`gaussian_keypoints`)
-- **Parts**: 17 keypoints (COCO format)
-- **Format**: Combined keypoint heatmap
-- **Use Case**: Standard pose-aware ReID
-
-### 3. Pose on Image (`pose_on_img`)
-- **Parts**: 35 pose features
-- **Format**: Full pose representation
-- **Use Case**: Comprehensive pose modeling
-
-## Performance Optimization
-
-### Batch Processing
-
-```python
-def batch_process_detections(detections_batch, model, heatmap_size=(64, 32)):
-    """
-    Optimized batch processing for multiple detections
-    """
-    # Pre-compute all heatmaps
-    batch_heatmaps = []
-    batch_masks = []
-
-    for detection in detections_batch:
-        keypoints = detection['keypoints']
-        vis_scores = detection['visibility_scores']
-
-        heatmaps = preprocess_keypoints(keypoints, vis_scores, heatmap_size)
-        prompt_mask, target_mask = generate_pose_masks(heatmaps)
-
-        batch_heatmaps.append(heatmaps)
-        batch_masks.append((prompt_mask, target_mask))
-
-    # Batch tensor operations
-    batch_images = torch.stack([d['image'] for d in detections_batch])
-    batch_prompt_masks = torch.stack([m[0] for m in batch_masks])
-    batch_target_masks = torch.stack([m[1] for m in batch_masks])
-
-    # Forward pass
-    features = model.backbone(batch_images)
-    attended_features = features * batch_prompt_masks.unsqueeze(1)
-
-    # Generate embeddings
-    embeddings = model.embedding_head(attended_features.mean(dim=(-2, -1)))
-    embeddings = embeddings * batch_target_masks.mean(dim=(-2, -1), keepdim=True)
-
-    return F.normalize(embeddings, p=2, dim=-1)
-```
-
-### Memory Management
-
-```python
-class MemoryEfficientPRTReID:
-    """
-    Memory-efficient version for large-scale inference
-    """
-
-    def __init__(self, model, chunk_size=16):
-        self.model = model
-        self.chunk_size = chunk_size
-
-    def process_large_batch(self, images, keypoints):
-        """
-        Process large batches in chunks to save memory
-        """
-        results = []
-
-        for i in range(0, len(images), self.chunk_size):
-            chunk_images = images[i:i + self.chunk_size]
-            chunk_keypoints = keypoints[i:i + self.chunk_size]
-
-            chunk_results = self.model.process(chunk_images, chunk_keypoints)
-            results.extend(chunk_results)
-
-        return results
-```
-
-## Evaluation
-
-### Metrics
-
-PRTReID supports multiple evaluation metrics:
-
-- **mAP**: Mean Average Precision
-- **CMC**: Cumulative Matching Characteristics
-- **Role Accuracy**: Role detection accuracy
-- **Pose Quality**: Keypoint visibility and accuracy metrics
-
-### Evaluation Script
-
-```python
-from prtreid.utils.evaluation import evaluate_prtreid
-
-def evaluate_model(model, test_loader, query_loader, gallery_loader):
-    """
-    Evaluate PRTReID model performance
-    """
-    results = evaluate_prtreid(
-        model=model,
-        test_loader=test_loader,
-        query_loader=query_loader,
-        gallery_loader=gallery_loader,
-        metric='cosine'
-    )
-
-    print(f"mAP: {results['mAP']:.4f}")
-    print(f"CMC@1: {results['CMC'][0]:.4f}")
-    print(f"CMC@5: {results['CMC'][4]:.4f}")
-    print(f"Role Accuracy: {results['role_accuracy']:.4f}")
-
-    return results
-```
-
-## Troubleshooting
-
-### Common Issues
-
-#### 1. Memory Errors
-```python
-# Reduce batch size
-config['batch_size'] = 16
-
-# Use memory-efficient processing
-processor = MemoryEfficientPRTReID(model, chunk_size=8)
-```
-
-#### 2. Low Role Detection Accuracy
-```python
-# Ensure proper training data balance
-role_distribution = analyze_role_distribution(training_data)
-
-# Adjust confidence threshold
-config['role_confidence_threshold'] = 0.6
-```
-
-#### 3. Poor Pose Quality
-```python
-# Check keypoint visibility
-visibility_stats = compute_visibility_statistics(keypoints)
-
-# Filter low-quality samples
-high_quality_data = filter_by_visibility(training_data, threshold=0.7)
-```
-
-## Contributing
-
-### Development Setup
-
-```bash
-# Clone repository
-git clone https://github.com/your-repo/prtreid.git
-cd prtreid
-
-# Install in development mode
-pip install -e .
-
-# Run tests
-python -m pytest tests/
-```
-
-### Code Style
-
-```bash
-# Format code
-black prtreid/
-isort prtreid/
-
-# Lint code
-flake8 prtreid/
-mypy prtreid/
-```
-
-## Citation
-
-If you use PRTReID in your research, please cite:
-
-```bibtex
-@article{prtreid2023,
-  title={PRTReID: Pose-aware Re-identification with Role Detection},
-  author={Your Name et al.},
-  journal={arXiv preprint},
-  year={2023}
-}
-```
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](../LICENSE) file for details.
-
-## Acknowledgments
-
-- Built on top of [TorchReID](https://github.com/KaiyangZhou/deep-person-reid)
-- Uses [HRNet](https://github.com/HRNet/HRNet-Image-Classification) backbone
-- Inspired by [PoseTrack](https://posetrack.net/) and [COCO](https://cocodataset.org/) datasets

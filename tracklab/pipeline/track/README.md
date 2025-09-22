@@ -2948,6 +2948,37 @@ To contribute to the Tracking module:
 3. **Add Benchmarks**: Evaluate on new datasets and metrics
 4. **Enhance Features**: Add camera motion compensation, multi-camera support
 
+## Selecting a Tracker for Offline Soccer Video Tracking
+
+Offline soccer video tracking presents unique challenges: fast-moving players, frequent occlusions (e.g., behind other players or ball), similar appearances due to team jerseys, crowded scenes, and the need for consistent player identities across the entire video. Since tracking is offline (not real-time), you can afford more computational resources for higher accuracy.
+
+### Key Considerations for Soccer Tracking
+- **Appearance Similarity**: Players in matching jerseys look alike, so trackers with strong ReID (Re-identification) features are crucial to maintain identities.
+- **Motion Dynamics**: Quick accelerations, direction changes, and interactions require robust motion prediction and association.
+- **Occlusions and Crowds**: Common in soccer; trackers need to handle temporary disappearances and re-identifications.
+- **Accuracy vs. Speed**: Offline allows prioritizing accuracy over real-time performance.
+- **Data Quality**: Assumes good detection inputs (e.g., from YOLO or similar); poor detections will limit any tracker.
+
+### Algorithm Comparison Table
+
+| Algorithm       | Key Features                          | Strengths for Soccer                          | Weaknesses for Soccer                     | Soccer Suitability (1-5) | Recommended for Soccer? |
+|-----------------|---------------------------------------|-----------------------------------------------|-------------------------------------------|--------------------------|-------------------------|
+| SORT           | Motion-only, Kalman filter, IoU       | Fast, simple motion prediction               | High ID switches with similar jerseys     | 1                        | No (too basic)         |
+| OC-SORT        | Observation-centric, motion-aware IoU | Better occlusion handling, reliable detections| No appearance features                    | 2                        | Limited (for simple cases) |
+| ByteTrack      | Low-confidence detections, tracklets  | Good recovery from misses, handles crowds    | Motion-only, ID issues in uniforms       | 3                        | Moderate (if speed prioritized) |
+| StrongSORT     | Appearance + motion, ReID             | Strong identity preservation, jersey handling| Slower than motion-only                   | 4                        | Yes (balanced choice)  |
+| BoT-SORT       | Hybrid cues, occlusion compensation   | Excellent for crowds/occlusions, appearance  | Higher compute                            | 5                        | Yes (high accuracy)    |
+| Deep OC-SORT   | Deep ReID + observation-centric       | Superior appearance matching, robust         | Most compute-intensive                   | 5                        | Yes (max accuracy)     |
+| BPBreID StrongSORT | Advanced ReID, part-based features | Best for pose/lighting variations            | Complex setup                             | 4                        | Yes (robust to conditions) |
+
+### Decision Guide
+- **For Maximum Accuracy**: Deep OC-SORT or BoT-SORT (handles jerseys and occlusions best).
+- **Balanced**: StrongSORT or BPBreID StrongSORT (good identity without excessive cost).
+- **Speed-Focused**: ByteTrack or OC-SORT (faster, but may need manual corrections for IDs).
+- Start with StrongSORT for most soccer videos—it's robust and widely effective.
+
+Experiment with your videos, as results depend on detection quality and camera angles.
+
 ## References
 
 - [SORT: Simple Online and Realtime Tracking](https://arxiv.org/abs/1602.00763)
