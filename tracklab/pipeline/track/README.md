@@ -2,9 +2,13 @@
 
 The Tracking module provides state-of-the-art multi-object tracking algorithms for the TrackLab framework. This module implements various tracking paradigms including motion-based, appearance-based, and hybrid approaches to handle different tracking scenarios and performance requirements.
 
+---
+
 ## Overview
 
 Multi-object tracking (MOT) is the task of maintaining consistent identities for multiple objects as they move through a scene over time. The TrackLab tracking module offers a comprehensive suite of tracking algorithms that can be selected based on specific use cases, performance requirements, and available computational resources.
+
+---
 
 ## Available Tracking Algorithms
 
@@ -21,6 +25,7 @@ StrongSORT extends the SORT algorithm with appearance-based ReID features for ro
 ```
 
 Where:
+
 - **IoU Cost**: $C_{IoU} = 1 - IoU(\mathbf{b}_t, \mathbf{b}_d)$
 - **Appearance Cost**: $C_{appearance} = 1 - \cos(\mathbf{f}_t, \mathbf{f}_d)$
 - **Motion Cost**: $C_{motion} = ||\mathbf{v}_t - \mathbf{v}_d||_2$
@@ -28,6 +33,7 @@ Where:
 #### Technical Implementation
 
 **Appearance Model**: Uses ReID features for robust identity association
+
 - Feature extraction with ResNet-based backbone
 - Cosine distance for appearance similarity
 - Feature bank for efficient nearest neighbor search
@@ -53,11 +59,13 @@ F = np.array([
 ```
 
 **Data Association**: Hungarian algorithm with appearance and motion costs
+
 - Combines multiple similarity measures
 - Optimal assignment using Hungarian algorithm
 - Handles track initialization and termination
 
 **Key Features**: Camera motion compensation, appearance feature extraction
+
 - **Camera Motion Compensation**: ECC-based homography estimation
 - **Feature Bank Management**: Efficient nearest neighbor search with budget constraints
 - **Track State Management**: Age-based track termination and confirmation
@@ -68,6 +76,8 @@ F = np.array([
 - **Robust to Occlusions**: Motion model maintains tracks during occlusions
 - **Camera Motion Handling**: Explicit camera motion compensation
 - **Scalable**: Feature bank with budget management
+
+---
 
 ### ByteTrack
 
@@ -109,6 +119,7 @@ def tracklet_recovery(high_conf_tracks, low_conf_detections):
 ```
 
 **Motion Model**: Kalman filter for motion prediction
+
 - Same 8D state as StrongSORT
 - Constant velocity assumption
 - Handles linear motion patterns
@@ -120,6 +131,7 @@ def tracklet_recovery(high_conf_tracks, low_conf_detections):
 ```
 
 **Key Features**: Fast inference, high FPS, good for real-time applications
+
 - **Two-Stage Association**: First high-confidence, then tracklet recovery
 - **Memory Efficient**: Minimal feature storage requirements
 - **Real-Time Performance**: Optimized for high frame rates
@@ -130,7 +142,8 @@ def tracklet_recovery(high_conf_tracks, low_conf_detections):
 - **Real-Time Capable**: Maintains high FPS even with many objects
 - **Simple Implementation**: Easy to understand and modify
 - **Robust Recovery**: Tracklet mechanism handles brief occlusions
-- **Robust Recovery**: Tracklet mechanism handles brief occlusions
+
+---
 
 ### BotSORT (BoT-SORT)
 
@@ -149,11 +162,13 @@ Where the weights are dynamically adjusted based on track age and confidence.
 #### BotSORT: Technical Implementation
 
 **Motion Model**: Kalman filter with motion compensation
+
 - Enhanced motion model with camera motion awareness
 - Handles both object motion and camera motion
 - Adaptive velocity estimation
 
 **Appearance Model**: ReID features for identity association
+
 - Lightweight ReID model for appearance matching
 - Cosine similarity for feature comparison
 - Temporal feature aggregation
@@ -188,6 +203,7 @@ def compute_combined_cost(track, detection, frame_idx):
 ```
 
 **Key Features**: Better occlusion handling, motion-aware tracking
+
 - **Adaptive Weighting**: Dynamic cost weighting based on track state
 - **Motion Compensation**: Explicit handling of camera motion
 - **Occlusion Robustness**: Better handling of partial occlusions
@@ -198,6 +214,8 @@ def compute_combined_cost(track, detection, frame_idx):
 - **Motion Aware**: Handles camera motion effectively
 - **Robust to Occlusions**: Better track maintenance during occlusions
 - **Adaptive**: Adjusts behavior based on track confidence
+
+---
 
 ### OCSORT (Observation-Centric SORT)
 
@@ -212,6 +230,7 @@ OCSORT focuses on observation-to-track association without complex motion models
 ```
 
 Where:
+
 - $\mathbf{b}_t$: Bounding box at time t
 - $\mathbf{v}_t$: Velocity vector
 - $\mathbf{a}_t$: Age of the track
@@ -253,6 +272,7 @@ class OCTrack:
 ```
 
 **Motion Model**: Linear velocity estimation
+
 - Simple constant velocity model
 - No Kalman filter complexity
 - Memory efficient
@@ -264,6 +284,7 @@ class OCTrack:
 ```
 
 **Key Features**: Lightweight, fast, good for simple tracking scenarios
+
 - **Minimal Memory**: No complex state management
 - **Fast Inference**: Simple computations
 - **Robust to Linear Motion**: Good for predictable motion patterns
@@ -274,6 +295,8 @@ class OCTrack:
 - **Fast**: High frame rate capability
 - **Simple**: Easy to implement and understand
 - **Memory Efficient**: Low memory footprint
+
+---
 
 ### DeepOCSORT
 
@@ -294,11 +317,13 @@ DeepOCSORT incorporates deep learning for both motion prediction and appearance 
 #### Technical Implementation
 
 **Motion Model**: Deep learning-based motion prediction
+
 - LSTM or Transformer-based motion modeling
 - Learns complex motion patterns
 - Handles non-linear trajectories
 
 **Appearance Model**: Deep feature extraction for identity association
+
 ```python
 class DeepMotionModel(nn.Module):
     def __init__(self, input_dim=4, hidden_dim=128, num_layers=2):
@@ -318,20 +343,25 @@ class DeepMotionModel(nn.Module):
 ```
 
 **Data Association**: Advanced matching with temporal information
+
 - Combines deep motion predictions with appearance features
 - Temporal consistency constraints
 - Multi-hypothesis tracking
 
 **Key Features**: Better handling of complex motion patterns
+
 - **Deep Motion Learning**: Learns complex motion patterns
 - **Temporal Modeling**: Uses historical information for predictions
 - **Advanced Features**: Combines multiple cues for robust tracking
 
 #### Advantages
+
 - **High Accuracy**: Deep learning improves prediction accuracy
 - **Complex Motion Handling**: Better for non-linear trajectories
 - **Temporal Consistency**: Uses historical information effectively
 - **Adaptive**: Learns from data patterns
+
+---
 
 ### BPBReID-StrongSORT
 
@@ -340,16 +370,19 @@ class DeepMotionModel(nn.Module):
 #### Technical Implementation
 
 **Appearance Model**: BPBReID for robust ReID in sports contexts
+
 - Sports-optimized ReID model
 - Handles team uniforms and equipment
 - Robust to motion blur and pose variations
 
 **Motion Model**: Advanced Kalman filter with motion compensation
+
 - Sports-specific motion patterns
 - Handles fast-moving objects
 - Camera motion compensation for broadcast footage
 
 **Data Association**: Sports-optimized matching algorithm
+
 ```python
 def sports_optimized_matching(tracks, detections, team_info=None):
     """
@@ -371,45 +404,56 @@ def sports_optimized_matching(tracks, detections, team_info=None):
 ```
 
 **Key Features**: Team-aware tracking, jersey number recognition
+
 - **Team Detection**: Identifies team affiliations
 - **Jersey Recognition**: OCR-based jersey number detection
 - **Sports Motion**: Optimized for athletic movement patterns
 - **Broadcast Aware**: Handles camera motion in sports broadcasts
 
 #### Advantages
+
 - **Sports Optimized**: Tailored for sports tracking scenarios
 - **Team Aware**: Maintains team-level consistency
 - **Jersey Recognition**: Uses jersey numbers for identity verification
 - **Motion Robust**: Handles fast and complex athletic movements
+
+---
 
 ## Algorithm Fundamentals
 
 ### Core Components of Multi-Object Tracking
 
 #### 1. Detection
+
 - Input: Object detections from detectors (bboxes, confidence scores, class IDs)
 - Processing: Filter detections by confidence threshold
 - Output: High-confidence detections for tracking
 
 #### 2. Motion Prediction
+
 - **Kalman Filter**: Predicts object positions using motion models
 - **Linear Motion**: Assumes constant velocity
 - **Non-linear Motion**: Handles acceleration and complex trajectories
 
 #### 3. Data Association
+
 - **IoU Matching**: Intersection over Union between predictions and detections
 - **Appearance Matching**: Feature similarity for identity association
 - **Cost Matrix**: Combines multiple similarity measures
 - **Hungarian Algorithm**: Optimal assignment solution
 
 #### 4. Track Management
+
 - **Track Initialization**: Create new tracks from unmatched detections
 - **Track Update**: Update existing tracks with matched detections
 - **Track Termination**: Remove tracks that haven't been updated for several frames
 
+---
+
 ### Tracking Paradigms
 
 #### Motion-Based Tracking (SORT, OCSORT)
+
 ```python
 # Core algorithm: Predict → Match → Update
 def motion_based_tracking(detections, tracks):
@@ -432,6 +476,7 @@ def motion_based_tracking(detections, tracks):
 ```
 
 #### Appearance-Based Tracking (StrongSORT, DeepOCSORT)
+
 ```python
 # Core algorithm: Extract features → Match → Update
 def appearance_based_tracking(detections, tracks, reid_model):
@@ -455,6 +500,7 @@ def appearance_based_tracking(detections, tracks, reid_model):
 ```
 
 #### Hybrid Tracking (BotSORT, BPBReID-StrongSORT)
+
 ```python
 # Core algorithm: Motion prediction → Feature extraction → Multi-cost matching
 def hybrid_tracking(detections, tracks, reid_model):
@@ -483,6 +529,8 @@ def hybrid_tracking(detections, tracks, reid_model):
     return matches
 ```
 
+---
+
 ## Performance Benchmarks
 
 ### Comprehensive Evaluation Metrics
@@ -490,9 +538,11 @@ def hybrid_tracking(detections, tracks, reid_model):
 #### Primary MOT Metrics
 
 **MOTA (Multiple Object Tracking Accuracy)**:
+
 ```math
 MOTA = 1 - \frac{\sum_t (FP_t + FN_t + IDSW_t)}{\sum_t GT_t}
 ```
+
 - **FP**: False positives (spurious tracks)
 - **FN**: False negatives (missed detections)
 - **IDSW**: Identity switches (track ID changes)
@@ -500,18 +550,22 @@ MOTA = 1 - \frac{\sum_t (FP_t + FN_t + IDSW_t)}{\sum_t GT_t}
 - **Range**: [-∞, 100]%, higher is better
 
 **MOTP (Multiple Object Tracking Precision)**:
+
 ```math
 MOTP = \frac{\sum_t \sum_m d_t^m}{\sum_t c_t}
 ```
+
 - Measures localization precision of matched tracks
 - **d_t^m**: Distance between matched track and ground truth
 - **c_t**: Number of matches at time t
 - **Range**: [0, ∞), lower is better
 
 **IDF1 Score**:
+
 ```math
 IDF1 = 2 \cdot \frac{IDTP}{2 \cdot IDTP + IDFP + IDFN}
 ```
+
 - Harmonic mean of precision and recall for identity preservation
 - **IDTP**: True positive identities
 - **IDFP**: False positive identities
@@ -521,11 +575,13 @@ IDF1 = 2 \cdot \frac{IDTP}{2 \cdot IDTP + IDFP + IDFN}
 #### Advanced Identity Metrics
 
 **ID Precision/Recall/F1**:
+
 - **IDP**: Precision of identity matches
 - **IDR**: Recall of identity matches
 - **IDF1**: F1 score for identity preservation
 
 **Track Quality Metrics**:
+
 - **MT/ML/HM**: Mostly tracked, mostly lost, half-tracked trajectories (%)
 - **Fragments**: Number of track fragmentations
 - **Track Length**: Average length of complete tracks
@@ -533,11 +589,13 @@ IDF1 = 2 \cdot \frac{IDTP}{2 \cdot IDTP + IDFP + IDFN}
 #### Computational Metrics
 
 **Throughput Metrics**:
+
 - **FPS**: Frames per second
 - **Latency**: Processing time per frame (ms)
 - **Memory Usage**: Peak and average memory consumption
 
 **Efficiency Metrics**:
+
 - **FLOPs**: Floating point operations per frame
 - **Parameters**: Number of model parameters
 - **Model Size**: Disk space required
@@ -577,7 +635,9 @@ IDF1 = 2 \cdot \frac{IDTP}{2 \cdot IDTP + IDFP + IDFN}
 | **DeepOCSORT** | 69.8 | 78.5 | 66.1 | 41% | 18% | 1.9K | 6.1K | 789 | 29 |
 | **BPBReID-StrongSORT** | 72.1 | 79.1 | 69.3 | 46% | 15% | 1.3K | 5.4K | 567 | 17 |
 
-### Computational Performance Analysis
+---
+
+## Computational Performance Analysis
 
 #### Hardware-Specific Performance
 
@@ -652,6 +712,8 @@ def identify_bottlenecks(latency_data):
         }
     return bottlenecks
 ```
+
+---
 
 ### Advanced Ablation Studies
 
@@ -808,7 +870,9 @@ def calculate_robustness_score(robustness_data):
     return robustness_scores
 ```
 
-### Performance Optimization Strategies
+---
+
+## Performance Optimization Strategies
 
 #### Algorithm Selection Guide
 
@@ -872,6 +936,7 @@ def recommend_algorithm(requirements):
 #### Real-World Deployment Considerations
 
 **Production Deployment Checklist**:
+
 - [ ] Benchmark on target hardware
 - [ ] Profile memory usage patterns
 - [ ] Test with expected data distribution
@@ -879,6 +944,8 @@ def recommend_algorithm(requirements):
 - [ ] Monitor performance degradation over time
 - [ ] Implement graceful fallback mechanisms
 - [ ] Set up performance monitoring and alerting
+
+---
 
 ## Configuration
 
@@ -951,6 +1018,8 @@ hyperparams:
   match_thresh: 0.8
 ```
 
+---
+
 ### Advanced Configuration Examples
 
 #### Sports Tracking Configuration
@@ -1003,7 +1072,7 @@ hyperparams:
 # Lightweight configuration for edge devices
 _target_: tracklab.pipeline.track.oc_sort_api.OCSORT
 
-# Minimal resource requirements
+# Memory-efficient settings
 min_confidence: 0.7
 
 # Lightweight tracking parameters
@@ -1017,7 +1086,9 @@ hyperparams:
   inertia: 0.5
 ```
 
-### Specialized Use Case Configurations
+---
+
+## Domain-Specific Configurations
 
 #### Autonomous Driving Configuration
 
@@ -1186,7 +1257,9 @@ acceleration_computation: true
 behavior_pattern_recognition: true
 ```
 
-### Performance-Optimized Configurations
+---
+
+## Performance-Optimized Configurations
 
 #### Maximum Speed Configuration
 
@@ -1264,7 +1337,9 @@ pinned_memory: true
 async_data_loading: true
 ```
 
-### Domain-Specific Configurations
+---
+
+## Domain-Specific Configurations
 
 #### Animal Tracking Configuration
 
@@ -1339,6 +1414,8 @@ traffic_flow_analysis: true
 congestion_detection: true
 license_plate_tracking: true
 ```
+
+---
 
 ### Configuration Templates
 
@@ -1419,7 +1496,9 @@ visualization_export: true
 data_collection: true
 ```
 
-### Configuration Validation and Optimization
+---
+
+## Configuration Validation and Optimization
 
 #### Automated Configuration Tuning
 
@@ -1575,16 +1654,7 @@ def validate_config(config):
         return None
 ```
 
-### Configuration Best Practices
-
-1. **Start Simple**: Begin with default configurations and gradually optimize
-2. **Profile First**: Use performance profiling to identify bottlenecks
-3. **Validate Configurations**: Always validate configurations before deployment
-4. **Monitor Performance**: Track key metrics during operation
-5. **Version Control**: Keep track of configuration changes and their impact
-6. **Hardware Matching**: Choose configurations that match your hardware capabilities
-7. **Use Case Alignment**: Select parameters that align with your specific use case
-8. **Regular Tuning**: Periodically review and tune configurations based on new data
+---
 
 ## Usage
 
@@ -1669,6 +1739,8 @@ while cap.isOpened():
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 ```
+
+---
 
 ### Advanced Usage Patterns
 
@@ -1766,7 +1838,7 @@ class MultiCameraTracker:
 
     def process_frame(self, camera_id, frame, detections):
         # Update local tracker
-        local_tracks = self.trackers[camera_id].update(detections, frame.shape[:2], frame.shape[:2])
+        local_tracks = self.trackers[camera_id].update(detections, frame.shape[:2])
 
         # Associate with global tracks
         global_tracks = self._associate_global_tracks(camera_id, local_tracks)
@@ -1964,6 +2036,8 @@ print("Game Analytics Report:")
 print(json.dumps(report, indent=2))
 ```
 
+---
+
 ### API Reference
 
 #### Core Tracker Classes
@@ -2075,76 +2149,16 @@ class OCSORT:
         Update tracker with detections
 
         Args:
-            detections: List of detections [x1, y1, x2, y2, score]
-            frame_id: Current frame ID
+                       detections: List of detections [x1, y1, x2, y2, conf]
+            frame_id: Current frame identifier
 
         Returns:
-            List of tracked objects
+            List of updated tracks
         """
         pass
 ```
 
-##### DeepOCSORT
-
-```python
-class DeepOCSORT:
-    def __init__(self,
-                 model_weights=None,  # Path to deep model weights
-                 det_thresh=0.3,
-                 max_age=60,
-                 min_hits=2,
-                 iou_threshold=0.5,
-                 delta_t=3,
-                 asso_func='giou',
-                 inertia=0.2):
-        pass
-
-    def update(self, detections, frame, embeddings=None):
-        """
-        Update tracker with detections and frame
-
-        Args:
-            detections: Detection results
-            frame: Current frame image
-            embeddings: Optional ReID embeddings
-
-        Returns:
-            List of tracked objects with deep features
-        """
-        pass
-```
-
-#### Track Objects
-
-```python
-class STrack:
-    def __init__(self, tlwh, score, class_id=None):
-        self.track_id = None      # Unique track identifier
-        self.tlwh = tlwh          # Bounding box [top, left, width, height]
-        self.tlbr = None          # Bounding box [top, left, bottom, right]
-        self.score = score        # Detection confidence
-        self.class_id = class_id  # Object class
-        self.mean = None          # Kalman filter mean state
-        self.covariance = None    # Kalman filter covariance
-        self.is_activated = False # Whether track is activated
-        self.state = TrackState.New  # Track state
-
-    @property
-    def bottom(self):
-        return self.tlbr[3]
-
-    @property
-    def right(self):
-        return self.tlbr[2]
-
-    @property
-    def height(self):
-        return self.tlwh[3]
-
-    @property
-    def width(self):
-        return self.tlwh[2]
-```
+---
 
 ### Integration Examples
 
@@ -2184,20 +2198,15 @@ while cap.isOpened():
         detections = np.array(detections)
         tracks = tracker.update(detections, frame.shape[:2], frame.shape[:2])
 
-        # Visualize
+        # Visualize results
         for track in tracks:
-            cv2.rectangle(frame, (int(track.tlbr[0]), int(track.tlbr[1])),
-                         (int(track.tlbr[2]), int(track.tlbr[3])), (0, 255, 0), 2)
-            cv2.putText(frame, f'ID: {track.track_id}',
-                       (int(track.tlbr[0]), int(track.tlbr[1] - 10)),
+            cv2.rectangle(frame, track.tlbr[:2], track.tlbr[2:], (0, 255, 0), 2)
+            cv2.putText(frame, f'ID: {track.track_id}', track.tlbr[:2],
                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
 
     cv2.imshow('YOLOv8 + ByteTrack', frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
-
-cap.release()
-cv2.destroyAllWindows()
 ```
 
 #### With DeepSORT Integration
@@ -2257,7 +2266,7 @@ class HybridTracker:
 
         intersection = max(0, x2 - x1) * max(0, y2 - y1)
         area1 = (box1[2] - box1[0]) * (box1[3] - box1[1])
-        area2 = (box2[2] - box2[2]) * (box2[3] - box2[1])
+        area2 = (box2[2] - box2[0]) * (box2[3] - box2[1])
         union = area1 + area2 - intersection
 
         return intersection / union if union > 0 else 0
@@ -2359,6 +2368,8 @@ def main(args=None):
 if __name__ == '__main__':
     main()
 ```
+
+---
 
 ### Performance Optimization
 
@@ -2468,7 +2479,9 @@ memory_tracker = MemoryEfficientTracker(max_tracks=50, memory_limit_mb=256)
 tracks = memory_tracker.update(detections, frame)
 ```
 
-### Evaluation and Metrics
+---
+
+## Evaluation and Metrics
 
 #### Tracking Performance Evaluation
 
@@ -2627,7 +2640,7 @@ class TrackingVisualizer:
 
             # Assign color to track
             if track_id not in self.track_colors:
-                self.track_colors[track_id] = plt.cm.tab10(len(self.track_colors) % 10)
+                self.track_colors[track_id] = tuple(np.random.randint(0, 255, 3))
 
             color = self.track_colors[track_id]
 
@@ -2692,12 +2705,9 @@ class TrackingVisualizer:
         plt.tight_layout()
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         plt.close()
-
-# Usage
-visualizer = TrackingVisualizer()
-visualizer.visualize_sequence(frames, tracks_data, gt_data)
-visualizer.plot_metrics_over_time(metrics_data)
 ```
+
+---
 
 ## Troubleshooting
 
@@ -2765,6 +2775,8 @@ min_confidence: 0.6  # Reduce detections to process
 _target_: tracklab.pipeline.track.byte_track_api.ByteTrack  # Faster alternative
 ```
 
+---
+
 ### Advanced Debugging
 
 #### Track Visualization
@@ -2791,18 +2803,28 @@ def visualize_tracks(video_path, tracks_data, output_path):
                 if track_id not in track_colors:
                     track_colors[track_id] = tuple(np.random.randint(0, 255, 3))
 
-                bbox = track_info['bbox']
                 color = track_colors[track_id]
 
-                # Draw bounding box
-                cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])),
-                            (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3])),
-                            color, 2)
+                # Plot bounding box
+                bbox = track_info['bbox']
+                rect = patches.Rectangle((bbox[0], bbox[1]),
+                                       bbox[2] - bbox[0], bbox[3] - bbox[1],
+                                       linewidth=2, edgecolor=color, facecolor='none')
+                ax.add_patch(rect)
 
-                # Draw track ID
-                cv2.putText(frame, f"ID: {track_id}",
-                          (int(bbox[0]), int(bbox[1] - 10)),
-                          cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                # Plot track ID
+                ax.text(bbox[0], bbox[1] - 5, f'ID: {track_id}',
+                        color=color, fontsize=12, weight='bold')
+
+                # Store track history for trajectory plotting
+                center = [(bbox[0] + bbox[2])/2, (bbox[1] + bbox[3])/2]
+                track_histories[track_id].append(center)
+
+                # Plot trajectory
+                if len(track_histories[track_id]) > 1:
+                    trajectory = np.array(track_histories[track_id])
+                    ax.plot(trajectory[:, 0], trajectory[:, 1],
+                           color=color, linewidth=1, alpha=0.7)
 
         out.write(frame)
         frame_idx += 1
@@ -2864,6 +2886,8 @@ def profile_tracking_performance(tracker, test_data):
 
     return summary
 ```
+
+---
 
 ## Algorithm Selection and Troubleshooting Guide
 
@@ -2939,6 +2963,8 @@ plt.tight_layout()
 plt.show()
 ```
 
+---
+
 ## Contributing
 
 To contribute to the Tracking module:
@@ -2947,6 +2973,8 @@ To contribute to the Tracking module:
 2. **Improve Performance**: Optimize motion models and data association
 3. **Add Benchmarks**: Evaluate on new datasets and metrics
 4. **Enhance Features**: Add camera motion compensation, multi-camera support
+
+---
 
 ## Selecting a Tracker for Offline Soccer Video Tracking
 
@@ -2973,11 +3001,13 @@ Offline soccer video tracking presents unique challenges: fast-moving players, f
 
 ### Decision Guide
 - **For Maximum Accuracy**: Deep OC-SORT or BoT-SORT (handles jerseys and occlusions best).
-- **Balanced**: StrongSORT or BPBreID StrongSORT (good identity without excessive cost).
+- **Balanced**: StrongSORT or BPBReID StrongSORT (good identity without excessive cost).
 - **Speed-Focused**: ByteTrack or OC-SORT (faster, but may need manual corrections for IDs).
 - Start with StrongSORT for most soccer videos—it's robust and widely effective.
 
 Experiment with your videos, as results depend on detection quality and camera angles.
+
+---
 
 ## References
 
@@ -2987,6 +3017,8 @@ Experiment with your videos, as results depend on detection quality and camera a
 - [BoT-SORT: Robust Associations Multi-Pedestrian Tracking](https://arxiv.org/abs/2206.14651)
 - [OCSORT: Observation-Centric SORT on Video Instance Segmentation](https://arxiv.org/abs/2203.14360)
 - [DeepOCSORT: Deep Learning Extension of Observation-Centric SORT](https://arxiv.org/abs/2302.11813)
+
+---
 
 ## License
 

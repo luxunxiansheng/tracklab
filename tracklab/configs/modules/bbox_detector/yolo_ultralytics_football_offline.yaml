@@ -62,7 +62,7 @@ cfg:
     amp: True
     cache: False         # Changed: enable data caching for faster loading
     device: ""
-    workers: 32         # Increased: more data loading workers
+    workers: 16         # Increased: more data loading workers
     val: True
     save_period: 2    # Increased: save checkpoints less frequently
     patience: 20       # Increased patience for longer training
