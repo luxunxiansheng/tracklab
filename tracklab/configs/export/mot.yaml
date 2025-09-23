@@ -1,0 +1,3 @@
+# MOT Challenge format exporter
+_target_: tracklab.pipeline.export.MOTExporter
+# No additional config needed for basic MOT export

@@ -9,6 +9,7 @@ import logging
 
 from tracklab.datastruct import TrackerState
 from tracklab.pipeline import Pipeline
+from tracklab.pipeline.export import MOTExporter
 from tracklab.utils import monkeypatch_hydra, progress, wandb
 
 from hydra.utils import instantiate
@@ -52,9 +53,8 @@ def main(cfg):
                 evaluator,
                 OmegaConf.to_container(cfg.dataset, resolve=True),
             )
-    else:
-        pass
-
+            log.info(f"✅ Finished training module {i}/{len(training_modules)}")
+   
     # Test tracking
     if cfg.test_tracking:
         # Init tracker state and tracking engine
@@ -69,7 +69,7 @@ def main(cfg):
         # Run tracking and visualization
         tracking_engine.track_dataset()
 
-        log.info("Tracking finished, running evaluation...")
+        export(cfg, tracker_state)
 
         # Evaluation
         evaluate(cfg, evaluator, tracker_state)
@@ -127,6 +127,24 @@ def evaluate(cfg, evaluator, tracker_state):
         pass
     else:
         pass
+
+
+def export(cfg, tracker_state):
+    if hasattr(cfg, "export") and cfg.export is not None:
+        exporter = instantiate(cfg.export)
+        save_path = cfg.get("export_save_path", "exports")
+        exporter.export(
+            detections=tracker_state.detections_pred,
+            image_metadatas=tracker_state.image_metadatas,
+            video_metadatas=tracker_state.video_metadatas,
+            save_path=save_path,
+            bbox_column="bbox_ltwh",
+            save_classes=False,
+            is_ground_truth=False,
+        )
+        log.info(f"Exported tracking results to {save_path}")
+    else:
+        log.info("No export configuration found, skipping export")
 
 
 if __name__ == "__main__":
