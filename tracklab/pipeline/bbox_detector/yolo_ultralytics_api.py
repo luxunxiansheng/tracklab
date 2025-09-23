@@ -497,17 +497,18 @@ class YOLOUltralytics(ImageLevelModule):
         # Check if we have role information
         if "role" in detection_row:
             role = detection_row["role"]
-            if role in ["player", "goalkeeper"]:
+            if role in ["player", "goalkeeper", "referee"]:
                 return 0  # YOLO person class
             else:
-                # Skip non-person categories (referee, ball, other)
+                # Skip non-person categories (ball, other)
                 return -1
 
         # Fallback to category name checking
         if "category" in detection_row:
             category = str(detection_row["category"]).lower()
             if any(
-                keyword in category for keyword in ["player", "goalkeeper", "person"]
+                keyword in category
+                for keyword in ["player", "goalkeeper", "referee", "person"]
             ):
                 return 0  # YOLO person class
             else:

@@ -1,6 +1,4 @@
-import io
 import logging
-from contextlib import redirect_stdout
 from pathlib import Path
 
 import numpy as np
