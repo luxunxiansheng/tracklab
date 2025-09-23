@@ -70,12 +70,12 @@ class YOLOUltralytics(ImageLevelModule):
                     postproc.size_filter_min_area_ratio
                 )
 
-        # Load or initialize model
+        # Load or initialize model - YOLO11x specific optimizations
         if hasattr(cfg, "path_to_checkpoint") and cfg.path_to_checkpoint:
             self.model = YOLO(cfg.path_to_checkpoint)
         else:
-            # Initialize with default model if no checkpoint provided
-            default_model = getattr(cfg, "default_model", "yolov8n.pt")
+            # For YOLO11x, use smaller batch size but optimize other parameters
+            default_model = getattr(cfg, "default_model", "yolo11x.pt")
             self.model = YOLO(default_model)
 
     @torch.no_grad()
@@ -247,10 +247,10 @@ class YOLOUltralytics(ImageLevelModule):
 
         log.info("Starting YOLO training with TrackingDataset...")
 
-        # Get training configuration
+        # Get training configuration optimized for YOLO11x
         train_cfg = getattr(self.cfg, "training", {})
         epochs = train_cfg.get("epochs", 50)
-        batch_size = train_cfg.get("batch_size", 16)
+        batch_size = train_cfg.get("batch_size", 16)  # Smaller batch for YOLO11x
         img_size = train_cfg.get("img_size", 640)
 
         # Determine dataset directory: use data_path if provided, otherwise use persistent dir
@@ -376,6 +376,7 @@ class YOLOUltralytics(ImageLevelModule):
         """
 
         import shutil
+        import os
         from PIL import Image
 
         images_dir = output_path / "images" / split_name
@@ -420,14 +421,29 @@ class YOLOUltralytics(ImageLevelModule):
                     skipped_images += 1
                     continue
 
-                # Copy image to YOLO format directory (preserve original format)
+                # Create symlink to image instead of copying (much faster for large datasets)
                 suffix = image_path.suffix or ".jpg"
                 yolo_image_path = images_dir / f"{image_id}{suffix}"
+
+                # Remove existing file/symlink if it exists
+                if yolo_image_path.exists() or yolo_image_path.is_symlink():
+                    try:
+                        yolo_image_path.unlink(missing_ok=True)
+                    except Exception:
+                        pass  # Ignore cleanup errors
+
                 try:
-                    shutil.copy(str(image_path), str(yolo_image_path))
+                    # Use relative symlink if possible, absolute otherwise
+                    try:
+                        # Try relative symlink first
+                        rel_path = os.path.relpath(image_path, images_dir)
+                        yolo_image_path.symlink_to(rel_path)
+                    except (OSError, ValueError):
+                        # Fall back to absolute symlink
+                        yolo_image_path.symlink_to(image_path)
                 except Exception as e:
                     log.warning(
-                        f"Could not copy image {image_path} to {yolo_image_path}: {e}"
+                        f"Could not create symlink for {image_path} to {yolo_image_path}: {e}"
                     )
                     skipped_images += 1
                     continue
@@ -589,58 +605,60 @@ class YOLOUltralytics(ImageLevelModule):
 
         # Set up training arguments
 
-        # Set up training arguments
+        # Set up training arguments optimized for YOLO11x large model
         train_args = {
             "data": str(data_yaml_path),
             "epochs": epochs,
             "batch": batch_size,
             "imgsz": img_size,
             "device": self.device,
-            "workers": train_cfg.get("workers", 8),
+            "workers": train_cfg.get("workers", 12),  # Moderate workers for stability
             "optimizer": train_cfg.get("optimizer", "AdamW"),
-            "lr0": train_cfg.get("lr0", 0.0001),
-            "lrf": train_cfg.get("lrf", 0.01),
-            "momentum": train_cfg.get("momentum", 0.9),
+            "lr0": train_cfg.get("lr0", 0.0005),  # Conservative LR for large model
+            "lrf": train_cfg.get("lrf", 0.1),  # Higher final LR ratio
+            "momentum": train_cfg.get("momentum", 0.9),  # Standard momentum
             "weight_decay": train_cfg.get("weight_decay", 0.0005),
-            "warmup_epochs": train_cfg.get("warmup_epochs", 3),
+            "warmup_epochs": train_cfg.get("warmup_epochs", 5),  # Longer warmup
             "warmup_momentum": train_cfg.get("warmup_momentum", 0.8),
-            "warmup_bias_lr": train_cfg.get("warmup_bias_lr", 0.1),
-            "freeze": train_cfg.get("freeze", 10),
-            "amp": train_cfg.get("amp", True),
-            "cache": train_cfg.get("cache", False),
+            "warmup_bias_lr": train_cfg.get("warmup_bias_lr", 0.05),
+            "freeze": train_cfg.get("freeze", 24),  # Freeze more layers for stability
+            "amp": train_cfg.get("amp", True),  # Essential for large models
+            "cache": train_cfg.get("cache", True),  # Critical for speed
             "val": train_cfg.get("val", True),
-            "save_period": train_cfg.get("save_period", 10),
-            "patience": train_cfg.get("patience", 10),
-            "plots": train_cfg.get("plots", True),
-            "verbose": train_cfg.get("verbose", True),
+            "save_period": train_cfg.get("save_period", 5),  # Save more frequently
+            "patience": train_cfg.get("patience", 15),  # More patience for large model
+            "plots": train_cfg.get("plots", False),
+            "verbose": train_cfg.get("verbose", False),
             "resume": train_cfg.get("resume", False),
+            "cos_lr": True,  # Cosine LR for better convergence
+            "close_mosaic": 15,  # Close mosaic later for large model
+            "overlap_mask": False,
+            "mask_ratio": 1,
+            "dropout": 0.1,  # Light dropout for regularization
+            "nbs": 64,  # Nominal batch size
+            "hsv_h": 0.01,  # Reduced augmentations for stability
+            "hsv_s": 0.6,
+            "hsv_v": 0.3,
+            "degrees": 0.0,  # No rotation for person detection
+            "translate": 0.05,  # Reduced translation
+            "scale": 0.3,  # Reduced scale
+            "shear": 0.0,
+            "perspective": 0.0,
+            "flipud": 0.0,
+            "fliplr": 0.5,  # Keep horizontal flip
+            "mosaic": 0.8,  # Reduced mosaic probability
+            "mixup": 0.0,  # No mixup for stability
+            "copy_paste": 0.0,
         }
 
-        # Add augmentation settings if available
-        if "augmentation" in train_cfg:
-            aug = train_cfg["augmentation"]
-            train_args.update(
-                {
-                    "hsv_h": aug.get("hsv_h", 0.015),
-                    "hsv_s": aug.get("hsv_s", 0.7),
-                    "hsv_v": aug.get("hsv_v", 0.4),
-                    "degrees": aug.get("degrees", 0.0),
-                    "translate": aug.get("translate", 0.1),
-                    "scale": aug.get("scale", 0.5),
-                    "shear": aug.get("shear", 0.0),
-                    "perspective": aug.get("perspective", 0.0),
-                    "flipud": aug.get("flipud", 0.0),
-                    "fliplr": aug.get("fliplr", 0.5),
-                    "mosaic": aug.get("mosaic", 1.0),
-                    "mixup": aug.get("mixup", 0.0),
-                    "copy_paste": aug.get("copy_paste", 0.0),
-                }
-            )
+        # YOLO11x specific: Add gradient checkpointing for memory efficiency
+        if hasattr(self.model, "gradient_checkpointing_enable"):
+            self.model.gradient_checkpointing_enable()  # Reduce memory usage
 
         # Train the model
-        log.info("🚀 Starting YOLO model training...")
+        log.info("🚀 Starting YOLO11x model training...")
         results = self.model.train(**train_args)
-        log.info("✅ YOLO training completed!")
+        log.info("✅ YOLO11x training completed!")
 
         # Restore original working directory
         os.chdir(original_cwd)
