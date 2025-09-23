@@ -30,7 +30,6 @@ def main(cfg):
 
     # Instantiate all modules
     tracking_dataset = instantiate(cfg.dataset)
-    evaluator = instantiate(cfg.eval, tracking_dataset=tracking_dataset)
 
     modules = []
     if cfg.pipeline is not None:
@@ -43,6 +42,7 @@ def main(cfg):
 
     pipeline = Pipeline(models=modules)
 
+
     # Train tracking modules
     training_modules = [module for module in modules if module.training_enabled]
     if training_modules:
@@ -50,11 +50,10 @@ def main(cfg):
             module.train(
                 tracking_dataset,
                 pipeline,
-                evaluator,
                 OmegaConf.to_container(cfg.dataset, resolve=True),
             )
             log.info(f"✅ Finished training module {i}/{len(training_modules)}")
-   
+
     # Test tracking
     if cfg.test_tracking:
         # Init tracker state and tracking engine

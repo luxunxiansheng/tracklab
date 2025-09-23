@@ -7,7 +7,8 @@ batch_size: 8
 training_enabled: True
 cfg:
   # Path to pretrained checkpoint (can be local model_dir or a full path)
-  path_to_checkpoint: "${project_dir}/pretrained_models/yolo/yolo11x.pt"
+  path_to_checkpoint: "${project_dir}/runs/detect/train3/weights/last.pt"
+ 
   # Low-level default if no path provided by the user
   default_model: "yolo11x.pt"
 
@@ -31,7 +32,6 @@ cfg:
 
     epochs: 100
     batch_size: 8        # Increased for better GPU utilization with 24GB VRAM
-    accumulate: 2        # Adjusted to maintain effective batch size
     img_size: 1280       # Keep high for accuracy
     data_path: null      # set to your dataset path or leave as TrackingDataset input
 

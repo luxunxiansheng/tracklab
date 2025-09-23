@@ -10,6 +10,7 @@ import torch
 import pandas as pd
 import numpy as np
 from ultralytics import YOLO
+from tracklab.pipeline.eval.detection_only_evaluator import DetectionOnlyEvaluator
 from tracklab.pipeline.imagelevel_module import ImageLevelModule
 from tracklab.pipeline.module import Pipeline
 from tracklab.utils.coordinates import ltrb_to_ltwh
@@ -233,7 +234,6 @@ class YOLOUltralytics(ImageLevelModule):
         self,
         tracking_dataset: TrackingDataset,
         pipeline: Pipeline,
-        evaluator: object,
         dataset_config: dict,
     ) -> None:
         """Train the YOLO model using the TrackingDataset.
@@ -244,11 +244,8 @@ class YOLOUltralytics(ImageLevelModule):
             evaluator: The evaluator for validation
             dataset_config: Configuration for the dataset
         """
-        import os
-        import yaml
         from pathlib import Path
         import tempfile
-        import shutil
 
         log.info("Starting YOLO training with TrackingDataset...")
 
@@ -555,6 +552,12 @@ class YOLOUltralytics(ImageLevelModule):
         # Get training configuration from cfg
         train_cfg = getattr(self.cfg, "training", {})
 
+        # Debug: log the training config
+        log.info(f"Training config: {train_cfg}")
+        log.info(f"Resume value: {train_cfg.get('resume', 'NOT_FOUND')}")
+
+        # Set up training arguments
+
         # Set up training arguments
         train_args = {
             "data": str(data_yaml_path),
@@ -580,7 +583,7 @@ class YOLOUltralytics(ImageLevelModule):
             "plots": train_cfg.get("plots", True),
             "verbose": train_cfg.get("verbose", True),
             "resume": train_cfg.get("resume", False),
-            "accumulate": train_cfg.get("accumulate", 1),
+            # "accumulate": train_cfg.get("accumulate", 1),  # Removed: not a valid YOLO parameter
         }
 
         # Add augmentation settings if available
