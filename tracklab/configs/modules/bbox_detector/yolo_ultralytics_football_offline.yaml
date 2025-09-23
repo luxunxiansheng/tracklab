@@ -29,7 +29,7 @@ cfg:
   training:
     # YOLO11x optimized training settings for speed and accuracy
     epochs: 100
-    batch_size: 16       # Optimized for YOLO11x stability
+    batch_size: 8       # Optimized for YOLO11x stability
     img_size: 1280       # Keep high for accuracy
     data_path: null      # set to your dataset path or leave as TrackingDataset input
 
@@ -61,7 +61,7 @@ cfg:
 
     # YOLO11x optimized training settings
     amp: True            # Essential for large model memory efficiency
-    cache: True          # Enable for massive speed improvement
+    cache: False          # Enable for massive speed improvement
     device: ""
     workers: 12          # Moderate workers for stability
     val: True
@@ -71,7 +71,7 @@ cfg:
     verbose: False       # Reduce logging for speed
 
     # Additional YOLO11x optimizations
-    freeze: 24           # Freeze more layers for stability
+    freeze: 11           # Freeze more layers for stability
     warmup_epochs: 5     # Longer warmup for large model
     cos_lr: True         # Cosine LR scheduling
     close_mosaic: 15     # Close mosaic later
