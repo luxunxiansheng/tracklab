@@ -35,6 +35,9 @@ cfg:
     img_size: 1280       # Keep high for accuracy
     data_path: null      # set to your dataset path or leave as TrackingDataset input
 
+    # Resume from last checkpoint
+    resume: true
+
     # Optimizer and lr schedule
     optimizer: AdamW
     lr0: 0.00002         # Even lower initial LR for stability
