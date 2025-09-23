@@ -7,6 +7,7 @@ import numpy as np
 import trackeval
 from tabulate import tabulate
 from tracklab.pipeline import Evaluator as EvaluatorBase
+from tracklab.pipeline.export import MOTExporter
 
 log = logging.getLogger(__name__)
 
@@ -39,6 +40,9 @@ class TrackEvalEvaluator(EvaluatorBase):
         self.show_progressbar = show_progressbar
         self.dataset_path = dataset_path
 
+        # Initialize MOT exporter
+        self.exporter = MOTExporter()
+
     def run(self, tracker_state):
         log.info(
             "Starting evaluation using TrackEval library (https://github.com/JonathonLuiten/TrackEval)"
@@ -53,11 +57,11 @@ class TrackEvalEvaluator(EvaluatorBase):
             / f"{self.trackeval_dataset_name}-{self.eval_set}"
             / tracker_name
         )
-        self.tracking_dataset.save_for_eval(
+        self.exporter.export(
             tracker_state.detections_pred,
             tracker_state.image_metadatas,
             tracker_state.video_metadatas,
-            pred_save_path,
+            str(pred_save_path),
             self.cfg.bbox_column_for_eval,
             save_classes,  # do not use classes for MOTChallenge2DBox
             is_ground_truth=False,
@@ -79,11 +83,11 @@ class TrackEvalEvaluator(EvaluatorBase):
             / f"{self.trackeval_dataset_name}-{self.eval_set}"
         )
         if self.cfg.save_gt:
-            self.tracking_dataset.save_for_eval(
+            self.exporter.export(
                 tracker_state.detections_gt,
                 tracker_state.image_metadatas,
                 tracker_state.video_metadatas,
-                gt_save_path,
+                str(gt_save_path),
                 self.cfg.bbox_column_for_eval,
                 True,
                 is_ground_truth=True,
