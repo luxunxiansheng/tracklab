@@ -10,7 +10,6 @@ import torch
 import pandas as pd
 import numpy as np
 from ultralytics import YOLO
-from tracklab.pipeline.eval.detection_only_evaluator import DetectionOnlyEvaluator
 from tracklab.pipeline.imagelevel_module import ImageLevelModule
 from tracklab.pipeline.module import Pipeline
 from tracklab.utils.coordinates import ltrb_to_ltwh
@@ -245,7 +244,6 @@ class YOLOUltralytics(ImageLevelModule):
             dataset_config: Configuration for the dataset
         """
         from pathlib import Path
-        import tempfile
 
         log.info("Starting YOLO training with TrackingDataset...")
 
@@ -255,28 +253,31 @@ class YOLOUltralytics(ImageLevelModule):
         batch_size = train_cfg.get("batch_size", 16)
         img_size = train_cfg.get("img_size", 640)
 
-        # Create temporary directory for YOLO dataset format
-        with tempfile.TemporaryDirectory() as temp_dir:
-            temp_path = Path(temp_dir)
-            yolo_dataset_path = temp_path / "dataset"
-            yolo_dataset_path.mkdir()
+        # Determine dataset directory: use data_path if provided, otherwise use persistent dir
+        data_path = train_cfg.get("data_path")
+        if data_path:
+            dataset_base_path = Path(data_path)
+        else:
+            # Use persistent directory in the project data folder
+            dataset_base_path = Path.cwd() / "data" / "yolo_training_dataset"
 
-            log.info("📊 Step 1/3: Converting TrackingDataset to YOLO format...")
-            # Convert TrackingDataset to YOLO format
-            yolo_data_yaml = self._prepare_yolo_dataset(
-                tracking_dataset,
-                yolo_dataset_path,
-                dataset_config,
-                tracking_dataset.dataset_path,
-            )
-            log.info("✅ Dataset conversion completed!")
+        dataset_base_path.mkdir(parents=True, exist_ok=True)
+        log.info(f"Using dataset directory: {dataset_base_path}")
 
-            log.info("🎯 Step 2/3: Running YOLO training...")
-            # Train the model
-            self._run_yolo_training(yolo_data_yaml, epochs, batch_size, img_size)
-            log.info("✅ Model training completed!")
+        # Use the persistent directory directly
+        yolo_dataset_path = dataset_base_path / "dataset"
+        yolo_dataset_path.mkdir(exist_ok=True)
 
-        log.info("🎉 YOLO training pipeline completed successfully!")
+        # Convert TrackingDataset to YOLO format
+        yolo_data_yaml = self._prepare_yolo_dataset(
+            tracking_dataset,
+            yolo_dataset_path,
+            dataset_config,
+            tracking_dataset.dataset_path,
+        )
+
+        # Train the model
+        self._run_yolo_training(yolo_data_yaml, epochs, batch_size, img_size)
 
     def _prepare_yolo_dataset(
         self,
@@ -373,15 +374,16 @@ class YOLOUltralytics(ImageLevelModule):
         Returns:
             Dictionary with processing statistics
         """
-        from PIL import Image
-        import cv2
+
         import shutil
+        from PIL import Image
 
         images_dir = output_path / "images" / split_name
         labels_dir = output_path / "labels" / split_name
 
         processed_count = 0
         total_detections = 0
+        skipped_images = 0
 
         # Group detections by image
         image_groups = tracking_set.detections_gt.groupby("image_id")
@@ -404,10 +406,21 @@ class YOLOUltralytics(ImageLevelModule):
                 image_path = Path(dataset_path) / file_path_str
                 if not image_path.exists():
                     log.warning(f"Image not found: {image_path}")
+                    skipped_images += 1
+                    continue
+
+                # Get image dimensions first
+                try:
+                    with Image.open(image_path) as img:
+                        width, height = img.size
+                except Exception as e:
+                    log.warning(
+                        f"Could not read image dimensions for {image_path}: {e}"
+                    )
+                    skipped_images += 1
                     continue
 
                 # Copy image to YOLO format directory (preserve original format)
-                # Use shutil.copy for lossless, faster operation
                 suffix = image_path.suffix or ".jpg"
                 yolo_image_path = images_dir / f"{image_id}{suffix}"
                 try:
@@ -416,26 +429,15 @@ class YOLOUltralytics(ImageLevelModule):
                     log.warning(
                         f"Could not copy image {image_path} to {yolo_image_path}: {e}"
                     )
+                    skipped_images += 1
                     continue
-
-                # Read image dimensions using cv2 for bbox normalization
-                img = cv2.imread(str(yolo_image_path))
-                if img is None:
-                    log.warning(f"Could not load image after copy: {yolo_image_path}")
-                    continue
-                height, width = img.shape[:2]
 
                 # Create label file
                 label_path = labels_dir / f"{image_id}.txt"
+                labels_written = 0
                 with open(label_path, "w") as f:
-                    # Process detections with progress bar
-                    for _, detection in tqdm(
-                        detections.iterrows(),
-                        desc=f"Processing detections for image {image_id}",
-                        unit="det",
-                        total=len(detections),
-                        leave=False,
-                    ):
+                    # Process detections
+                    for _, detection in detections.iterrows():
                         # Filter and merge categories to person only
                         category_id = self._map_category_to_person(
                             detection, tracking_set
@@ -449,34 +451,60 @@ class YOLOUltralytics(ImageLevelModule):
                             else:
                                 left, top, w, h = bbox
 
+                            # Validate bbox values - comprehensive check
+                            if (
+                                any(v < 0 for v in [left, top, w, h])
+                                or w <= 0
+                                or h <= 0
+                                or left + w > width
+                                or top + h > height
+                            ):
+                                log.warning(
+                                    f"Invalid bbox for image {image_id}: {bbox} (image: {width}x{height})"
+                                )
+                                continue
+
                             x_center = (left + w / 2) / width
                             y_center = (top + h / 2) / height
                             w_norm = w / width
                             h_norm = h / height
 
                             # Ensure values are within [0, 1]
-                            x_center = max(0, min(1, x_center))
-                            y_center = max(0, min(1, y_center))
-                            w_norm = max(0, min(1, w_norm))
-                            h_norm = max(0, min(1, h_norm))
+                            x_center = max(0.0, min(1.0, x_center))
+                            y_center = max(0.0, min(1.0, y_center))
+                            w_norm = max(0.0, min(1.0, w_norm))
+                            h_norm = max(0.0, min(1.0, h_norm))
 
                             f.write(
                                 f"0 {x_center:.6f} {y_center:.6f} {w_norm:.6f} {h_norm:.6f}\n"
                             )
+                            labels_written += 1
                             total_detections += 1
+
+                # Clean up empty label files
+                if labels_written == 0:
+                    try:
+                        label_path.unlink(missing_ok=True)
+                    except Exception:
+                        pass  # Ignore cleanup errors
 
                 processed_count += 1
 
             except Exception as e:
                 log.warning(f"Error processing image {image_id}: {e}")
+                skipped_images += 1
                 continue
 
         log.info(
             f"✅ Processed {processed_count}/{total_images} images for {split_name} split with {total_detections} detections"
         )
+        if skipped_images > 0:
+            log.warning(f"⚠️ Skipped {skipped_images} images due to errors")
+
         return {
             "processed_images": processed_count,
             "total_detections": total_detections,
+            "skipped_images": skipped_images,
         }
 
     def _map_category_to_person(
@@ -491,36 +519,42 @@ class YOLOUltralytics(ImageLevelModule):
         Returns:
             Mapped category ID (0 for person, -1 to skip)
         """
-        # For bbox_detector, we only want person detections
-        # Map all person-related categories to class 0
+        # For bbox_detector, we want to be permissive and accept most detections as person class
+        # since we're training a general person detector
 
-        # Check if we have role information
+        # Check if we have role information - accept all human roles
         if "role" in detection_row:
             role = detection_row["role"]
-            if role in ["player", "goalkeeper", "referee"]:
+            if role in ["player", "goalkeeper", "referee", "person", "human"]:
                 return 0  # YOLO person class
-            else:
-                # Skip non-person categories (ball, other)
+            elif role in ["ball", "football", "soccer_ball"]:
+                # Skip ball detections for person detector
                 return -1
+            else:
+                # For unknown roles, assume they might be person-related
+                return 0
 
-        # Fallback to category name checking
+        # Fallback to category name checking - be more permissive
         if "category" in detection_row:
             category = str(detection_row["category"]).lower()
+            # Skip only clearly non-person categories
             if any(
-                keyword in category
-                for keyword in ["player", "goalkeeper", "referee", "person"]
+                keyword in category for keyword in ["ball", "goal", "field", "line"]
             ):
-                return 0  # YOLO person class
-            else:
                 return -1
+            else:
+                # Accept all other categories as potentially person-related
+                return 0
 
-        # Final fallback to category_id
-        # This assumes category_id 1+ are person-related (common in many datasets)
+        # Check category_id - be very permissive for bbox detection
         category_id = detection_row.get("category_id", -1)
-        if category_id > 0:  # Assume positive category_ids are person-related
+
+        # Accept any positive category_id as person-related for bbox detection training
+        if category_id >= 0:
             return 0
         else:
-            return -1
+            # If no clear category information, assume it's a person detection
+            return 0
 
     def _run_yolo_training(
         self, data_yaml_path: Path, epochs: int, batch_size: int, img_size: int
@@ -553,10 +587,6 @@ class YOLOUltralytics(ImageLevelModule):
         # Get training configuration from cfg
         train_cfg = getattr(self.cfg, "training", {})
 
-        # Debug: log the training config
-        log.info(f"Training config: {train_cfg}")
-        log.info(f"Resume value: {train_cfg.get('resume', 'NOT_FOUND')}")
-
         # Set up training arguments
 
         # Set up training arguments
@@ -584,7 +614,6 @@ class YOLOUltralytics(ImageLevelModule):
             "plots": train_cfg.get("plots", True),
             "verbose": train_cfg.get("verbose", True),
             "resume": train_cfg.get("resume", False),
-            # "accumulate": train_cfg.get("accumulate", 1),  # Removed: not a valid YOLO parameter
         }
 
         # Add augmentation settings if available
