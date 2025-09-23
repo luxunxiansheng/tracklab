@@ -5,11 +5,11 @@ defaults:
   - eval: detection_only  # Use detection-only evaluator
   - engine: offline
   - visualization: debug  # Disable visualization for faster training
-  - modules/bbox_detector: yolo_ultralytics_football_offline  # Use SoccerNet-specific YOLO module
+  - pipeline/bbox_detector: yolo_ultralytics_football_offline  # Use SoccerNet-specific YOLO module
   - _self_
 
-# Pipeline - YOLO detector only for detection evaluation
-pipeline:
+# Module order - YOLO detector only for detection evaluation
+module_order:
   - bbox_detector  # This will train the YOLO model on SoccerNet data
 
 # Experiment settings

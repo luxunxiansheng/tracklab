@@ -1066,7 +1066,7 @@ All benchmarks measured on COCO val2017 dataset with single RTX 3090 GPU, batch 
 
 ## Configuration Files
 
-Pre-configured YAML files are available in `tracklab/configs/modules/bbox_detector/`:
+Pre-configured YAML files are available in `tracklab/configs/pipeline/bbox_detector/`:
 
 - `yolo_ultralytics*.yaml` - YOLOv11 variants
 - `rtdetr_transformers*.yaml` - RT-DETR variants

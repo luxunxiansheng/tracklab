@@ -256,10 +256,10 @@ TrackLab uses Hydra for declarative configuration:
 # config.yaml
 defaults:
   - dataset: soccernet
-  - modules/bbox_detector: yolo_ultralytics
-  - modules/tracker: strongsort
+  - pipeline/bbox_detector: yolo_ultralytics
+  - pipeline/tracker: strongsort
 
-pipeline:
+module_order:
   - bbox_detector
   - reid
   - track
@@ -279,10 +279,10 @@ modules:
 
 ```bash
 # Command line overrides
-tracklab dataset.nvid=5 modules.bbox_detector.batch_size=8
+tracklab dataset.nvid=5 pipeline.bbox_detector.batch_size=8
 
 # Configuration groups
-tracklab +modules/bbox_detector=rtmdet +modules/tracker=ocsort
+tracklab +pipeline/bbox_detector=rtmdet +pipeline/tracker=ocsort
 ```
 
 ## 8. Evaluation Framework

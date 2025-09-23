@@ -32,16 +32,15 @@ def main(cfg):
     tracking_dataset = instantiate(cfg.dataset)
 
     modules = []
-    if cfg.pipeline is not None:
-        for name in cfg.pipeline:
-            module = cfg.modules[name]
+    if cfg.module_order is not None:
+        for name in cfg.module_order:
+            module = cfg.pipeline[name]
             inst_module = instantiate(
                 module, device=device, tracking_dataset=tracking_dataset
             )
             modules.append(inst_module)
 
     pipeline = Pipeline(models=modules)
-
 
     # Train tracking modules
     training_modules = [module for module in modules if module.training_enabled]

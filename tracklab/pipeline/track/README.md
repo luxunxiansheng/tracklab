@@ -954,7 +954,7 @@ def recommend_algorithm(requirements):
 #### High-Accuracy Configuration
 
 ```yaml
-# tracklab/configs/modules/track/strong_sort.yaml
+# tracklab/configs/pipeline/track/strong_sort.yaml
 _target_: tracklab.pipeline.track.strong_sort_api.StrongSORT
 
 # Model configuration
@@ -979,7 +979,7 @@ hyperparams:
 #### Real-Time Configuration
 
 ```yaml
-# tracklab/configs/modules/track/byte_track.yaml
+# tracklab/configs/pipeline/track/byte_track.yaml
 _target_: tracklab.pipeline.track.byte_track_api.ByteTrack
 
 # Minimal configuration for speed
@@ -996,7 +996,7 @@ hyperparams:
 #### Balanced Performance Configuration
 
 ```yaml
-# tracklab/configs/modules/track/bot_sort.yaml
+# tracklab/configs/pipeline/track/bot_sort.yaml
 _target_: tracklab.pipeline.track.bot_sort_api.BotSORT
 
 # Model weights for appearance features

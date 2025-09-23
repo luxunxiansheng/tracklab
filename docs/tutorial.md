@@ -18,7 +18,7 @@ Currently, the following modules support training:
 First, modify the module configuration to enable training:
 
 ```yaml
-# In tracklab/configs/modules/reid/prtreid.yaml
+# In tracklab/configs/pipeline/reid/prtreid.yaml
 training_enabled: true  # Change from false to true
 
 # Configure training parameters
@@ -49,7 +49,7 @@ ${data_dir}/SoccerNetGS/
 Set up the dataset configuration for training:
 
 ```yaml
-# In tracklab/configs/modules/reid/dataset/prtreid_dataset.yaml
+# In tracklab/configs/pipeline/reid/dataset/prtreid_dataset.yaml
 name: "SoccerNet"
 train:
   set_name: "train"
@@ -67,12 +67,12 @@ Execute TrackLab with training enabled:
 
 ```bash
 # Basic training command
-tracklab dataset.nvid=10 modules/reid=prtreid
+tracklab dataset.nvid=10 pipeline/reid=prtreid
 
 # With custom training parameters
 tracklab \
   dataset.nvid=10 \
-  modules/reid=prtreid \
+  pipeline/reid=prtreid \
   modules.reid.cfg.train.max_epoch=50 \
   modules.reid.cfg.train.batch_size=64
 ```
@@ -233,10 +233,10 @@ cfg:
 
 ```bash
 # Run with debug logging
-tracklab --debug modules.reid=prtreid
+tracklab --debug pipeline.reid=prtreid
 
 # Check data loading
-tracklab dataset.nvid=1 modules/reid=prtreid cfg.data.workers=0
+tracklab dataset.nvid=1 pipeline/reid=prtreid cfg.data.workers=0
 ```
 
 ### Example Training Configurations
