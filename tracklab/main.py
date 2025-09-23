@@ -9,7 +9,7 @@ import logging
 
 from tracklab.datastruct import TrackerState
 from tracklab.pipeline import Pipeline
-from tracklab.pipeline.export import MOTExporter
+from tracklab.export import MOTExporter
 from tracklab.utils import monkeypatch_hydra, progress, wandb
 
 from hydra.utils import instantiate

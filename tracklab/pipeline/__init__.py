@@ -5,8 +5,8 @@ from .imagelevel_module import ImageLevelModule
 from .videolevel_module import VideoLevelModule
 
 # Import commonly used classes from subdirectories
-from .dataset import *
-from .eval import *
+from ..dataset import *
+from ..eval import *
 from .bbox_detector import *
 from .pose_estimator import *
 from .reid import *
