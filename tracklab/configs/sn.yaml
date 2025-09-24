@@ -10,6 +10,7 @@ defaults:
   - eval: gs_hota
   - engine: offline
   - visualization: gamestate  # Save tracking results as a .mp4 video in the run directory specified below (sn-gamestate/outputs/...)
+  - export: mot  # Export tracking results in MOT Challenge format
   - pipeline/bbox_detector: yolo_ultralytics
   - pipeline/reid: prtreid
   - pipeline/track: bpbreid_strong_sort
@@ -31,7 +32,7 @@ module_order:
   - track
   - pitch
   - calibration
-  #- jersey_number_detect
+  - jersey_number_detect
   - tracklet_agg
   - team
   - team_side
@@ -46,7 +47,7 @@ data_dir: "${project_dir}/data"
 model_dir: "${project_dir}/pretrained_models"
 
 # Machine configuration
-num_cores: 4  # Set to 1 to avoid multiprocessing pickling issues
+num_cores: 8 # Set to 1 to avoid multiprocessing pickling issues
 use_wandb: False
 use_rich: True
 
@@ -73,7 +74,7 @@ dataset:
   vids_dict: # Use one key per split (valid, test, etc)
     valid: []  # Specify explicitly which video to apply tracking on, e.g. ['SNGS-04', 'SNGS-51'] . Ignored when left empty.
   track_eval:
-    USE_JERSEY_NUMBERS: False
+    USE_JERSEY_NUMBERS: True
 
 # Tracker state (save computation time by dumping tracking results on disk for later re-use)
 # Dump tracking results to a .pcklz file to save computation time on the next run. Have a look at TrackLab tutorials for more details.
@@ -84,7 +85,7 @@ state:
 # Visualization
 visualization:
   cfg:
-    save_videos: True  # Save a .mp4 video on disk with the game state reconstruction output (see 'tracklab/tracklab/configs/visualization' for more options)
+    save_videos: False  # Save a .mp4 video on disk with the game state reconstruction output (see 'tracklab/tracklab/configs/visualization' for more options)
 
 # configure Hydra to use the current working directory
 # and set up the output directory according to experiment_name

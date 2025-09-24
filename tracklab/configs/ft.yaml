@@ -5,7 +5,7 @@ defaults:
   - eval: detection_only  # Use detection-only evaluator
   - engine: offline
   - visualization: debug  # Disable visualization for faster training
-  - pipeline/bbox_detector: yolo_ultralytics_football_offline  # Use SoccerNet-specific YOLO module
+  - pipeline/bbox_detector: yolo_ultralytics_11_soccernet_finetune  # Use SoccerNet-specific YOLO module
   - _self_
 
 # Module order - YOLO detector only for detection evaluation
@@ -35,7 +35,7 @@ state:
 
 # Dataset configuration
 dataset:
-  nvid: -1  # Process all videos (-1 means full dataset)
+  nvid: 1  # Process all videos (-1 means full dataset)
   
 
 # Configure Hydra to use the current working directory
