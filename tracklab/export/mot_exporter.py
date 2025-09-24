@@ -50,7 +50,7 @@ class MOTExporter(BaseExporter):
 
         # MOT Challenge format = <frame>, <id>, <bb_left>, <bb_top>, <bb_width>, <bb_height>, <conf>, <x>, <y>, <z>
         for video_id, video in video_metadatas.iterrows():
-            file_path = save_path_obj / f"{video['name']}.txt"
+            file_path = save_path_obj / f"{video['name']}.json"
             file_df = mot_df[mot_df["video_id"] == video_id].copy()
 
             # MOT Challenge format starts at frame 1
