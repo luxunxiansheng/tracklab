@@ -4,10 +4,10 @@ _target_: tracklab.pipeline.bbox_detector.yolo_ultralytics_api.YOLOUltralytics
 # Follows same `cfg:` structure as `yolo_ultralytics_soccernet.yaml` so the wrapper
 # receives expected keys like `path_to_checkpoint` and `training`.
 batch_size: 8
-training_enabled: True
+training_enabled: False
 cfg:
   # Start fresh training with YOLOv11x - comment out path_to_checkpoint to use default_model
-  path_to_checkpoint: "${project_dir}/pretrained_models/yolo/yolo11x.pt"
+  path_to_checkpoint: "${project_dir}/pretrained_models/yolo/yolo11x_soccernet_finetuned.pt"
  
   # Low-level default if no path provided by the user
   default_model: "yolo11x.pt"
