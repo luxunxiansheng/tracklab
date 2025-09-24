@@ -70,6 +70,7 @@ def main(cfg):
         export(cfg, tracker_state)
 
         # Evaluation
+        evaluator = instantiate(cfg.eval, tracking_dataset=tracking_dataset)
         evaluate(cfg, evaluator, tracker_state)
 
         # Save tracker state

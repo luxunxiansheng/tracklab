@@ -1,10 +1,13 @@
 import os
 from pathlib import Path
 from typing import Optional
+import logging
 
 import pandas as pd
 
 from .base_exporter import BaseExporter
+
+log = logging.getLogger(__name__)
 
 
 class MOTExporter(BaseExporter):
@@ -90,7 +93,34 @@ class MOTExporter(BaseExporter):
         """
         Convert detections to MOT format DataFrame.
         """
-        df = detections.copy()
+        # Merge detections with image metadata to get frame information
+        image_metadatas = image_metadatas.copy()
+        image_metadatas["id"] = image_metadatas.index
+        df = pd.merge(
+            image_metadatas.reset_index(drop=True),
+            detections.reset_index(drop=True),
+            left_on="id",
+            right_on="image_id",
+            suffixes=("", "_y"),
+        )
+
+        # Drop rows with missing required fields
+        len_before_drop = len(df)
+        df.dropna(
+            subset=[
+                "frame",
+                "track_id",
+                bbox_column,
+            ],
+            how="any",
+            inplace=True,
+        )
+
+        if len_before_drop != len(df):
+            log.warning(f"Dropped {len_before_drop - len(df)} rows with NA values")
+
+        # Convert track_id to int
+        df["track_id"] = df["track_id"].astype(int)
 
         # Extract bbox coordinates
         df["bb_left"] = df[bbox_column].apply(lambda x: x[0])
