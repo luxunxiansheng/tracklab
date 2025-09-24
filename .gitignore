@@ -143,4 +143,4 @@ dmypy.json
 .idea/
 .DS_Store
 visualization/
-eval/
+/eval

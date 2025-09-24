@@ -12,7 +12,8 @@
 	"containerEnv": {
 	   "http_proxy": "${localEnv:http_proxy}",
        "https_proxy": "${localEnv:https_proxy}",
-       "no_proxy": "${localEnv:no_proxy}"
+       "no_proxy": "${localEnv:no_proxy}",
+       "UV_HTTP_TIMEOUT": "300"
 	},
 	"mounts": [
 		"source=${localEnv:HOME}/data,target=/workspaces/${localWorkspaceFolderBasename}/data,type=bind,consistency=cached"
@@ -35,8 +36,7 @@
 				"DavidAnson.vscode-markdownlint",
 				"marp-team.marp-vscode",
 				"mhutchie.git-graph",
-				"RSIP-Vision.nvidia-smi-plus",
-				
+				"RSIP-Vision.nvidia-smi-plus"
 			],
 			"settings": {
 				"python.defaultInterpreterPath": "/workspaces/tracklab/.venv/bin/python",
