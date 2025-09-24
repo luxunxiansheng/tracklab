@@ -5,7 +5,7 @@ import numpy as np
 import trackeval
 from tabulate import tabulate
 from tracklab.eval.evaluator import Evaluator as EvaluatorBase
-from tracklab.export import MOTExporter
+from tracklab.export import MOTExporter, GSExporter
 
 log = logging.getLogger(__name__)
 
@@ -38,8 +38,11 @@ class TrackEvalEvaluator(EvaluatorBase):
         self.show_progressbar = show_progressbar
         self.dataset_path = dataset_path
 
-        # Initialize MOT exporter
-        self.exporter = MOTExporter()
+        # Choose exporter based on dataset
+        if cfg.dataset.dataset_class == "SoccerNetGS":
+            self.exporter = GSExporter()
+        else:
+            self.exporter = MOTExporter()
 
     def run(self, tracker_state):
         log.info(

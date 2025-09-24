@@ -2,15 +2,19 @@
 
 defaults:
   - dataset: soccernet_gs
-  - eval: detection_only  # Use detection-only evaluator
+  - eval: trackeval  # Use detection-only evaluator
   - engine: offline
   - visualization: debug  # Disable visualization for faster training
   - pipeline/bbox_detector: yolo_ultralytics_11_soccernet_finetune  # Use SoccerNet-specific YOLO module
+  - pipeline/reid: kpr
+  - pipeline/track: oc_sort
   - _self_
 
 # Module order - YOLO detector only for detection evaluation
 module_order:
   - bbox_detector  # This will train the YOLO model on SoccerNet data
+  - reid
+  #- track
 
 # Experiment settings
 experiment_name: "yolo_soccernet_finetune"
