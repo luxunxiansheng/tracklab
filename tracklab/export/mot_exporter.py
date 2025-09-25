@@ -50,7 +50,9 @@ class MOTExporter(BaseExporter):
 
         # MOT Challenge format = <frame>, <id>, <bb_left>, <bb_top>, <bb_width>, <bb_height>, <conf>, <x>, <y>, <z>
         for video_id, video in video_metadatas.iterrows():
-            file_path = save_path_obj / f"{video['name']}.json"
+            file_path = (
+                save_path_obj / f"{video['name']}.txt"
+            )  # Changed from .json to .txt
             file_df = mot_df[mot_df["video_id"] == video_id].copy()
 
             # MOT Challenge format starts at frame 1
@@ -80,8 +82,9 @@ class MOTExporter(BaseExporter):
                     index=False,
                 )
             else:
-                # Create empty file
-                file_path.touch()
+                # Create empty file for videos with no detections
+                with open(file_path, "w") as f:
+                    pass
 
     def _mot_encoding(
         self,
@@ -92,6 +95,7 @@ class MOTExporter(BaseExporter):
     ) -> pd.DataFrame:
         """
         Convert detections to MOT format DataFrame.
+        Uses the same logic as TrackingDataset._mot_encoding.
         """
         # Merge detections with image metadata to get frame information
         image_metadatas = image_metadatas.copy()
@@ -122,13 +126,13 @@ class MOTExporter(BaseExporter):
         # Convert track_id to int
         df["track_id"] = df["track_id"].astype(int)
 
-        # Extract bbox coordinates
+        # Extract bbox coordinates (LTWH format)
         df["bb_left"] = df[bbox_column].apply(lambda x: x[0])
         df["bb_top"] = df[bbox_column].apply(lambda x: x[1])
         df["bb_width"] = df[bbox_column].apply(lambda x: x[2])
         df["bb_height"] = df[bbox_column].apply(lambda x: x[3])
 
-        # Add placeholder columns for MOT format
+        # Add placeholder columns for MOT format (x, y, z fields)
         df = df.assign(x=-1, y=-1, z=-1)
 
         return df

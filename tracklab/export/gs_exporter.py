@@ -1,20 +1,27 @@
 import json
-import os
-from pathlib import Path
-from typing import Optional
+import zipfile
 import logging
-
+import numpy as np
 import pandas as pd
-
 from .base_exporter import BaseExporter
 
 log = logging.getLogger(__name__)
 
 
+def transform_bbox_image(bbox):
+    """Transform bbox format for SoccerNet GS."""
+    try:
+        if isinstance(bbox, (list, tuple, np.ndarray)) and len(bbox) >= 4:
+            return [float(bbox[0]), float(bbox[1]), float(bbox[2]), float(bbox[3])]
+        return bbox
+    except (TypeError, IndexError, ValueError):
+        return bbox
+
+
 class GSExporter(BaseExporter):
     """
     Exporter for SoccerNet Game State format.
-    Exports tracking data in JSON format similar to COCO.
+    Exports tracking data in JSON format matching SoccerNet GameState requirements.
     """
 
     def export(
@@ -26,10 +33,11 @@ class GSExporter(BaseExporter):
         bbox_column: str = "bbox_ltwh",
         save_classes: bool = False,
         is_ground_truth: bool = False,
+        save_zip: bool = True,
         **kwargs,
     ) -> None:
         """
-        Export detections in GS JSON format.
+        Export detections in SoccerNet Game State JSON format.
 
         Args:
             detections: DataFrame containing detection data
@@ -39,130 +47,181 @@ class GSExporter(BaseExporter):
             bbox_column: Column name containing bounding box data
             save_classes: Whether to include class information
             is_ground_truth: Whether this is ground truth data
+            save_zip: Whether to create a zip file of the results
             **kwargs: Additional parameters
         """
-        gs_data = self._gs_encoding(
-            detections, image_metadatas, video_metadatas, bbox_column, save_classes
-        )
+        if is_ground_truth:
+            return
 
         save_path_obj = self._ensure_directory(save_path)
 
+        # Process detections with SoccerNet encoding
+        detections_encoded = self._soccernet_encoding(
+            detections.copy(), supercategory="object"
+        )
+        camera_metadata = self._soccernet_encoding(
+            image_metadatas.copy(), supercategory="camera"
+        )
+        pitch_metadata = self._soccernet_encoding(
+            image_metadatas.copy(), supercategory="pitch"
+        )
+
+        predictions = pd.concat(
+            [detections_encoded, camera_metadata, pitch_metadata], ignore_index=True
+        )
+
+        zf_save_path = save_path_obj.parent.parent / f"{save_path_obj.parent.name}.zip"
+
         for video_id, video in video_metadatas.iterrows():
             file_path = save_path_obj / f"{video['name']}.json"
-            video_data = gs_data[video_id]
-            with open(file_path, "w") as f:
-                json.dump(video_data, f, indent=2)
+            video_predictions_df = predictions[
+                predictions["video_id"] == str(video_id)
+            ].copy()
 
-    def _gs_encoding(
-        self,
-        detections: pd.DataFrame,
-        image_metadatas: pd.DataFrame,
-        video_metadatas: pd.DataFrame,
-        bbox_column: str,
-        save_classes: bool,
-    ) -> dict:
+            if not video_predictions_df.empty:
+                video_predictions_df.sort_values(by="id", inplace=True)
+                video_predictions = [
+                    {
+                        k: int(v) if k == "track_id" else v
+                        for k, v in m.items()
+                        if np.all(pd.notna(v))
+                    }
+                    for m in video_predictions_df.to_dict(orient="records")
+                ]
+
+                with file_path.open("w") as fp:
+                    json.dump({"predictions": video_predictions}, fp, indent=2)
+
+                if save_zip:
+                    with zipfile.ZipFile(
+                        zf_save_path, "a", compression=zipfile.ZIP_DEFLATED
+                    ) as zf:
+                        zf.write(
+                            file_path, arcname=f"{save_path_obj.name}/{file_path.name}"
+                        )
+
+    def _soccernet_encoding(
+        self, dataframe: pd.DataFrame, supercategory: str
+    ) -> pd.DataFrame:
         """
-        Convert detections to GS JSON format.
+        Convert dataframe to SoccerNet Game State encoding format.
+
+        Args:
+            dataframe: Input dataframe to encode
+            supercategory: Type of data ("object", "camera", or "pitch")
+
+        Returns:
+            Encoded dataframe in SoccerNet format
         """
-        # Merge detections with image metadata
-        image_metadatas = image_metadatas.copy()
-        image_metadatas["id"] = image_metadatas.index
-        df = pd.merge(
-            image_metadatas.reset_index(drop=True),
-            detections.reset_index(drop=True),
-            left_on="id",
-            right_on="image_id",
-            suffixes=("", "_y"),
-        )
+        dataframe["supercategory"] = supercategory
+        dataframe = dataframe.replace({np.nan: None})
 
-        # Drop rows with missing required fields
-        len_before_drop = len(df)
-        df.dropna(
-            subset=[
-                "frame",
-                "track_id",
-                bbox_column,
-            ],
-            how="any",
-            inplace=True,
-        )
-
-        if len_before_drop != len(df):
-            log.warning(f"Dropped {len_before_drop - len(df)} rows with NA values")
-
-        # Convert track_id to int
-        df["track_id"] = df["track_id"].astype(int)
-
-        # Group by video
-        video_data = {}
-        for video_id, video_df in df.groupby("video_id"):
-            video = video_metadatas.loc[video_id]
-            images = []
-            annotations = []
-
-            for _, row in video_df.iterrows():
-                # Add image if not already added
-                image_id = f"{video['name']}_{int(row['frame']):06d}"
-                if not any(img["image_id"] == image_id for img in images):
-                    images.append(
-                        {
-                            "image_id": image_id,
-                            "has_labeled_pitch": True,  # Assume labeled
-                            "has_labeled_camera": True,
-                            "has_labeled_person": True,
-                        }
-                    )
-
-                # Add annotation
-                bbox = row[bbox_column]
-                pitch_bbox = row.get(
-                    "bbox_pitch_ltwh", bbox
-                )  # Use pitch bbox if available, else image bbox
-                annotation = {
-                    "image_id": image_id,
-                    "category_id": 1,  # person
-                    "bbox": [
-                        float(bbox[0]),
-                        float(bbox[1]),
-                        float(bbox[2]),
-                        float(bbox[3]),
-                    ],
-                    "bbox_pitch": {
-                        "x_bottom_left": float(pitch_bbox[0]),
-                        "y_bottom_left": float(pitch_bbox[1]),
-                        "x_top_right": float(pitch_bbox[0] + pitch_bbox[2]),
-                        "y_top_right": float(pitch_bbox[1] + pitch_bbox[3]),
-                    },
-                    "track_id": int(row["track_id"]),
-                    "confidence": float(row.get("bbox_conf", 1.0)),
-                    "supercategory": "object",
-                    "attributes": {"role": "player", "team": None, "jersey": None},
-                }
-                # Compute additional bbox_pitch fields
-                bbox_pitch = annotation["bbox_pitch"]
-                bbox_pitch["x_bottom_middle"] = (
-                    bbox_pitch["x_bottom_left"] + bbox_pitch["x_top_right"]
-                ) / 2
-                bbox_pitch["y_bottom_middle"] = (
-                    bbox_pitch["y_bottom_left"]
-                    + (bbox_pitch["y_top_right"] - bbox_pitch["y_bottom_left"]) * 0.9
+        if supercategory == "object":
+            # Remove detections that don't have mandatory columns
+            # Detections with no track_id will therefore be removed and not count as FP at evaluation
+            mandatory_columns = []
+            if "bbox_ltwh" in dataframe.columns:
+                mandatory_columns.append("bbox_ltwh")
+            if "track_id" in dataframe.columns:
+                mandatory_columns.append("track_id")
+            if "bbox_pitch" in dataframe.columns:
+                mandatory_columns.append("bbox_pitch")
+            if mandatory_columns:
+                dataframe.dropna(
+                    subset=mandatory_columns,
+                    how="any",
+                    inplace=True,
                 )
-                bbox_pitch["x_bottom_right"] = bbox_pitch["x_top_right"]
-                bbox_pitch["y_bottom_right"] = bbox_pitch["y_bottom_middle"]
-                if save_classes and "category_id" in row:
-                    annotation["category_id"] = int(row["category_id"])
-                annotations.append(annotation)
 
-            # Sort images by frame
-            def get_frame_number(image):
-                return int(image["image_id"].split("_")[-1])
+            # Add track_id if missing (for detection-only runs)
+            if "track_id" not in dataframe.columns:
+                dataframe["track_id"] = -1  # Default for detections without tracking
 
-            images = sorted(images, key=get_frame_number)
+            # Rename columns if they exist
+            rename_dict = {}
+            if "bbox_ltwh" in dataframe.columns:
+                rename_dict["bbox_ltwh"] = "bbox_image"
+            if "jersey_number" in dataframe.columns:
+                rename_dict["jersey_number"] = "jersey"
+            dataframe = dataframe.rename(columns=rename_dict)
 
-            video_data[video_id] = {
-                "categories": [{"id": 1, "name": "person"}],
-                "images": images,
-                "predictions": annotations,
-            }
+            dataframe["track_id"] = dataframe["track_id"]
+            dataframe["attributes"] = [
+                {
+                    "role": x.get("role"),
+                    "jersey": x.get("jersey"),
+                    "team": x.get("team"),
+                }
+                for n, x in dataframe.iterrows()
+            ]
+            dataframe["id"] = dataframe.index
 
-        return video_data
+            # Keep only relevant columns that exist
+            columns_to_keep = [
+                "id",
+                "image_id",
+                "video_id",
+                "track_id",
+                "supercategory",
+                "category_id",
+                "attributes",
+            ]
+            if "bbox_image" in dataframe.columns:
+                columns_to_keep.append("bbox_image")
+            if "bbox_pitch" in dataframe.columns:
+                columns_to_keep.append("bbox_pitch")
+            dataframe = dataframe[dataframe.columns.intersection(columns_to_keep)]
+
+            if "bbox_image" in dataframe.columns:
+                # Transform bbox format
+                for idx in dataframe.index:
+                    bbox = dataframe.at[idx, "bbox_image"]
+                    dataframe.at[idx, "bbox_image"] = transform_bbox_image(bbox)
+
+        elif supercategory == "camera":
+            dataframe["image_id"] = dataframe.index
+            dataframe["category_id"] = 6
+            dataframe["id"] = dataframe.index.map(lambda x: str(x) + "01")
+            dataframe = dataframe[
+                dataframe.columns.intersection(
+                    [
+                        "id",
+                        "image_id",
+                        "video_id",
+                        "supercategory",
+                        "category_id",
+                        "parameters",
+                        "relative_mean_reproj",
+                        "accuracy@5",
+                    ]
+                )
+            ]
+
+        elif supercategory == "pitch":
+            dataframe["image_id"] = dataframe.index
+            dataframe["category_id"] = 5
+            dataframe["id"] = dataframe.index.map(lambda x: str(x) + "00")
+            dataframe = dataframe[
+                dataframe.columns.intersection(
+                    [
+                        "id",
+                        "image_id",
+                        "video_id",
+                        "supercategory",
+                        "category_id",
+                        "lines",
+                    ]
+                )
+            ]
+
+        # Convert IDs to string format
+        dataframe["video_id"] = dataframe["video_id"].apply(str)
+        dataframe["image_id"] = dataframe["image_id"].apply(str)
+        dataframe["id"] = dataframe["id"].apply(str)
+
+        # Convert numpy arrays to lists for JSON serialization
+        dataframe = dataframe.map(
+            lambda x: x.tolist() if isinstance(x, np.ndarray) else x
+        )
+
+        return dataframe
