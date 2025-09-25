@@ -115,6 +115,9 @@ class GSExporter(BaseExporter):
 
                 # Add annotation
                 bbox = row[bbox_column]
+                pitch_bbox = row.get(
+                    "bbox_pitch_ltwh", bbox
+                )  # Use pitch bbox if available, else image bbox
                 annotation = {
                     "image_id": image_id,
                     "category_id": 1,  # person
@@ -125,10 +128,10 @@ class GSExporter(BaseExporter):
                         float(bbox[3]),
                     ],
                     "bbox_pitch": {
-                        "x_bottom_left": float(bbox[0]),
-                        "y_bottom_left": float(bbox[1]),
-                        "x_top_right": float(bbox[0] + bbox[2]),
-                        "y_top_right": float(bbox[1] + bbox[3]),
+                        "x_bottom_left": float(pitch_bbox[0]),
+                        "y_bottom_left": float(pitch_bbox[1]),
+                        "x_top_right": float(pitch_bbox[0] + pitch_bbox[2]),
+                        "y_top_right": float(pitch_bbox[1] + pitch_bbox[3]),
                     },
                     "track_id": int(row["track_id"]),
                     "confidence": float(row.get("bbox_conf", 1.0)),
