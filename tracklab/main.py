@@ -67,7 +67,7 @@ def main(cfg):
         # Run tracking and visualization
         tracking_engine.track_dataset()
 
-        export(cfg, tracker_state)
+        #export(cfg, tracker_state)
 
         # Evaluation
         evaluator = instantiate(cfg.eval, tracking_dataset=tracking_dataset)
