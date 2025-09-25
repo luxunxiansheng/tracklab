@@ -6,6 +6,6 @@ cfg:
   # those models will be downloaded automatically if not found in the path
   path_to_checkpoint: "${model_dir}/yolo/yolo11m.pt"
 
-
-
-  min_confidence: 0.6
+  # Ultra-low confidence threshold - we're missing 93% of GT detections!
+  # Previous 0.3 still too high for soccer with occlusions and distant players  
+  min_confidence: 0.5
