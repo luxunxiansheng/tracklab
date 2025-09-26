@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+from cv2 import exp
 import rich.logging
 import torch
 import hydra
@@ -66,11 +67,12 @@ def main(cfg):
         # Run tracking and visualization
         tracking_engine.track_dataset()
 
-        # export(cfg, tracker_state)
+        #exporter = instantiate(cfg.export)
+        #export(cfg,exporter,tracker_state)
+            
 
         # Evaluation
-        eval_cfg = OmegaConf.merge(cfg.eval, {"dataset": tracking_dataset})
-        evaluator = instantiate(eval_cfg)
+        evaluator = instantiate(cfg.eval, tracking_dataset=tracking_dataset,exporter=exporter)
         evaluate(cfg, evaluator, tracker_state)
 
         # Save tracker state
@@ -128,9 +130,9 @@ def evaluate(cfg, evaluator, tracker_state):
         pass
 
 
-def export(cfg, tracker_state):
+def export(cfg,exporter,tracker_state):
     if hasattr(cfg, "export") and cfg.export is not None:
-        exporter = instantiate(cfg.export)
+        
         save_path = cfg.get("export_save_path", "exports")
         exporter.export(
             detections=tracker_state.detections_pred,
