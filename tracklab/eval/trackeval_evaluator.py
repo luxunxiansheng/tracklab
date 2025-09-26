@@ -57,7 +57,8 @@ class TrackEvalEvaluator(EvaluatorBase):
             Path(self.cfg.dataset.TRACKERS_FOLDER)
             / f"{self.trackeval_dataset_name}-{self.eval_set}"
             / tracker_name
-        )
+        ).resolve()
+
         self.exporter.export(
             tracker_state.detections_pred,
             tracker_state.image_metadatas,
@@ -79,27 +80,6 @@ class TrackEvalEvaluator(EvaluatorBase):
             return
 
 
-        if self.cfg.save_gt:
-            # Save ground truth
-            gt_save_path = (
-            Path(self.cfg.dataset.GT_FOLDER)
-            / f"{self.trackeval_dataset_name}-{self.eval_set}"
-            )
-            
-            self.exporter.export(
-                tracker_state.detections_gt,
-                tracker_state.image_metadatas,
-                tracker_state.video_metadatas,
-                str(gt_save_path),
-                self.cfg.bbox_column_for_eval,
-                True,
-                is_ground_truth=True,
-            )
-
-            log.info(
-                f"Tracking ground truth saved in {self.trackeval_dataset_name} format in {gt_save_path}"
-            )
-
         # Build TrackEval dataset
         dataset_config = self.trackeval_dataset_class.get_default_dataset_config()
         dataset_config["SEQ_INFO"] = tracker_state.video_metadatas.set_index("name")[
@@ -111,9 +91,9 @@ class TrackEvalEvaluator(EvaluatorBase):
         for key, value in self.cfg.dataset.items():
             dataset_config[key] = value
 
-        if not self.cfg.save_gt:
-            dataset_config["GT_FOLDER"] = self.dataset_path  # Location of GT data
-            dataset_config["GT_LOC_FORMAT"] = (
+       
+        dataset_config["GT_FOLDER"] = self.dataset_path  # Location of GT data
+        dataset_config["GT_LOC_FORMAT"] = (
                 "{gt_folder}/{seq}/Labels-GameState.json"  # '{gt_folder}/{seq}/gt/gt.txt'
             )
         dataset = self.trackeval_dataset_class(dataset_config)
