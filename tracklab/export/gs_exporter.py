@@ -12,7 +12,17 @@ def transform_bbox_image(bbox):
     """Transform bbox format for SoccerNet GS."""
     try:
         if isinstance(bbox, (list, tuple, np.ndarray)) and len(bbox) >= 4:
-            return [float(bbox[0]), float(bbox[1]), float(bbox[2]), float(bbox[3])]
+            # Convert from ltwh (left, top, width, height) to center-based format
+            # Note: Using "x", "y" keys instead of "x_center", "y_center" to match trackeval library expectations
+            left, top, width, height = (
+                float(bbox[0]),
+                float(bbox[1]),
+                float(bbox[2]),
+                float(bbox[3]),
+            )
+            x_center = left + width / 2
+            y_center = top + height / 2
+            return {"x": x_center, "y": y_center, "w": width, "h": height}
         return bbox
     except (TypeError, IndexError, ValueError):
         return bbox
