@@ -78,12 +78,14 @@ class TrackEvalEvaluator(EvaluatorBase):
             )
             return
 
-        # Save ground truth
-        gt_save_path = (
+
+        if self.cfg.save_gt:
+            # Save ground truth
+            gt_save_path = (
             Path(self.cfg.dataset.GT_FOLDER)
             / f"{self.trackeval_dataset_name}-{self.eval_set}"
-        )
-        if self.cfg.save_gt:
+            )
+            
             self.exporter.export(
                 tracker_state.detections_gt,
                 tracker_state.image_metadatas,
@@ -94,9 +96,9 @@ class TrackEvalEvaluator(EvaluatorBase):
                 is_ground_truth=True,
             )
 
-        log.info(
-            f"Tracking ground truth saved in {self.trackeval_dataset_name} format in {gt_save_path}"
-        )
+            log.info(
+                f"Tracking ground truth saved in {self.trackeval_dataset_name} format in {gt_save_path}"
+            )
 
         # Build TrackEval dataset
         dataset_config = self.trackeval_dataset_class.get_default_dataset_config()

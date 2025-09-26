@@ -6,7 +6,7 @@ eval_set: ${dataset.eval_set}
 dataset_path: ${dataset.dataset_path}
 
 cfg:
-  save_gt: False
+  save_gt: True
   # Use bbox_ltwh as primary column, bbox_pitch_ltwh as fallback if available
   # bbox_pitch_ltwh is preferred for pitch-space evaluation but bbox_ltwh works for most cases
   bbox_column_for_eval: "bbox_ltwh"  # which bbox column to use for evaluation: {"bbox_ltwh", "track_bbox_kf_ltwh", "bbox_pitch_ltwh"}

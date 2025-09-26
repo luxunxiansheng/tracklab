@@ -33,7 +33,7 @@ class GSExporter(BaseExporter):
         bbox_column: str = "bbox_ltwh",
         save_classes: bool = False,
         is_ground_truth: bool = False,
-        save_zip: bool = True,
+        save_zip: bool = False,
         **kwargs,
     ) -> None:
         """
