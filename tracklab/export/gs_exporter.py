@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 def transform_bbox_image(bbox):
     """Transform bbox format for SoccerNet GS."""
     try:
-        if isinstance(bbox, (list, tuple, np.ndarray)) and len(bbox) >= 4:
+        if isinstance(bbox, (list, tuple, np.ndarray)) and len(bbox) == 4:
             # Convert from ltwh (left, top, width, height) to center-based format
             # Note: Using "x", "y" keys instead of "x_center", "y_center" to match trackeval library expectations
             left, top, width, height = (
@@ -23,9 +23,11 @@ def transform_bbox_image(bbox):
             x_center = left + width / 2
             y_center = top + height / 2
             return {"x": x_center, "y": y_center, "w": width, "h": height}
-        return bbox
+        else:
+            # Invalid bbox format
+            return None
     except (TypeError, IndexError, ValueError):
-        return bbox
+        return None
 
 
 class GSExporter(BaseExporter):
@@ -186,7 +188,15 @@ class GSExporter(BaseExporter):
                 # Transform bbox format
                 for idx in dataframe.index:
                     bbox = dataframe.at[idx, "bbox_image"]
-                    dataframe.at[idx, "bbox_image"] = transform_bbox_image(bbox)
+                    transformed = transform_bbox_image(bbox)
+                    if transformed is not None:
+                        dataframe.at[idx, "bbox_image"] = transformed
+                    else:
+                        # Invalid bbox, mark for removal
+                        dataframe.at[idx, "bbox_image"] = None
+
+                # Remove rows with invalid bbox_image
+                dataframe.dropna(subset=["bbox_image"], inplace=True)
 
         elif supercategory == "camera":
             dataframe["image_id"] = dataframe.index
