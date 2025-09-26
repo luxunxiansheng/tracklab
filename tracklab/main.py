@@ -9,8 +9,7 @@ import logging
 
 from tracklab.datastruct import TrackerState
 from tracklab.pipeline import Pipeline
-from tracklab.export import MOTExporter
-from tracklab.utils import monkeypatch_hydra, progress, wandb
+from tracklab.utils import progress, wandb
 
 from hydra.utils import instantiate
 from omegaconf import OmegaConf
@@ -67,10 +66,11 @@ def main(cfg):
         # Run tracking and visualization
         tracking_engine.track_dataset()
 
-        #export(cfg, tracker_state)
+        # export(cfg, tracker_state)
 
         # Evaluation
-        evaluator = instantiate(cfg.eval, tracking_dataset=tracking_dataset)
+        eval_cfg = OmegaConf.merge(cfg.eval, {"dataset": tracking_dataset})
+        evaluator = instantiate(eval_cfg)
         evaluate(cfg, evaluator, tracker_state)
 
         # Save tracker state

@@ -5,7 +5,7 @@ import numpy as np
 import trackeval
 from tabulate import tabulate
 from tracklab.eval.evaluator import Evaluator as EvaluatorBase
-from tracklab.export import MOTExporter, GSExporter
+from hydra.utils import instantiate
 
 log = logging.getLogger(__name__)
 
@@ -19,30 +19,29 @@ class TrackEvalEvaluator(EvaluatorBase):
     def __init__(
         self,
         cfg,
-        eval_set,
-        show_progressbar,
-        dataset_path,
-        tracking_dataset,
         *args,
         **kwargs,
     ):
         self.cfg = cfg
-        self.tracking_dataset = tracking_dataset
-        self.eval_set = eval_set
-        self.trackeval_dataset_name = (
-            cfg.dataset.dataset_class
-        )  # Use configured name instead of Python class name
-        self.trackeval_dataset_class = getattr(
-            trackeval.datasets, cfg.dataset.dataset_class
-        )
-        self.show_progressbar = show_progressbar
-        self.dataset_path = dataset_path
 
-        # Choose exporter based on dataset
-        if cfg.dataset.dataset_class == "SoccerNetGS":
-            self.exporter = GSExporter()
-        else:
-            self.exporter = MOTExporter()
+        self.show_progressbar = cfg.get("show_progressbar", True)
+        self.save_gt = cfg.get("save_gt", False)
+        self.eval_set = cfg.get("eval_set", "val")
+        self.dataset_path = cfg.get("dataset_path", None)
+        if self.dataset_path is None:
+            raise ValueError("dataset_path must be specified in the config")
+        self.tracking_dataset = cfg.get("dataset", None)
+        if self.tracking_dataset is None:
+            raise ValueError("tracking_dataset must be specified in the config")
+
+        self.trackeval_dataset_name = self.tracking_dataset.get("dataset_class")
+        self.trackeval_dataset_class = getattr(
+            trackeval.datasets, self.trackeval_dataset_name
+        )
+
+        self.exporter = instantiate(cfg.export)
+
+      
 
     def run(self, tracker_state):
         log.info(
@@ -50,7 +49,7 @@ class TrackEvalEvaluator(EvaluatorBase):
         )
 
         tracker_name = "tracklab"
-        save_classes = self.trackeval_dataset_class.__name__ != "MotChallenge2DBox"
+        save_classes = self.trackeval_dataset_name != "MotChallenge2DBox"
 
         # Save predictions
         pred_save_path = (
@@ -79,7 +78,6 @@ class TrackEvalEvaluator(EvaluatorBase):
             )
             return
 
-
         # Build TrackEval dataset
         dataset_config = self.trackeval_dataset_class.get_default_dataset_config()
         dataset_config["SEQ_INFO"] = tracker_state.video_metadatas.set_index("name")[
@@ -91,11 +89,10 @@ class TrackEvalEvaluator(EvaluatorBase):
         for key, value in self.cfg.dataset.items():
             dataset_config[key] = value
 
-       
         dataset_config["GT_FOLDER"] = self.dataset_path  # Location of GT data
         dataset_config["GT_LOC_FORMAT"] = (
-                "{gt_folder}/{seq}/Labels-GameState.json"  # '{gt_folder}/{seq}/gt/gt.txt'
-            )
+            "{gt_folder}/{seq}/Labels-GameState.json"  # '{gt_folder}/{seq}/gt/gt.txt'
+        )
         dataset = self.trackeval_dataset_class(dataset_config)
 
         # Build metrics

@@ -1,33 +1,30 @@
 _target_: tracklab.eval.TrackEvalEvaluator
 
-
 show_progressbar: True  # Show progressbar during evaluation
 eval_set: ${dataset.eval_set}
 dataset_path: ${dataset.dataset_path}
-
-cfg:
-  save_gt: True
-  # Use bbox_ltwh as primary column, bbox_pitch_ltwh as fallback if available
-  # bbox_pitch_ltwh is preferred for pitch-space evaluation but bbox_ltwh works for most cases
-  bbox_column_for_eval: "bbox_ltwh"  # which bbox column to use for evaluation: {"bbox_ltwh", "track_bbox_kf_ltwh", "bbox_pitch_ltwh"}
-  metrics:  # List of performance metrics to compute as listed in "trackeval.metrics"
-    - "CLEAR"
-    - "HOTA"
-    - "Identity"
-  eval:  # mapped to trackeval/eval.py
-    USE_PARALLEL: False  # Disable parallel processing to avoid pickling issues
-    NUM_PARALLEL_CORES: ${num_cores}
-    BREAK_ON_ERROR: False  # Don't crash on individual sequence errors
-    PRINT_RESULTS: True
-    PRINT_ONLY_COMBINED: True
-    PRINT_CONFIG: False
-    TIME_PROGRESS: False
-    DISPLAY_LESS_PROGRESS: False
-    OUTPUT_SUMMARY: True
-    # Additional robustness settings
-    SKIP_SPLIT_FOL: True  # Skip missing split folders
-    CHECK_CONNECTION: False  # Don't check file connections strictly
-    OUTPUT_EMPTY_CLASSES: False  # If False, summary files are not output for classes with no detections
-    OUTPUT_DETAILED: True
-    PLOT_CURVES: True
-  dataset: ${dataset.track_eval}  # Should also define 'dataset_class', i.e. the TrackEval dataset class to use for evaluation, e.g. "MotChallenge2DBox", as defined in the library package "trackeval.datasets".
+export: gs
+save_gt: False
+# Use bbox_ltwh as primary column, bbox_pitch_ltwh as fallback if available
+# bbox_pitch_ltwh is preferred for pitch-space evaluation but bbox_ltwh works for most cases
+bbox_column_for_eval: "bbox_ltwh"  # which bbox column to use for evaluation: {"bbox_ltwh", "track_bbox_kf_ltwh", "bbox_pitch_ltwh"}
+metrics:  # List of performance metrics to compute as listed in "trackeval.metrics"
+  - "CLEAR"
+  - "HOTA"
+  - "Identity"
+eval:  # mapped to trackeval/eval.py
+  USE_PARALLEL: False  # Disable parallel processing to avoid pickling issues
+  NUM_PARALLEL_CORES: ${num_cores}
+  BREAK_ON_ERROR: False  # Don't crash on individual sequence errors
+  PRINT_RESULTS: True
+  PRINT_ONLY_COMBINED: True
+  PRINT_CONFIG: False
+  TIME_PROGRESS: False
+  DISPLAY_LESS_PROGRESS: False
+  OUTPUT_SUMMARY: True
+  # Additional robustness settings
+  SKIP_SPLIT_FOL: True  # Skip missing split folders
+  CHECK_CONNECTION: False  # Don't check file connections strictly
+  OUTPUT_EMPTY_CLASSES: False  # If False, summary files are not output for classes with no detections
+  OUTPUT_DETAILED: True
+  PLOT_CURVES: True

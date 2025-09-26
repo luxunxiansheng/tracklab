@@ -30,12 +30,12 @@ module_order:
   - bbox_detector
   - reid
   - track
-  - pitch
-  - calibration
-  - jersey_number_detect
-  - tracklet_agg
-  - team
-  - team_side
+  # - pitch
+  # - calibration
+  # - jersey_number_detect
+  # - tracklet_agg
+  # - team
+  # - team_side
 
 
 # Experiment name
