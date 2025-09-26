@@ -8,4 +8,4 @@ cfg:
 
   # Ultra-low confidence threshold - we're missing 93% of GT detections!
   # Previous 0.3 still too high for soccer with occlusions and distant players  
-  min_confidence: 0.5
+  min_confidence: 0.3
