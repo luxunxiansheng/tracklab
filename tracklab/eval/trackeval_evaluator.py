@@ -20,6 +20,7 @@ class TrackEvalEvaluator(EvaluatorBase):
         self,
         cfg,
         tracking_dataset=None,
+        exporter=None,
         *args,
         **kwargs,
     ):
@@ -32,14 +33,12 @@ class TrackEvalEvaluator(EvaluatorBase):
         if self.dataset_path is None:
             raise ValueError("dataset_path must be specified in the config")
         self.tracking_dataset = tracking_dataset
-      
-        self.trackeval_dataset_name = tracking_dataset.trackeval_name
-        self.trackeval_dataset_class = tracking_dataset.trackeval_dataset_class 
-           
+        self.exporter = exporter
 
-        self.exporter = instantiate(cfg.export)
-
-      
+        self.trackeval_dataset_name = self.cfg.dataset.dataset_class
+        self.trackeval_dataset_class = getattr(
+            trackeval.datasets, self.trackeval_dataset_name
+        )
 
     def run(self, tracker_state):
         log.info(

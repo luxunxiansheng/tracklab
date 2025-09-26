@@ -67,7 +67,7 @@ def main(cfg):
         # Run tracking and visualization
         tracking_engine.track_dataset()
 
-        #exporter = instantiate(cfg.export)
+        exporter = instantiate(cfg.export)
         #export(cfg,exporter,tracker_state)
             
 

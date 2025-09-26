@@ -4,7 +4,6 @@ cfg:
   show_progressbar: True  # Show progressbar during evaluation
   eval_set: ${dataset.eval_set}
   dataset_path: ${dataset.dataset_path}
-  export: gs
   dataset: ${dataset.track_eval} 
   save_gt: False
   # Use bbox_ltwh as primary column, bbox_pitch_ltwh as fallback if available
