@@ -1,20 +1,65 @@
 from .module import Module, Pipeline, Skip
 from .detectionlevel_module import DetectionLevelModule
-from ..eval.evaluator import Evaluator
 from .imagelevel_module import ImageLevelModule
 from .videolevel_module import VideoLevelModule
 
-# Import commonly used classes from subdirectories
-from ..dataset import *
-from ..eval import *
-from .bbox_detector import *
-from .pose_estimator import *
-from .reid import *
-from .team import *
-from .tracklet_agg import *
-from .jersey import *
-from .calibration import *
-from .track import *
+# Detector classes
+from .bbox_detector import (
+    YOLOUltralytics,
+    RTMLibDetector,
+    MMDetection,
+)
+
+# Pose estimator classes
+from .pose_estimator import (
+    YOLOUltralyticsPose,
+    RTMPose,
+    RTMO,
+)
+
+# ReID classes
+from .reid import (
+    PRTReId,
+)
+
+# Team classes
+from .team import (
+    TrackletTeamClustering,
+    TrackletTeamSideLabeling,
+)
+
+# Tracklet aggregation classes
+from .tracklet_agg import (
+    MajorityVoteTracklet,
+)
+
+# Jersey classes
+from .jersey import (
+    MMOCR,
+    EasyOCR,
+    VotingTrackletJerseyNumber,
+)
+
+# Calibration classes
+from .calibration import (
+    NBJW_Calib_Keypoints,
+    NBJW_Calib,
+    PnLCalib_Keypoints,
+    PnLCalib,
+    BaselineCalibration,
+    Bbox2Pitch,
+    BaselinePitch,
+)
+
+# Tracker classes
+from .track import (
+    BotSORT,
+    BPBReIDStrongSORT,
+    ByteTrack,
+    DeepOCSORT,
+    OCSORT,
+    StrongSORT,
+)
 
 __all__ = [
     # Base classes
@@ -22,31 +67,13 @@ __all__ = [
     "Pipeline",
     "Skip",
     "DetectionLevelModule",
-    "Evaluator",
     "ImageLevelModule",
     "VideoLevelModule",
-    # Dataset classes
-    "ExternalVideo",
-    "DanceTrack",
-    "MOT17",
-    "MOT20",
-    "SportsMOT",
-    "Bee24",
-    "PoseTrack18",
-    "PoseTrack21",
-    "SoccerNetGameState",
-    "SoccerNetMOT",
-    # Evaluator classes
-    "PoseTrack18Evaluator",
-    "PoseTrack21Evaluator",
-    "TrackEvalEvaluator",
-    # Detector classes
     # Detector classes
     "YOLOUltralytics",
     "RTMLibDetector",
     # 'RTDetr',  # Temporarily disabled due to transformers version compatibility
     "MMDetection",
-    # Pose estimator classes
     # Pose estimator classes
     "YOLOUltralyticsPose",
     # 'VITPose',  # Temporarily disabled due to transformers version compatibility

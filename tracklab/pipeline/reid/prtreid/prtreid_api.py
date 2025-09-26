@@ -8,26 +8,16 @@ from yacs.config import CfgNode as CN
 from tracklab.pipeline import DetectionLevelModule
 
 # FIXME this should be removed and use KeypointsSeriesAccessor and KeypointsFrameAccessor
-from tracklab.utils.coordinates import rescale_keypoints
 from tracklab.utils.collate import default_collate
 from .prtreid_dataset import ReidDataset
 from prtreid.scripts.main import build_config, build_torchreid_model_engine
 from prtreid.tools.feature_extractor import FeatureExtractor
-from prtreid.utils.imagetools import (
-    build_gaussian_heatmaps,
-)
 from tracklab.utils.collate import Unbatchable
 
-import tracklab
 from pathlib import Path
 
 
 import prtreid
-from torch.nn import functional as F
-from prtreid.data.masks_transforms import (
-    CocoToSixBodyMasks,
-    masks_preprocess_transforms,
-)
 from prtreid.utils.tools import extract_test_embeddings
 from prtreid.data.datasets import configure_dataset_class
 
