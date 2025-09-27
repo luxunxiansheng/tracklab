@@ -16,14 +16,14 @@ cfg:
   save_path: "${project_dir}/pretrained_models/yolo/yolo11x_finetuned_soccernet.pt"
 
   # Detector-level minimum confidence used by the wrapper
-  min_confidence: 0.5
+  min_confidence: 0.55
 
 
   # Optional offline-only hints (not strictly required by the YOLO API)
   tta: ["horizontal_flip"]
   postproc:
     soft_nms: True
-    size_filter_min_area_ratio: 0.0008
+    size_filter_min_area_ratio: 0.0003
 
  
   training:
