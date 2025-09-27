@@ -1,3 +1,5 @@
 _target_: tracklab.pipeline.tracklet_agg.majority_vote_api.MajorityVoteTracklet
 cfg:
-  attributes: ["role", "jersey_number"]
+  attributes: ["role",
+                # "jersey_number"
+                ]
