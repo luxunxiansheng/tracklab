@@ -76,7 +76,7 @@ class NBJW_Calib_Keypoints(ImageLevelModule):
         "image": [],
         "detection": [],
     }
-    output_columns = {"image": ["keypoints", "lines"], "detection": []}
+    output_columns = {"image": ["keypoints", "lines_det", "lines"], "detection": []}
 
     def __init__(
         self,
@@ -153,7 +153,11 @@ class NBJW_Calib_Keypoints(ImageLevelModule):
         for result, idx in zip(final_dict, metadatas.index):
             output_pred.append(
                 pd.Series(
-                    {"keypoints": result, "lines": kp_to_line(result)},
+                    {
+                        "keypoints": result,
+                        "lines_det": lines_dict[0],
+                        "lines": kp_to_line(result),
+                    },
                     name=idx,
                 )
             )
