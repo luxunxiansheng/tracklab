@@ -18,33 +18,3 @@
 | **FastReID** | ResNet-50/101 + IBN | Instance-Batch Norm; multiple losses | ~79% / ~84% (SoccerNet-like, estimated) | Flexible for broadcast analysis; robust features | Complex config; resource-heavy | High: Excellent for fine-tuning with various losses | 8 | [GitHub: FastReID](https://github.com/JDAI-CV/fast-reid) / [arXiv:2103.12345](https://arxiv.org/abs/2103.12345) |
 | **MGN** | ResNet-50 + Multi-branch | Multi-granularity extraction; combined losses | ~77% / ~82% (sports datasets, estimated) | Captures fine details like numbers; good for occlusions | Complex tuning | Medium-High: Suits detailed custom annotations | 7 | [GitHub search: MGN](https://github.com/search?q=MGN) / [arXiv search: MGN person re-identification](https://arxiv.org/search/?query=MGN+person+re-identification&searchtype=all) |
 
-
----
-
-## Notes & Insights (link validation done on 2025-09-20)
-
-- What I checked: extracted all URLs from this file and performed HTTP HEAD/GET checks following redirects.
-- Summary: Several direct GitHub repository URLs were not reachable (404) or have been moved/removed; those were replaced with a GitHub search URL so readers can find forks or references easily.
-- arXiv: most article links are valid; where a DOI/arXiv id returned 404 I replaced it with an arXiv search link (see `MGN`).
-- Why search links: some projects are forks, renamed, or private; a repository search gives maintainers a way to find active forks or related projects without pointing to a stale 404.
-
-Recommendations & next steps:
-
-- If you maintain canonical repo URLs for any of these projects, replace the search links with the precise GitHub URLs so `README.md` points to the authoritative source.
-- Consider adding short example commands for cloning and running the top 3 recommended ReID models (FastReID, TransReID, OSNet) — that helps new contributors reproduce results.
-- Add a `Resources` subsection with links to:
-  - SoccerNet datasets (official pages)
-  - Example pre-trained weights (if redistribution allowed)
-  - A short guide for fine-tuning on a small custom dataset (augmentation, batch size, mining strategies)
-
-Edge cases I considered:
-
-- Private or renamed repos: search links handle renamed/archived projects.
-- Redirects and rate limiting: automated checks followed redirects; if GitHub rate-limits, a manual visit can confirm.
-- Anchors inside repo pages (e.g., specific files) cannot be verified by a HEAD request; validate manually if you depend on a specific path.
-
-If you'd like, I can:
-
-- Replace the search links with exact repo URLs where you can confirm the correct upstream.
-- Add short example commands and a minimal fine-tuning snippet (PyTorch) for one recommended model and include a small checklist for preparing SoccerNet-style annotations.
-
