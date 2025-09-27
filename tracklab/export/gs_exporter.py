@@ -20,9 +20,14 @@ def transform_bbox_image(bbox):
                 float(bbox[2]),
                 float(bbox[3]),
             )
-            x_center = left + width / 2
-            y_center = top + height / 2
-            return {"x": x_center, "y": y_center, "w": width, "h": height}
+            return {
+                "x": left,
+                "y": top,
+                "w": width,
+                "h": height,
+                "x_center": left + width / 2,
+                "y_center": top + height / 2,
+            }
         else:
             # Invalid bbox format
             return None
@@ -190,7 +195,7 @@ class GSExporter(BaseExporter):
                     bbox = dataframe.at[idx, "bbox_image"]
                     transformed = transform_bbox_image(bbox)
                     if transformed is not None:
-                        dataframe.at[idx, "bbox_image"] = transformed
+                        dataframe.at[idx, "bbox_image"] = transformed  # type: ignore[assignment]
                     else:
                         # Invalid bbox, mark for removal
                         dataframe.at[idx, "bbox_image"] = None

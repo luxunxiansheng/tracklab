@@ -55,6 +55,14 @@ class TrackEvalEvaluator(EvaluatorBase):
             / tracker_name
         ).resolve()
 
+        dataset_config = self.trackeval_dataset_class.get_default_dataset_config()
+        for key, value in self.cfg.dataset.items():
+            dataset_config[key] = value
+
+        tracker_sub_folder = dataset_config.get("TRACKER_SUB_FOLDER", "")
+        if tracker_sub_folder:
+            pred_save_path = pred_save_path / tracker_sub_folder
+
         self.exporter.export(
             tracker_state.detections_pred,
             tracker_state.image_metadatas,
@@ -76,15 +84,12 @@ class TrackEvalEvaluator(EvaluatorBase):
             return
 
         # Build TrackEval dataset
-        dataset_config = self.trackeval_dataset_class.get_default_dataset_config()
         dataset_config["SEQ_INFO"] = tracker_state.video_metadatas.set_index("name")[
             "nframes"
         ].to_dict()
         dataset_config["BENCHMARK"] = (
             self.trackeval_dataset_name
         )  # required for trackeval.datasets.MotChallenge2DBox
-        for key, value in self.cfg.dataset.items():
-            dataset_config[key] = value
 
         dataset_config["GT_FOLDER"] = self.dataset_path  # Location of GT data
         dataset_config["GT_LOC_FORMAT"] = (
