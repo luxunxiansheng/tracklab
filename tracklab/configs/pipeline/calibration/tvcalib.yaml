@@ -1,6 +1,7 @@
-_target_: tracklab.pipeline.calibration.tvcalib_api.TVCalib
+_target_: tracklab.pipeline.calibration.tvcalib.tvcalib_api.TVCalib
 image_width: 1920
 image_height: 1080
 lens_dist: False
 optim_steps: 2000
 batch_size: 256
+

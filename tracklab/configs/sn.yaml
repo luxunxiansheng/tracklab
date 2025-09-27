@@ -19,7 +19,7 @@ defaults:
   - pipeline/team_side: mean_position
   - pipeline/tracklet_agg: voting_role_jn
   - pipeline/pitch : nbjw_calib
-  - pipeline/calibration: baseline
+  - pipeline/calibration: tvcalib
   - _self_
 
 # Module order definition :
