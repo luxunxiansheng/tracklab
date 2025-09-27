@@ -37,3 +37,5 @@ track_eval:  # Used by tracklab/configs/eval/trackeval.yaml
   USE_ROLES: False  #
   USE_TEAMS: False  # affects only ground truth / predictions with role=player or role=goalkeeper
   USE_JERSEY_NUMBERS: False  # affects only ground truth / predictions with role=player or role=goalkeeper
+
+  EVAL_DIST_TOL: 10
