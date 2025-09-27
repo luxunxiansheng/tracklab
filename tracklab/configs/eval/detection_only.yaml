@@ -1,13 +1,9 @@
-# Detection-only evaluator for YOLO fine-tuning
-# This evaluator only requires detection data, not tracking or calibration
 
-_target_: tracklab.pipeline.DetectionOnlyEvaluator
-
-show_progressbar: True
-eval_set: ${dataset.eval_set}
-dataset_path: ${dataset.dataset_path}
-
+_target_: tracklab.eval.DetectionOnlyEvaluator
 cfg:
+  show_progressbar: True
+  eval_set: ${dataset.eval_set}
+  dataset_path: ${dataset.dataset_path}
   bbox_column_for_eval: "bbox_ltwh"  # which bbox column to use for evaluation
   metrics:  # Detection metrics only
     - "DETECTION_AP"  # Average Precision for detection

@@ -16,18 +16,15 @@ class DetectionOnlyEvaluator(EvaluatorBase):
     def __init__(
         self,
         cfg,
-        eval_set,
-        show_progressbar,
-        dataset_path,
         tracking_dataset,
         *args,
         **kwargs,
     ):
         self.cfg = cfg
         self.tracking_dataset = tracking_dataset
-        self.eval_set = eval_set
-        self.show_progressbar = show_progressbar
-        self.dataset_path = dataset_path
+        self.eval_set = cfg.get("eval_set", "val")
+        self.show_progressbar = cfg.get("show_progressbar", True)
+        self.dataset_path = cfg.get("dataset_path", None)
         self.confidence_thresholds = cfg.confidence_thresholds
         self.iou_thresholds = cfg.iou_thresholds
 
