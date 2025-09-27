@@ -20,7 +20,7 @@ def collate_df(batch):
 class Bbox2Pitch(ImageLevelModule):
     collate_fn = collate_df
 
-    input_columns = dict(detection=["bbox_ltwh"], image=["parameters"])
+    input_columns = dict(detection=["bbox_ltwh"], image=[])
     output_columns = dict(detection=["bbox_pitch"], image=[])
 
     def __init__(self, batch_size, **kwargs):
@@ -28,7 +28,7 @@ class Bbox2Pitch(ImageLevelModule):
         log.info(f"bbox2pitch: batch_size={batch_size}")
 
     def preprocess(self, image, detections: pd.DataFrame, metadata: pd.Series) -> Any:
-        camera_parameters = metadata["parameters"]
+        camera_parameters = metadata.get("parameters")
         if isinstance(camera_parameters, dict):  # Camera parameters
             sn_cam = Camera(iwidth=image.shape[1], iheight=image.shape[0])
             sn_cam.from_json_parameters(camera_parameters)
@@ -41,12 +41,12 @@ class Bbox2Pitch(ImageLevelModule):
             )
         elif pd.isna(camera_parameters):
             log.warning(f"camera parameters were None/NA")
-            return pd.DataFrame(columns=["bbox_pitch"])
+            detections["bbox_pitch"] = None
         else:
             log.warning(
                 f"camera parameters should be dict or list not {camera_parameters}"
             )
-            return pd.DataFrame(columns=["bbox_pitch"])
+            detections["bbox_pitch"] = None
 
         return detections["bbox_pitch"]
 

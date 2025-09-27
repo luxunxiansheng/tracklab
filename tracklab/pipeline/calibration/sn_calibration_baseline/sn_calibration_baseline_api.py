@@ -13,8 +13,8 @@ from tracklab.pipeline import ImageLevelModule
 
 
 class BaselineCalibration(ImageLevelModule):
-    input_columns = []
-    output_columns = []
+    input_columns = {"image": ["lines"]}
+    output_columns = {"detection": ["bbox_pitch"], "image": ["parameters"]}
 
     def __init__(self, batch_size, resolution_width, resolution_height, **kwargs):
         super().__init__(batch_size)
@@ -36,6 +36,8 @@ class BaselineCalibration(ImageLevelModule):
         success = False
         for k, v in predictions.items():
             if k == "Circle central" or "unknown" in k:
+                continue
+            if len(v) < 2:
                 continue
             P3D1 = field.line_extremities_keys[k][0]
             P3D2 = field.line_extremities_keys[k][1]
