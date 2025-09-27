@@ -2,18 +2,18 @@ _target_: tracklab.pipeline.BPBReIDStrongSORT
 
 cfg:
   ecc: False # activate camera motion compensation
-  ema_alpha: 0.9 # updates  appearance  state in  an exponential moving average manner
+  ema_alpha: 0.94 # slightly slower appearance updates to stabilise identities
   mc_lambda: 0.995 # matching with  <mc_lambda * appearance + (1 - mc_lambda) * KF_gated_cost>
-  max_dist: 0.5 # The reid matching threshold. Samples with larger distance are considered an invalid match
+  max_dist: 0.45 # The reid matching threshold. Samples with larger distance are considered an invalid match
   motion_criterium: "iou" # "iou" or "oks"
-  max_iou_distance: 0.8 # Gating threshold. Associations with cost larger than this value are disregarded.
+  max_iou_distance: 0.7 # Gating threshold. Associations with cost larger than this value are disregarded.
   max_oks_distance: 0.7 # Gating threshold. Associations with cost larger than this value are disregarded.
-  max_age: 300 # Maximum number of misses before a track is deleted
-  n_init: 0 # Number of frames that a track remains in initialization phase
+  max_age: 45 # Maximum number of misses before a track is deleted
+  n_init: 3 # Number of frames that a track remains in initialization phase
   nn_budget: 100 # Maximum size of the appearance descriptors gallery
-  min_bbox_confidence: 0.  # bbox below this confidence threshold are not considered for matching
+  min_bbox_confidence: 0.5  # bbox below this confidence threshold are not considered for matching
   only_position_for_kf_gating: False  # if True, only the position (x, y) is used by the Kalman filter for gating
-  max_kalman_prediction_without_update: 7  # do not make any predictions if the Kalman filter has no measurements for more than this number of frames
+  max_kalman_prediction_without_update: 3  # do not make any predictions if the Kalman filter has no measurements for more than this number of frames
   matching_strategy: "strong_sort_matching"  # {"strong_sort_matching", "bot_sort_matching"}
   gating_thres_factor: 1
   w_kfgd: 1
