@@ -31,9 +31,9 @@ track_eval:  # Used by tracklab/configs/eval/trackeval.yaml
   # Eval space: If the evaluation is performed in image space, the ground truth bboxes (in image space) are matched with the predicted bboxes by their IOU.
   # If the evaluation is performed in pitch space, the ground truth 2D positions on the pitch are matched with the 2D predicted positions using a gaussian
   # kernel with sigma=2.5 applied on their euclidean distance (resulting in a 0->1 similarity score, fulfilling an objective similar to the IOU in image space).
-  EVAL_SPACE: 'image'  # {'pitch', 'image'}.
+  EVAL_SPACE: 'pitch'  # {'pitch', 'image'}.
   # Below are the enabled attributes (i.e. team, role, or jersey numbers) for evaluation.
   # When an attribute is enabled, ground truth and predictions that don't share the same value for this attribute are given a '0' similarity score and can therefore not be matched.
-  USE_ROLES: True  #
-  USE_TEAMS: True  # affects only ground truth / predictions with role=player or role=goalkeeper
-  USE_JERSEY_NUMBERS: True  # affects only ground truth / predictions with role=player or role=goalkeeper
+  USE_ROLES: False  #
+  USE_TEAMS: False  # affects only ground truth / predictions with role=player or role=goalkeeper
+  USE_JERSEY_NUMBERS: False  # affects only ground truth / predictions with role=player or role=goalkeeper
