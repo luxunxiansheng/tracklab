@@ -180,14 +180,19 @@ class VisualizationEngine(Callback):
                 log.error(f"Save directory: {self.save_dir}")
                 log.error(f"Full filepath: {filepath}")
                 raise
+
+
             video_writer = cv2.VideoWriter(
                 str(filepath),
                 cv2.VideoWriter_fourcc(*"mp4v"),
                 float(self.video_fps),
                 (image.shape[1], image.shape[0]),
             )
+
+
         if self.save_gifs:
             gif_frames = []
+        
         with Pool() as p:
             log.info(f"Starting visualization saving for video '{video_name}'")
             counter = 0
@@ -211,6 +216,7 @@ class VisualizationEngine(Callback):
                 if counter % 10 == 0 or counter == total:
                     log.info(f"Saved {counter}/{total} frames for video '{video_name}'")
                 progress.on_module_step_end(None, "vis", None, None)
+        
         if self.save_gifs:
             gif_filepath = self.save_dir / "gifs" / f"{video_name}.gif"
             gif_filepath.parent.mkdir(parents=True, exist_ok=True)
@@ -218,6 +224,7 @@ class VisualizationEngine(Callback):
             rgb_frames = [
                 cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) for frame in gif_frames
             ]
+            log.info(f"Saving GIF to {gif_filepath}")
             imageio.mimsave(str(gif_filepath), rgb_frames, fps=self.video_fps)
             log.info(f"Saved GIF for video '{video_name}' at {gif_filepath}")
 
