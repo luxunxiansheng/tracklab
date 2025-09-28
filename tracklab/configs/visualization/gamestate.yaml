@@ -3,25 +3,22 @@ defaults:
 
 _target_: tracklab.visualization.VisualizationEngine
 save_videos: False
+save_gifs: True
+save_images: True
 
 visualizers:
-  # Available Visualizers:
-  # - Detections: DefaultDetection, FullDetection, DebugDetection, EllipseDetection,
-  #               SimpleDetectionStats, DetectionStats
-  # - Keypoints: DefaultKeypoints, FullKeypoints
-  # - Tracking: TrackingLine # shows tracking history
-  # - Images: FrameCount, IgnoreRegions
-  # - Players: Player, PlayerEllipse, CompletePlayerEllipse
-  # - Pitch: Pitch
-  # - Radar: Radar
-  frame_counter:
-    _target_: tracklab.visualization.FrameCount
-  pitch:
-    _target_: tracklab.visualization.pitch.Pitch
-  players:
-    _target_: tracklab.visualization.players.CompletePlayerEllipse
-  radar:
-    _target_: tracklab.visualization.pitch.Radar
+  # frame_counter:
+  #   _target_: tracklab.visualization.FrameCount
+  # pitch:
+  #   _target_: tracklab.visualization.pitch.Pitch
+  # players:
+  #   _target_: tracklab.visualization.players.CompletePlayerEllipse
+  # radar:
+  #   _target_: tracklab.visualization.pitch.Radar
+
+
+  minimap:
+    _target_: tracklab.visualization.pitch.Minimap
 
 # Color settings for visualization.
 colors:

@@ -5,6 +5,7 @@ from typing import Dict, Optional
 import logging
 
 import cv2
+import imageio
 import pandas as pd
 
 from tracklab.callbacks import Progressbar, Callback
@@ -24,6 +25,7 @@ class VisualizationEngine(Callback):
                      `draw_detection`.
         save_images: whether to save the visualization as image files (.jpeg)
         save_videos: whether to save the visualization as video files (.mp4)
+        save_gifs: whether to save the visualization as GIF files (.gif)
         process_n_videos: number of videos to visualize. Will visualize the first N videos.
         process_n_frames_by_video: number of frames per video to visualize. Will visualize
                                    frames every N/n frames (not first n frames)
@@ -34,6 +36,7 @@ class VisualizationEngine(Callback):
         visualizers: Dict[str, Visualizer],
         save_images: bool = False,
         save_videos: bool = False,
+        save_gifs: bool = False,
         video_fps: int = 25,
         process_n_videos: Optional[int] = None,
         process_n_frames_by_video: Optional[int] = None,
@@ -53,6 +56,7 @@ class VisualizationEngine(Callback):
 
         self.save_images = save_images
         self.save_videos = save_videos
+        self.save_gifs = save_gifs
         self.video_fps = video_fps
         self.max_videos = process_n_videos
         self.max_frames = process_n_frames_by_video
@@ -60,13 +64,13 @@ class VisualizationEngine(Callback):
             visualizer.post_init(**kwargs)
 
     def on_dataset_track_end(self, engine: "TrackingEngine"):
-        if self.save_videos or self.save_images:
+        if self.save_videos or self.save_images or self.save_gifs:
             log.info(f"Visualization output at : {self.save_dir.absolute()}")
 
     def on_video_loop_end(
         self, engine, video_metadata, video_idx, detections, image_pred
     ):
-        if self.save_videos or self.save_images:
+        if self.save_videos or self.save_images or self.save_gifs:
             progress = engine.callbacks.get("progress", Progressbar(dummy=True))
             self.visualize(
                 engine.tracker_state, video_idx, detections, image_pred, progress
@@ -182,6 +186,8 @@ class VisualizationEngine(Callback):
                 float(self.video_fps),
                 (image.shape[1], image.shape[0]),
             )
+        if self.save_gifs:
+            gif_frames = []
         with Pool() as p:
             log.info(f"Starting visualization saving for video '{video_name}'")
             counter = 0
@@ -199,10 +205,21 @@ class VisualizationEngine(Callback):
                     assert cv2.imwrite(str(filepath), output_image)
                 if self.save_videos:
                     video_writer.write(output_image)
+                if self.save_gifs:
+                    gif_frames.append(output_image)
                 counter += 1
                 if counter % 10 == 0 or counter == total:
                     log.info(f"Saved {counter}/{total} frames for video '{video_name}'")
                 progress.on_module_step_end(None, "vis", None, None)
+        if self.save_gifs:
+            gif_filepath = self.save_dir / "gifs" / f"{video_name}.gif"
+            gif_filepath.parent.mkdir(parents=True, exist_ok=True)
+            # Convert BGR to RGB for imageio
+            rgb_frames = [
+                cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) for frame in gif_frames
+            ]
+            imageio.mimsave(str(gif_filepath), rgb_frames, fps=self.video_fps)
+            log.info(f"Saved GIF for video '{video_name}' at {gif_filepath}")
 
     def draw_frame(
         self,

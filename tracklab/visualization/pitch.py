@@ -28,6 +28,94 @@ class Radar(ImageVisualizer):
                 draw_radar_view(image, detection, group=group)
 
 
+class Minimap(ImageVisualizer):
+    def draw_frame(self, image, detections_pred, detections_gt, image_pred, image_gt):
+        # Create a small minimap image
+        pitch_width = 105 + 2 * 10  # pitch size + 2 * margin
+        pitch_height = 68 + 2 * 5  # pitch size + 2 * margin
+        scale = 8
+        minimap = (
+            np.ones((pitch_height * scale, pitch_width * scale, 3), dtype=np.uint8)
+            * 255
+        )
+        if pitch_file is not None:
+            minimap = cv2.resize(
+                cv2.imread(str(pitch_file)), (pitch_width * scale, pitch_height * scale)
+            )
+        # Draw predictions only
+        if detections_pred is not None and "bbox_pitch" in detections_pred:
+            draw_radar_view_minimap(minimap, detections_pred, scale=scale)
+        # Replace the image with the minimap
+        image[:] = cv2.resize(minimap, (image.shape[1], image.shape[0]))
+
+
+def draw_radar_view_minimap(radar_img, detections, scale=8):
+    pitch_width = 105 + 2 * 10
+    pitch_height = 68 + 2 * 5
+    radar_center_x = int(pitch_width * scale / 2)
+    radar_center_y = int(pitch_height * scale / 2)
+    for name, detection in detections.iterrows():
+        if "role" in detection and detection.role == "ball":
+            continue
+        if "role" in detection and "team" in detection:
+            color = (0, 0, 255) if detection.team == "left" else (255, 0, 0)
+        else:
+            color = (0, 0, 0)
+        bbox_name = "bbox_pitch"
+        if (
+            not isinstance(detection[bbox_name], dict)
+            or detection[bbox_name]["x_bottom_middle"] is None
+        ):
+            continue
+        x_middle = np.clip(detection[bbox_name]["x_bottom_middle"], -10000, 10000)
+        y_middle = np.clip(detection[bbox_name]["y_bottom_middle"], -10000, 10000)
+        cat = None
+        if "jersey_number" in detection and detection.jersey_number is not None:
+            if "role" in detection and detection.role == "player":
+                if isinstance(detection.jersey_number, float) and np.isnan(
+                    detection.jersey_number
+                ):
+                    cat = None
+                else:
+                    cat = f"{int(detection.jersey_number)}"
+
+        if "role" in detection:
+            if detection.role == "goalkeeper":
+                cat = "GK"
+            elif detection.role == "referee":
+                cat = "RE"
+                color = (238, 210, 2)
+            elif detection.role == "other":
+                cat = "OT"
+                color = (0, 255, 0)
+        if cat is not None:
+            draw_text(
+                radar_img,
+                cat,
+                (
+                    radar_center_x + int(x_middle * scale),
+                    radar_center_y + int(y_middle * scale),
+                ),
+                1,
+                int(0.2 * scale),
+                color_txt=(255, 255, 255),
+                color_bg=color,
+                alignH="c",
+                alignV="c",
+            )
+        else:
+            cv2.circle(
+                radar_img,
+                (
+                    radar_center_x + int(x_middle * scale),
+                    radar_center_y + int(y_middle * scale),
+                ),
+                scale,
+                color=color,
+                thickness=-1,
+            )
+
+
 def draw_pitch(
     patch,
     detections_pred,
