@@ -13,6 +13,7 @@ from tracklab.pipeline import Pipeline
 from tracklab.callbacks import Callback
 
 from tracklab.datastruct import TrackerState
+from tracklab.utils.progress import progress
 
 
 def merge_dataframes(main_df, appended_piece):
@@ -109,8 +110,9 @@ class TrackingEngine(ABC):
     def track_dataset(self):
         """Run tracking on complete dataset."""
         self.callback("on_dataset_track_start")
+        video_items = list(self.video_metadatas.iterrows())
         for i, (video_idx, video_metadata) in enumerate(
-            self.video_metadatas.iterrows()
+            progress(video_items, desc="Processing videos")
         ):
             with self.tracker_state(video_idx) as tracker_state:
                 self.callback(
