@@ -195,11 +195,20 @@ class NBJW_Calib(ImageLevelModule):
     }
 
     def __init__(
-        self, image_width, image_height, batch_size, use_prev_homography, **kwargs
+        self,
+        image_width,
+        image_height,
+        batch_size,
+        use_prev_homography,
+        ransac_iter=50,
+        normalize_keypoints=False,
+        **kwargs,
     ):
         super().__init__(batch_size)
         self.image_width = image_width
         self.image_height = image_height
+        self.ransac_iter = ransac_iter
+        self.normalize_keypoints = normalize_keypoints
         self.cam = FramebyFrameCalib(
             self.image_width, self.image_height, denormalize=True
         )
@@ -209,13 +218,29 @@ class NBJW_Calib(ImageLevelModule):
         self.last_params = None
 
     def preprocess(self, image, detections: pd.DataFrame, metadata: pd.Series) -> Any:
+        # Optionally normalize keypoints if enabled
+        if self.normalize_keypoints and "keypoints" in metadata:
+            kps = metadata["keypoints"]
+            for k in kps:
+                if "x" in kps[k] and "y" in kps[k]:
+                    kps[k]["x"] /= self.image_width
+                    kps[k]["y"] /= self.image_height
+            metadata["keypoints"] = kps
         return image
 
     def process(self, batch: Any, detections: pd.DataFrame, metadatas: pd.DataFrame):
         predictions = metadatas["keypoints"].iloc[0]
 
         self.cam.update(predictions)
-        h = self.cam.get_homography_from_ground_plane(use_ransac=50, inverse=True)
+        h = self.cam.get_homography_from_ground_plane(
+            use_ransac=self.ransac_iter, inverse=True
+        )
+        diagnostics = {}
+        if h is None:
+            diagnostics["homography_failure"] = True
+        else:
+            diagnostics["homography_failure"] = False
+
         if self.use_prev_homography:
             if h is not None:
                 camera_predictions = self.cam.heuristic_voting()
@@ -241,7 +266,8 @@ class NBJW_Calib(ImageLevelModule):
             return detections[["bbox_pitch"]], pd.DataFrame(
                 [
                     pd.Series(
-                        {"parameters": camera_predictions}, name=metadatas.iloc[0].name
+                        {"parameters": camera_predictions, "diagnostics": diagnostics},
+                        name=metadatas.iloc[0].name,
                     )
                 ]
             )
@@ -262,7 +288,8 @@ class NBJW_Calib(ImageLevelModule):
             return detections[["bbox_pitch"]], pd.DataFrame(
                 [
                     pd.Series(
-                        {"parameters": camera_predictions}, name=metadatas.iloc[0].name
+                        {"parameters": camera_predictions, "diagnostics": diagnostics},
+                        name=metadatas.iloc[0].name,
                     )
                 ]
             )

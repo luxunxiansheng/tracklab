@@ -1,5 +1,7 @@
 _target_: tracklab.pipeline.calibration.NBJW_Calib
 image_width: 1920
 image_height: 1080
-batch_size: 256
+batch_size: 32  # Lower batch size for more stable updates
 use_prev_homography: True
+ransac_iter: 200  # Increase RANSAC iterations for robust homography
+normalize_keypoints: True  # Ensure keypoints are normalized
