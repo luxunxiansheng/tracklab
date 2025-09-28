@@ -53,8 +53,8 @@ def main(cfg):
             )
             log.info(f"✅ Finished training module {i}/{len(training_modules)}")
 
-    # Test tracking
-    if cfg.test_tracking:
+    # Infer tracking
+    if cfg.infer_tracking:
         # Init tracker state and tracking engine
         tracking_set = tracking_dataset.sets[cfg.dataset.eval_set]
         tracker_state = TrackerState(tracking_set, pipeline=pipeline, **cfg.state)
@@ -68,11 +68,12 @@ def main(cfg):
         tracking_engine.track_dataset()
 
         exporter = instantiate(cfg.export)
-        #export(cfg,exporter,tracker_state)
-            
+        # export(cfg,exporter,tracker_state)
 
         # Evaluation
-        evaluator = instantiate(cfg.eval, tracking_dataset=tracking_dataset,exporter=exporter)
+        evaluator = instantiate(
+            cfg.eval, tracking_dataset=tracking_dataset, exporter=exporter
+        )
         evaluate(cfg, evaluator, tracker_state)
 
         # Save tracker state
@@ -130,9 +131,9 @@ def evaluate(cfg, evaluator, tracker_state):
         pass
 
 
-def export(cfg,exporter,tracker_state):
+def export(cfg, exporter, tracker_state):
     if hasattr(cfg, "export") and cfg.export is not None:
-        
+
         save_path = cfg.get("export_save_path", "exports")
         exporter.export(
             detections=tracker_state.detections_pred,

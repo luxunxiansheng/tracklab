@@ -62,7 +62,7 @@ modules: # Allows module-specific batch_size and other configuration (reduced fo
   jersey_number_detect: {batch_size: 4}
 
 # Flags
-test_tracking: True
+infer_tracking: True
 eval_tracking: True  # Enabled to monitor tracking performance on poor quality video
 print_config:  False
 

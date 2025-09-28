@@ -30,7 +30,7 @@ use_rich: True
 print_config: False
 
 # Flags
-test_tracking: True
+infer_tracking: True
 eval_tracking: True  # Enable evaluation to test our detection evaluator
 
 # Tracker state

@@ -43,7 +43,7 @@ state:
   load_from_groundtruth: false
 
 # Flag parameters
-test_tracking: true   # Enable tracking operation (includes detection)
+infer_tracking: true   # Enable tracking operation (includes detection)
 eval_tracking: false  # Disable evaluation since tracking is disabled
 use_rich: true
 
