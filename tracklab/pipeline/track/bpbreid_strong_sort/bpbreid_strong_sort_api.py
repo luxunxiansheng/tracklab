@@ -112,6 +112,56 @@ class BPBReIDStrongSORT(ImageLevelModule):
             batch["frame"][0],
             batch["keypoints"][0] if "keypoints" in batch else None,
         )
+        # Filter out short tracks (less than 5 hits)
+        if not results.empty:
+            results = results[results["hits"] >= 5]
+
+        # Post-processing: merge tracks with high overlap and similar appearance
+        def iou(bbox1, bbox2):
+            x1, y1, w1, h1 = bbox1
+            x2, y2, w2, h2 = bbox2
+            xi1 = max(x1, x2)
+            yi1 = max(y1, y2)
+            xi2 = min(x1 + w1, x2 + w2)
+            yi2 = min(y1 + h1, y2 + h2)
+            inter_area = max(0, xi2 - xi1) * max(0, yi2 - yi1)
+            bbox1_area = w1 * h1
+            bbox2_area = w2 * h2
+            union_area = bbox1_area + bbox2_area - inter_area
+            return inter_area / union_area if union_area > 0 else 0
+
+        merged = set()
+        track_ids = results["track_id"].values
+        if len(results) == 0:
+            assert set(results.index).issubset(
+                detections.index
+            ), "Mismatch of indexes during the tracking. The results should match the detections."
+            return results
+        bboxes = np.stack(list(results["track_bbox_kf_ltwh"].values))
+        # If embeddings available, use them
+        if "reid_features" in detections:
+            features = np.stack(list(detections.embeddings.values))
+        else:
+            features = None
+        for i in range(len(track_ids)):
+            if track_ids[i] in merged:
+                continue
+            for j in range(i + 1, len(track_ids)):
+                if track_ids[j] in merged:
+                    continue
+                if iou(bboxes[i], bboxes[j]) > 0.7:
+                    if features is not None:
+                        sim = np.dot(features[i], features[j]) / (
+                            np.linalg.norm(features[i]) * np.linalg.norm(features[j])
+                            + 1e-6
+                        )
+                        if sim > 0.85:
+                            merged.add(track_ids[j])
+                    else:
+                        merged.add(track_ids[j])
+        if merged:
+            results = results[~results["track_id"].isin(merged)]
+
         assert set(results.index).issubset(
             detections.index
         ), "Mismatch of indexes during the tracking. The results should match the detections."
