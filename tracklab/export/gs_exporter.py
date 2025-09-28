@@ -189,13 +189,15 @@ class GSExporter(BaseExporter):
                 columns_to_keep.append("bbox_pitch")
             dataframe = dataframe[dataframe.columns.intersection(columns_to_keep)]
 
+            dataframe = dataframe.reset_index(drop=True)
+
             if "bbox_image" in dataframe.columns:
                 # Transform bbox format
                 for idx in dataframe.index:
                     bbox = dataframe.at[idx, "bbox_image"]
                     transformed = transform_bbox_image(bbox)
                     if transformed is not None:
-                        dataframe.at[idx, "bbox_image"] = transformed  # type: ignore[assignment]
+                        dataframe.at[idx, "bbox_image"] = transformed
                     else:
                         # Invalid bbox, mark for removal
                         dataframe.at[idx, "bbox_image"] = None
