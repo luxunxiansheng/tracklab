@@ -126,8 +126,8 @@ class NBJW_Calib_Keypoints(ImageLevelModule):
 
     def preprocess(self, image, detections: pd.DataFrame, metadata: pd.Series) -> Any:
         image = Image.fromarray(image).convert("RGB")
-        image = self.tfms_resize(image)
-        # image = self.tfms(image)
+        # image = self.tfms_resize(image)
+        image = self.tfms(image)
         return image
 
     def process(self, batch: Any, detections: pd.DataFrame, metadatas: pd.DataFrame):
@@ -218,7 +218,11 @@ class NBJW_Calib(ImageLevelModule):
         h = self.cam.get_homography_from_ground_plane(use_ransac=50, inverse=True)
         if self.use_prev_homography:
             if h is not None:
-                camera_predictions = self.cam.heuristic_voting()["cam_params"]
+                camera_predictions = self.cam.heuristic_voting()
+                if camera_predictions is not None:
+                    camera_predictions = camera_predictions["cam_params"]
+                else:
+                    camera_predictions = {}
                 detections["bbox_pitch"] = detections.bbox.ltrb().apply(
                     get_bbox_pitch(h)
                 )
@@ -243,7 +247,11 @@ class NBJW_Calib(ImageLevelModule):
             )
         else:
             if h is not None:
-                camera_predictions = self.cam.heuristic_voting()["cam_params"]
+                camera_predictions = self.cam.heuristic_voting()
+                if camera_predictions is not None:
+                    camera_predictions = camera_predictions["cam_params"]
+                else:
+                    camera_predictions = {}
                 detections["bbox_pitch"] = detections.bbox.ltrb().apply(
                     get_bbox_pitch(h)
                 )
