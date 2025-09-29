@@ -66,13 +66,6 @@ def main(cfg):
 
         # Run tracking and visualization
         tracking_engine.track_dataset()
-  
-
-        # Evaluation
-        evaluator = instantiate(
-            cfg.eval, tracking_dataset=tracking_dataset, exporter= instantiate(cfg.export)
-        )
-        evaluate(cfg, evaluator, tracker_state)
 
         # Save tracker state
         if tracker_state.save_file is not None:
@@ -118,15 +111,6 @@ def init_environment(cfg):
 
 def close_environment():
     wandb.finish()
-
-
-def evaluate(cfg, evaluator, tracker_state):
-    if cfg.get("eval_tracking", True):  # and cfg.dataset.nframes == -1:
-        evaluator.run(tracker_state)
-    elif not cfg.get("eval_tracking", True):
-        pass
-    else:
-        pass
 
 
 if __name__ == "__main__":

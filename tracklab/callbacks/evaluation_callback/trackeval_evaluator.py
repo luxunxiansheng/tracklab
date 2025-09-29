@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 import trackeval
 from tabulate import tabulate
-from tracklab.eval.evaluator import Evaluator as EvaluatorBase
+from tracklab.callbacks.evaluation_callback.evaluator import Evaluator as EvaluatorBase
 from hydra.utils import instantiate
 
 log = logging.getLogger(__name__)
@@ -15,6 +15,8 @@ class TrackEvalEvaluator(EvaluatorBase):
     Evaluator using the TrackEval library (https://github.com/JonathonLuiten/TrackEval).
     Save on disk the tracking predictions and ground truth in MOT Challenge format and run the evaluation by calling TrackEval.
     """
+
+    after_saved_state = False
 
     def __init__(
         self,

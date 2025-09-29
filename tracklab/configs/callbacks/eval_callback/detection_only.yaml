@@ -1,5 +1,5 @@
 
-_target_: tracklab.eval.DetectionOnlyEvaluator
+_target_: tracklab.callbacks.evaluation_callback.DetectionOnlyEvaluator
 cfg:
   show_progressbar: True
   eval_set: ${dataset.eval_set}

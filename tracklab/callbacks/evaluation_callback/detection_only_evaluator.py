@@ -2,7 +2,7 @@ import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from tracklab.eval.evaluator import Evaluator as EvaluatorBase
+from tracklab.callbacks.evaluation_callback.evaluator import Evaluator as EvaluatorBase
 
 log = logging.getLogger(__name__)
 

@@ -1,6 +1,6 @@
 _target_: tracklab.callbacks.ExporterCallback
 exporter:
-  _target_: tracklab.callbacks.GSExporter
+  _target_: tracklab.callbacks.export_callback.gs_exporter.GSExporter
 save_path: "exports"
 export_per_video: false
 bbox_column: "bbox_ltwh"

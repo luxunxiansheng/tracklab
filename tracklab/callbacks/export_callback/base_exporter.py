@@ -13,8 +13,8 @@ class BaseExporter(ABC):
     Base class for exporting tracking data in various formats.
     """
 
-    def __init__(self, config=None):
-        self.config = config or {}
+    def __init__(self, config=None, **kwargs):
+        self.config = config or kwargs
 
     @abstractmethod
     def export(

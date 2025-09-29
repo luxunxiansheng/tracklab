@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import torch
 from tabulate import tabulate
-from tracklab.eval.evaluator import Evaluator as EvaluatorBase
+from tracklab.callbacks.evaluation_callback.evaluator import Evaluator as EvaluatorBase
 from tracklab.utils import wandb
 
 try:

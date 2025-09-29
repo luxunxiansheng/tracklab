@@ -36,6 +36,7 @@ class TrackerState(AbstractContextManager):
         pipeline=None,
     ):
         self.pipeline = pipeline or {}
+        self.tracking_set = tracking_set
         self.video_metadatas = tracking_set.video_metadatas
         self.image_metadatas = tracking_set.image_metadatas
         self.image_gt = tracking_set.image_gt
