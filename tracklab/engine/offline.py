@@ -1,22 +1,55 @@
-import logging
-from tqdm import tqdm
+"""Offline tracking engine for TrackLab."""
 
+import logging
+from typing import Any, Dict, Tuple
+from tqdm import tqdm
+import pandas as pd
+
+from tracklab.datastruct import TrackerState
 from tracklab.engine import TrackingEngine
-from tracklab.utils.cv2 import cv2_load_image
 
 log = logging.getLogger(__name__)
 
 
 class OfflineTrackingEngine(TrackingEngine):
-    def video_loop(self, tracker_state, video, video_id):
+    """Offline tracking engine that processes all data at once.
+
+    This engine loads all detections and image data upfront, then processes
+    them through the tracking pipeline in batch mode.
+    """
+
+    def video_loop(
+        self, tracker_state: TrackerState, video: Any, video_id: Any
+    ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+        """Process a video using offline tracking approach.
+
+        Args:
+            tracker_state: Current state of the tracker with detections and metadata.
+            video: Video metadata or identifier.
+            video_id: Unique identifier for the video.
+
+        Returns:
+            Tuple of (detections DataFrame, image predictions DataFrame).
+        """
         for name, model in self.models.items():
             if hasattr(model, "reset"):
-                model.reset()
+                model.reset()  # type: ignore
 
-        detections, image_pred = tracker_state.load()
+        load_result = tracker_state.load()
+        if isinstance(load_result, pd.DataFrame):
+            # JSON file case - only detections
+            detections = load_result
+            image_pred = tracker_state.image_metadatas[
+                tracker_state.image_metadatas.video_id == video_id
+            ]
+        else:
+            detections, image_pred = load_result
         if len(self.module_names) == 0:
             return detections, image_pred
-        image_filepaths = {idx: fn for idx, fn in image_pred["file_path"].items()}
+
+        image_filepaths: Dict[Any, str] = {
+            idx: fn for idx, fn in image_pred["file_path"].items()
+        }
         model_names = self.module_names
         log.info(f"🎯 Processing {len(model_names)} modules for video {video_id}")
 
@@ -28,7 +61,9 @@ class OfflineTrackingEngine(TrackingEngine):
         ):
             log.info(f"🔄 Processing module: {model_name}")
             if self.models[model_name].level == "video":
-                detections = self.models[model_name].process(detections, image_pred)
+                detections = self.models[model_name].process(  # type: ignore
+                    detections, image_pred
+                )
                 continue
             self.datapipes[model_name].update(image_filepaths, image_pred, detections)
             self.callback(

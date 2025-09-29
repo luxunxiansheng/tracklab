@@ -1,34 +1,40 @@
 """
 YOLO Ultralytics detector for TrackLab with automatic class detection.
-
 """
 
 import logging
-from typing import Any, Dict, Union, List
-from tracklab.datastruct.tracking_dataset import TrackingDataset
+from typing import Any, Dict, List, Optional, Tuple, Union
 import torch
 import pandas as pd
 import numpy as np
 from ultralytics import YOLO
-from tracklab.pipeline.imagelevel_module import ImageLevelModule
-from tracklab.pipeline.module import Pipeline
-from tracklab.utils.coordinates import ltrb_to_ltwh
 from pathlib import Path
 from tqdm import tqdm
-from mmcv.ops import soft_nms
 
-log = logging.getLogger(__name__)
+from tracklab.datastruct.tracking_dataset import TrackingDataset
 from tracklab.pipeline.imagelevel_module import ImageLevelModule
 from tracklab.pipeline.module import Pipeline
 from tracklab.utils.coordinates import ltrb_to_ltwh
-from pathlib import Path
-from tqdm import tqdm
-from mmcv.ops import soft_nms
+
+try:
+    from mmcv.ops import soft_nms
+except ImportError:
+    soft_nms = None
 
 log = logging.getLogger(__name__)
 
 
-def collate_fn(batch):
+def collate_fn(
+    batch: List[Tuple[Any, Dict[str, Any]]],
+) -> Tuple[List[Any], Tuple[List[Any], List[Tuple[int, int]]]]:
+    """Collate function for batching detection data.
+
+    Args:
+        batch: List of (index, data) tuples.
+
+    Returns:
+        Tuple of (indices, (images, shapes)).
+    """
     idxs = [b[0] for b in batch]
     images = [b["image"] for _, b in batch]
     shapes = [b["shape"] for _, b in batch]
@@ -36,9 +42,15 @@ def collate_fn(batch):
 
 
 class YOLOUltralytics(ImageLevelModule):
+    """YOLO Ultralytics detector for object detection in TrackLab.
+
+    This module uses YOLO models from Ultralytics for detecting objects
+    in images with configurable post-processing options.
+    """
+
     collate_fn = collate_fn
-    input_columns = []
-    output_columns = [
+    input_columns: List[str] = []
+    output_columns: List[str] = [
         "image_id",
         "video_id",
         "category_id",
@@ -46,7 +58,23 @@ class YOLOUltralytics(ImageLevelModule):
         "bbox_conf",
     ]
 
-    def __init__(self, cfg, device, batch_size, training_enabled=False, **kwargs):
+    def __init__(
+        self,
+        cfg: Any,
+        device: str,
+        batch_size: int,
+        training_enabled: bool = False,
+        **kwargs: Any,
+    ) -> None:
+        """Initialize the YOLO Ultralytics detector.
+
+        Args:
+            cfg: Configuration object with model and processing settings.
+            device: Device to run the model on (e.g., 'cpu', 'cuda').
+            batch_size: Batch size for processing.
+            training_enabled: Whether training mode is enabled.
+            **kwargs: Additional keyword arguments.
+        """
         super().__init__(batch_size)
         self.cfg = cfg
         self.device = device
@@ -54,13 +82,13 @@ class YOLOUltralytics(ImageLevelModule):
         self.id = 0
 
         # Extract TTA and post-processing configuration
-        self.enable_tta = False
+        self.enable_tta: bool = False
         if hasattr(cfg, "tta") and cfg.tta:
             self.enable_tta = True
 
         # Extract post-processing configuration
-        self.enable_soft_nms = False
-        self.size_filter_min_area_ratio = 0.0
+        self.enable_soft_nms: bool = False
+        self.size_filter_min_area_ratio: float = 0.0
         if hasattr(cfg, "postproc"):
             postproc = cfg.postproc
             if hasattr(postproc, "soft_nms"):
@@ -182,30 +210,35 @@ class YOLOUltralytics(ImageLevelModule):
             scores = np.array(scores)
 
             # Apply soft NMS
-            try:
-                boxes, scores = soft_nms(
-                    boxes=boxes.astype(np.float32),  # Ensure float32 type
-                    scores=scores.astype(np.float32),  # Ensure float32 type
-                    iou_threshold=0.5,  # Standard IoU threshold
-                    sigma=0.5,  # Soft NMS sigma parameter
-                    min_score=0.001,  # Minimum score to keep
-                )
+            if soft_nms is not None:
+                try:
+                    boxes, scores = soft_nms(
+                        boxes=boxes.astype(np.float32),  # Ensure float32 type
+                        scores=scores.astype(np.float32),  # Ensure float32 type
+                        iou_threshold=0.5,  # Standard IoU threshold
+                        sigma=0.5,  # Soft NMS sigma parameter
+                        min_score=0.001,  # Minimum score to keep
+                    )
 
-                # Update detections with soft NMS results
-                filtered_detections = []
-                for i, (box, score) in enumerate(zip(boxes, scores)):
-                    if score > self.cfg.min_confidence:  # Re-apply confidence threshold
-                        det = detections[i].copy()
-                        det["bbox"] = box[
-                            :4
-                        ]  # Only take the first 4 elements (coordinates)
-                        det["conf"] = score
-                        filtered_detections.append(det)
+                    # Update detections with soft NMS results
+                    filtered_detections = []
+                    for i, (box, score) in enumerate(zip(boxes, scores)):
+                        if (
+                            score > self.cfg.min_confidence
+                        ):  # Re-apply confidence threshold
+                            det = detections[i].copy()
+                            det["bbox"] = box[
+                                :4
+                            ]  # Only take the first 4 elements (coordinates)
+                            det["conf"] = score
+                            filtered_detections.append(det)
 
-                detections = filtered_detections
+                    detections = filtered_detections
 
-            except Exception as e:
-                log.warning(f"Soft NMS failed, using original detections: {e}")
+                except Exception as e:
+                    log.warning(f"Soft NMS failed, using original detections: {e}")
+            else:
+                log.warning("Soft NMS not available, using original detections")
 
         # Apply size filtering
         if self.size_filter_min_area_ratio > 0:
@@ -387,6 +420,10 @@ class YOLOUltralytics(ImageLevelModule):
         skipped_images = 0
 
         # Group detections by image
+        if tracking_set.detections_gt is None or tracking_set.detections_gt.empty:
+            log.warning(f"No ground truth detections found for {split_name} split")
+            return {"processed_images": 0, "total_detections": 0, "skipped_images": 0}
+
         image_groups = tracking_set.detections_gt.groupby("image_id")
         total_images = len(image_groups)
 
