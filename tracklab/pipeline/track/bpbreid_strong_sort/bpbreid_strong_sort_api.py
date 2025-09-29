@@ -1,23 +1,33 @@
-from collections import defaultdict
+"""BPBReID StrongSORT multi-object tracking module for TrackLab."""
 
-import torch
+from collections import defaultdict
+from typing import Any, Dict, List, Optional, Union
+
 import numpy as np
 import pandas as pd
-from . import strong_sort as strong_sort
-import logging
+import torch
 
 from tracklab.pipeline import ImageLevelModule
+from . import strong_sort as strong_sort
+
+import logging
 
 log = logging.getLogger(__name__)
 
 
 class BPBReIDStrongSORT(ImageLevelModule):
-    input_columns = [
+    """BPBReID StrongSORT multi-object tracking module for TrackLab.
+
+    This module performs multi-object tracking using StrongSORT with BPBReID
+    features, combining motion, appearance, and pose information for robust tracking.
+    """
+
+    input_columns: List[str] = [
         "bbox_ltwh",
         "embeddings",
         "visibility_scores",
     ]
-    output_columns = [
+    output_columns: List[str] = [
         "track_id",
         "track_bbox_kf_ltwh",
         "track_bbox_pred_kf_ltwh",
@@ -29,13 +39,23 @@ class BPBReIDStrongSORT(ImageLevelModule):
         "state",
     ]
 
-    def __init__(self, cfg, device, batch_size=None, **kwargs):
+    def __init__(
+        self, cfg: Any, device: str, batch_size: Optional[int] = None, **kwargs: Any
+    ) -> None:
+        """Initialize the BPBReID StrongSORT module.
+
+        Args:
+            cfg: Configuration object containing tracking parameters.
+            device: Device to run inference on.
+            batch_size: Batch size for processing (unused, fixed to 1).
+            **kwargs: Additional configuration parameters.
+        """
         super().__init__(batch_size=1)
         self.cfg = cfg
         self.device = device
         self.reset()
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset the tracker state to start tracking in a new video."""
         self.model = strong_sort.StrongSORT(
             ema_alpha=self.cfg.ema_alpha,
@@ -57,9 +77,14 @@ class BPBReIDStrongSORT(ImageLevelModule):
             w_st=self.cfg.w_st,
         )
         # For camera compensation
-        self.prev_frame = None
+        self.prev_frame: Optional[np.ndarray] = None
 
-    def prepare_next_frame(self, next_frame: np.ndarray):
+    def prepare_next_frame(self, next_frame: np.ndarray) -> None:
+        """Prepare tracker for next frame with Kalman filter prediction and camera compensation.
+
+        Args:
+            next_frame: Next frame image for camera motion compensation.
+        """
         # Propagate the state distribution to the current time step using a Kalman filter prediction step.
         self.model.tracker.predict()
 
@@ -70,7 +95,19 @@ class BPBReIDStrongSORT(ImageLevelModule):
             self.prev_frame = next_frame
 
     @torch.no_grad()
-    def preprocess(self, image, detections: pd.DataFrame, metadata: pd.Series):
+    def preprocess(
+        self, image: Any, detections: pd.DataFrame, metadata: pd.Series
+    ) -> Dict[str, Union[List[Any], np.ndarray]]:
+        """Preprocess detections with embeddings and visibility scores for tracking.
+
+        Args:
+            image: Input image array (unused for preprocessing).
+            detections: Detection DataFrame with embeddings and visibility scores.
+            metadata: Image metadata series.
+
+        Returns:
+            Dictionary containing processed detection inputs.
+        """
         if len(detections) == 0:
             return {
                 "id": [],
@@ -87,19 +124,31 @@ class BPBReIDStrongSORT(ImageLevelModule):
             score = detections.keypoints_conf
         input_tuple = {
             "id": detections.index.to_numpy(),
-            "bbox_ltwh": np.stack(detections.bbox_ltwh),
-            "reid_features": np.stack(detections.embeddings),
-            "visibility_scores": np.stack(detections.visibility_scores),
-            "scores": np.stack(score),
+            "bbox_ltwh": np.stack(detections.bbox_ltwh),  # type: ignore
+            "reid_features": np.stack(detections.embeddings),  # type: ignore
+            "visibility_scores": np.stack(detections.visibility_scores),  # type: ignore
+            "scores": np.stack(score),  # type: ignore
             "classes": np.zeros(len(detections.index)),
             "frame": np.ones(len(detections.index)) * metadata.frame,
         }
         if "keypoints_xyc" in detections:
-            input_tuple["keypoints"] = np.stack(detections.keypoints_xyc)
+            input_tuple["keypoints"] = np.stack(detections.keypoints_xyc)  # type: ignore
         return input_tuple
 
     @torch.no_grad()
-    def process(self, batch, detections: pd.DataFrame, metadatas: pd.DataFrame):
+    def process(
+        self, batch: Dict[str, Any], detections: pd.DataFrame, metadatas: pd.DataFrame
+    ) -> Union[pd.DataFrame, List[Any]]:
+        """Process batch and perform advanced tracking with track merging.
+
+        Args:
+            batch: Preprocessed batch data with embeddings and visibility scores.
+            detections: Detection DataFrame.
+            metadatas: Image metadata DataFrame.
+
+        Returns:
+            DataFrame with tracking results after track merging or empty list.
+        """
         if len(detections) == 0:
             return []
         results = self.model.update(
@@ -117,7 +166,16 @@ class BPBReIDStrongSORT(ImageLevelModule):
             results = results[results["hits"] >= 5]
 
         # Post-processing: merge tracks with high overlap and similar appearance
-        def iou(bbox1, bbox2):
+        def iou(bbox1: np.ndarray, bbox2: np.ndarray) -> float:
+            """Calculate Intersection over Union between two bounding boxes.
+
+            Args:
+                bbox1: First bounding box [x, y, w, h].
+                bbox2: Second bounding box [x, y, w, h].
+
+            Returns:
+                IoU score between 0 and 1.
+            """
             x1, y1, w1, h1 = bbox1
             x2, y2, w2, h2 = bbox2
             xi1 = max(x1, x2)
