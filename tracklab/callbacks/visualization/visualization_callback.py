@@ -9,7 +9,7 @@ import imageio
 import pandas as pd
 
 from tracklab.callbacks import Progressbar, Callback
-from tracklab.visualization import Visualizer
+from .visualizer import Visualizer
 from tracklab.datastruct import TrackerState
 from tracklab.utils.cv2 import final_patch, cv2_load_image
 
@@ -181,7 +181,6 @@ class VisualizationEngine(Callback):
                 log.error(f"Full filepath: {filepath}")
                 raise
 
-
             video_writer = cv2.VideoWriter(
                 str(filepath),
                 cv2.VideoWriter_fourcc(*"mp4v"),
@@ -189,10 +188,9 @@ class VisualizationEngine(Callback):
                 (image.shape[1], image.shape[0]),
             )
 
-
         if self.save_gifs:
             gif_frames = []
-        
+
         with Pool() as p:
             log.info(f"Starting visualization saving for video '{video_name}'")
             counter = 0
@@ -216,7 +214,7 @@ class VisualizationEngine(Callback):
                 if counter % 10 == 0 or counter == total:
                     log.info(f"Saved {counter}/{total} frames for video '{video_name}'")
                 progress.on_module_step_end(None, "vis", None, None)
-        
+
         if self.save_gifs:
             gif_filepath = self.save_dir / "gifs" / f"{video_name}.gif"
             gif_filepath.parent.mkdir(parents=True, exist_ok=True)

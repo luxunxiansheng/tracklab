@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import logging
 
-from tracklab.visualization import DetectionVisualizer
+from .visualizer import DetectionVisualizer
 
 log = logging.getLogger(__name__)
 

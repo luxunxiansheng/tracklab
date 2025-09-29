@@ -3,9 +3,11 @@ import numpy as np
 from pathlib import Path
 
 from tracklab.utils.cv2 import draw_text
-from tracklab.visualization import ImageVisualizer
+from .visualizer import ImageVisualizer
 
-from ..pipeline.calibration.sn_calibration_baseline.soccerpitch import SoccerPitch
+from tracklab.pipeline.calibration.sn_calibration_baseline.soccerpitch import (
+    SoccerPitch,
+)
 
 import logging
 

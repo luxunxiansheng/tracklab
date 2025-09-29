@@ -1,5 +1,6 @@
-from tracklab.visualization import DetectionVisualizer
+from .visualizer import DetectionVisualizer
 from tracklab.utils.cv2 import draw_keypoints
+
 
 class DefaultKeypoints(DetectionVisualizer):
     def __init__(self, threshold=0.4, print_confidence=False):
@@ -28,6 +29,7 @@ class DefaultKeypoints(DetectionVisualizer):
                     print_confidence=self.print_confidence,
                 )
 
+
 class FullKeypoints(DefaultKeypoints):
     def __init__(self):
-        super().__init__(threshold=0., print_confidence=True)
+        super().__init__(threshold=0.0, print_confidence=True)

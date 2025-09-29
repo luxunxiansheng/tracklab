@@ -78,15 +78,15 @@ Each visualization config follows this structure:
 defaults:
   - colors  # Inherits color settings
 
-_target_: tracklab.visualization.VisualizationEngine
+_target_: tracklab.callbacks.visualization.VisualizationEngine
 save_videos: True  # Whether to save output videos
 
 visualizers:
   # List of visualizer components to use
   frame_counter:
-    _target_: tracklab.visualization.FrameCount
+    _target_: tracklab.callbacks.visualization.FrameCount
   detections:
-    _target_: tracklab.visualization.DefaultDetection
+    _target_: tracklab.callbacks.visualization.DefaultDetection
   # ... other visualizers
 
 colors:

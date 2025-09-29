@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-from tracklab.visualization import DetectionVisualizer
+from .visualizer import DetectionVisualizer
 from tracklab.utils.cv2 import draw_bbox, draw_bbox_stats, draw_text
 
 

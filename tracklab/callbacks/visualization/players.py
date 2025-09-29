@@ -3,12 +3,8 @@ import pandas as pd
 
 from distinctipy import get_rgb256
 
-from tracklab.visualization import (
-    Visualizer,
-    DefaultDetection,
-    EllipseDetection,
-    get_fixed_colors,
-)
+from .visualizer import Visualizer, get_fixed_colors
+from .detection import DefaultDetection, EllipseDetection
 from tracklab.utils.cv2 import draw_text
 
 import logging
