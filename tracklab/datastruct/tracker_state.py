@@ -149,7 +149,7 @@ class TrackerState(AbstractContextManager):
         if self.load_from_public_dets:
             self.load_public_dets(self.load_columns)
 
-    def load_groundtruth(self, load_columns):
+    def load_groundtruth(self, load_columns) -> None:
         from tracklab.engine.engine import merge_dataframes
 
         if self.pipeline.is_empty():
@@ -183,11 +183,11 @@ class TrackerState(AbstractContextManager):
         self.detections_pred_gt = self.detections_pred_gt.reset_index(drop=True)
         self.detections_pred_gt["id"] = self.detections_pred_gt.index
 
-    def load_public_dets(self, load_columns):
+    def load_public_dets(self, load_columns) -> None:
         self.detections_pred_public = self.detections_public.copy()
         self.image_pred_public = self.image_metadatas.copy()
 
-    def load_detections_pred_from_json(self, json_file):
+    def load_detections_pred_from_json(self, json_file) -> None:
         anns_path = Path(json_file)
         anns_files_list = list(anns_path.glob("*.json"))
         assert len(anns_files_list) > 0, "No annotations files found in {}".format(

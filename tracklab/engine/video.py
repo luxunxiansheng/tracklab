@@ -36,7 +36,7 @@ class VideoOnlineTrackingEngine:
         tracker_state: TrackerState,
         num_workers: int,
         callbacks: Optional[Dict[str, Callback]] = None,
-    ):
+    ) -> None:
         """Initialize the online video tracking engine.
 
         Args:

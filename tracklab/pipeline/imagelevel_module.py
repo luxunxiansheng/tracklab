@@ -39,7 +39,7 @@ class ImageLevelModule(Module, ABC):
     output_columns: Optional[list] = None
 
     @abstractmethod
-    def __init__(self, batch_size: int):
+    def __init__(self, batch_size: int) -> None:
         """Init function
 
         The arguments to this function are completely free
@@ -98,56 +98,6 @@ class ImageLevelModule(Module, ABC):
         return self._datapipe
 
     def dataloader(self, engine: "TrackingEngine") -> DataLoader:
-        datapipe = self.datapipe
-        return DataLoader(
-            dataset=datapipe,
-            batch_size=self.batch_size,
-            collate_fn=type(self).collate_fn,
-            num_workers=engine.num_workers,
-            persistent_workers=False,
-        )
-        """Adapts the default input to your specific case.
-
-        Args:
-            image: a numpy array of the current image
-            detections: a DataFrame containing all the detections pertaining to a single
-                        image
-            metadata: additional information about the image
-
-        Returns:
-            preprocessed_sample: input for the process function
-        """
-        pass
-
-    @abstractmethod
-    def process(self, batch: Any, detections: pd.DataFrame, metadatas: pd.DataFrame):
-        """The main processing function. Runs on GPU.
-
-        Args:
-            batch: The batched outputs of `preprocess`
-            detections: The previous detections.
-            metadatas: The previous image metadatas
-
-        Returns:
-            output : Either a DataFrame containing the new/updated detections
-                    or a tuple containing detections and metadatas (in that order)
-                    The DataFrames can be either a list of Series, a list of DataFrames
-                    or a single DataFrame. The returned objects will be aggregated
-                    automatically according to the `name` of the Series/`index` of
-                    the DataFrame. **It is thus mandatory here to name correctly
-                    your series or index your dataframes.**
-                    The output will override the previous detections
-                    with the same name/index.
-        """
-        pass
-
-    @property
-    def datapipe(self):
-        if self._datapipe is None:
-            self._datapipe = EngineDatapipe(self)
-        return self._datapipe
-
-    def dataloader(self, engine: "TrackingEngine"):
         datapipe = self.datapipe
         return DataLoader(
             dataset=datapipe,

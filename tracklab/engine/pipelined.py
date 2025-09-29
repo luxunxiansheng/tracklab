@@ -14,7 +14,7 @@ class PipelinedTrackingEngine(TrackingEngine):
     in a streaming fashion.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         """Initialize the pipelined tracking engine.
 
         Args:

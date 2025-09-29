@@ -27,7 +27,7 @@ class VideoLevelModule(Module, ABC):
     output_columns: Optional[list] = None
 
     @abstractmethod
-    def __init__(self):
+    def __init__(self) -> None:
         """Init function
 
         The arguments to this function are completely free
