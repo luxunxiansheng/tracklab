@@ -4,8 +4,8 @@ defaults:
   - dataset: soccernet_gs
   - eval: detection_only  # Use detection-only evaluator
   - engine: offline
-  - visualization: debug  # Disable visualization for faster training
-  - export: mot  # Export in MOT format
+  - callbacks/visualization: debug  # Disable visualization for faster training
+  - callbacks/export: mot  # Export in MOT format
   - pipeline/bbox_detector: yolo_ultralytics
   - pipeline/reid: kpr
   - pipeline/track: oc_sort

@@ -7,7 +7,7 @@ defaults:
   - dataset: video  # Back to video dataset
   - eval: trackeval
   - engine: offline
-  - visualization: bbox
+  - callbacks/visualization: bbox
   - pipeline/bbox_detector: yolo_ultralytics
   - pipeline/pose_estimator: yolo_ultralytics-pose
   - pipeline/reid: kpr

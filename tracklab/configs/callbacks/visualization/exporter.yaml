@@ -1,0 +1,9 @@
+# Exporter callback configuration
+_target_: tracklab.callbacks.ExporterCallback
+exporter:
+  _target_: tracklab.callbacks.MOTExporter
+save_path: "exports"
+export_per_video: false
+bbox_column: "bbox_ltwh"
+save_classes: false
+is_ground_truth: false

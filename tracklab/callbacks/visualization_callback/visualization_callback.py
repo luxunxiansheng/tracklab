@@ -16,7 +16,7 @@ from tracklab.utils.cv2 import final_patch, cv2_load_image
 log = logging.getLogger(__name__)
 
 
-class VisualizationEngine(Callback):
+class VisualizationCallback(Callback):
     """Visualization engine from list of visualizers.
 
     Args:

@@ -1,7 +1,7 @@
 defaults:
   - colors_gs # For more specific color tuning
 
-_target_: tracklab.callbacks.VisualizationEngine
+_target_: tracklab.callbacks.VisualizationCallback
 save_videos: False
 save_gifs:   False
 save_images: False
