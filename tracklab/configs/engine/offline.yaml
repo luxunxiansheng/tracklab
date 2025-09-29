@@ -6,3 +6,4 @@ callbacks:
     _target_: tracklab.callbacks.Progressbar
     use_rich: ${use_rich}
   vis: ${callbacks.visualization_callback}
+  export: ${callbacks.export_callback}

@@ -10,7 +10,7 @@ defaults:
   - eval: gs_hota
   - engine: offline
   - callbacks/visualization_callback: gamestate  # Save tracking results as a .mp4 video in the run directory specified below (sn-gamestate/outputs/...)
-  - callbacks/export_callback: gs  # Export tracking results in MOT Challenge format
+  - callbacks/export_callback: gs  # Export tracking results in game state format
   - pipeline/bbox_detector: yolo_ultralytics_11_soccernet_finetune
   - pipeline/reid: prtreid
   - pipeline/track: bpbreid_strong_sort

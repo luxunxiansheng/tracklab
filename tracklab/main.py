@@ -66,13 +66,11 @@ def main(cfg):
 
         # Run tracking and visualization
         tracking_engine.track_dataset()
-
-        exporter = instantiate(cfg.export)
-        # export(cfg,exporter,tracker_state)
+  
 
         # Evaluation
         evaluator = instantiate(
-            cfg.eval, tracking_dataset=tracking_dataset, exporter=exporter
+            cfg.eval, tracking_dataset=tracking_dataset, exporter= instantiate(cfg.export)
         )
         evaluate(cfg, evaluator, tracker_state)
 
@@ -129,24 +127,6 @@ def evaluate(cfg, evaluator, tracker_state):
         pass
     else:
         pass
-
-
-def export(cfg, exporter, tracker_state):
-    if hasattr(cfg, "export") and cfg.export is not None:
-
-        save_path = cfg.get("export_save_path", "exports")
-        exporter.export(
-            detections=tracker_state.detections_pred,
-            image_metadatas=tracker_state.image_metadatas,
-            video_metadatas=tracker_state.video_metadatas,
-            save_path=save_path,
-            bbox_column="bbox_ltwh",
-            save_classes=False,
-            is_ground_truth=False,
-        )
-        log.info(f"Exported tracking results to {save_path}")
-    else:
-        log.info("No export configuration found, skipping export")
 
 
 if __name__ == "__main__":
