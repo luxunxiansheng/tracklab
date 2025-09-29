@@ -1,34 +1,57 @@
+"""Detection-only evaluator for TrackLab bounding box evaluation."""
+
 import logging
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, Union
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
 from tracklab.callbacks.evaluation_callback.evaluator import Evaluator as EvaluatorBase
 
 log = logging.getLogger(__name__)
 
 
 class DetectionOnlyEvaluator(EvaluatorBase):
-    """
-    Simple detection evaluator that computes Average Precision (AP) and Average Recall (AR)
-    for bounding box detection without requiring tracking or calibration data.
+    """Simple detection evaluator for bounding box evaluation without tracking.
+
+    This evaluator computes Average Precision (AP) and Average Recall (AR)
+    metrics for bounding box detection tasks. It performs evaluation at
+    multiple IoU thresholds and provides comprehensive detection performance
+    assessment without requiring tracking or calibration data.
     """
 
     def __init__(
         self,
-        cfg,
-        tracking_dataset,
-        *args,
-        **kwargs,
-    ):
+        cfg: Any,
+        tracking_dataset: Any,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
+        """Initialize the detection-only evaluator.
+
+        Args:
+            cfg: Configuration object containing evaluation parameters.
+            tracking_dataset: The tracking dataset instance.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+        """
         self.cfg = cfg
         self.tracking_dataset = tracking_dataset
-        self.eval_set = cfg.get("eval_set", "val")
-        self.show_progressbar = cfg.get("show_progressbar", True)
-        self.dataset_path = cfg.get("dataset_path", None)
-        self.confidence_thresholds = cfg.confidence_thresholds
-        self.iou_thresholds = cfg.iou_thresholds
+        self.eval_set: str = cfg.get("eval_set", "val")
+        self.show_progressbar: bool = cfg.get("show_progressbar", True)
+        self.dataset_path: Optional[str] = cfg.get("dataset_path", None)
+        self.confidence_thresholds: List[float] = cfg.confidence_thresholds
+        self.iou_thresholds: List[float] = cfg.iou_thresholds
 
-    def run(self, tracker_state):
+    def run(self, tracker_state: Any) -> Dict[str, Union[float, str]]:
+        """Run detection evaluation on the tracker state.
+
+        Args:
+            tracker_state: The tracker state containing predictions and ground truth.
+
+        Returns:
+            Dictionary containing evaluation results or error messages.
+        """
         log.info("Starting detection-only evaluation")
 
         # Get predictions and ground truth
@@ -105,8 +128,18 @@ class DetectionOnlyEvaluator(EvaluatorBase):
 
         return results
 
-    def _compute_iou_matrix(self, pred_detections, gt_detections):
-        """Compute IoU matrix between predictions and ground truth"""
+    def _compute_iou_matrix(
+        self, pred_detections: pd.DataFrame, gt_detections: pd.DataFrame
+    ) -> np.ndarray:
+        """Compute IoU matrix between predictions and ground truth detections.
+
+        Args:
+            pred_detections: DataFrame containing predicted detections.
+            gt_detections: DataFrame containing ground truth detections.
+
+        Returns:
+            2D numpy array with IoU values between all prediction-GT pairs.
+        """
         n_pred = len(pred_detections)
         n_gt = len(gt_detections)
 
@@ -120,8 +153,16 @@ class DetectionOnlyEvaluator(EvaluatorBase):
 
         return iou_matrix
 
-    def _compute_bbox_iou(self, bbox1, bbox2):
-        """Compute IoU between two bboxes in ltwh format"""
+    def _compute_bbox_iou(self, bbox1: Any, bbox2: Any) -> float:
+        """Compute IoU between two bounding boxes in LTWH format.
+
+        Args:
+            bbox1: First bounding box as (left, top, width, height).
+            bbox2: Second bounding box as (left, top, width, height).
+
+        Returns:
+            IoU value between 0.0 and 1.0.
+        """
         # Convert ltwh to xyxy
         x1_1, y1_1, w1, h1 = bbox1
         x2_1, y2_1 = x1_1 + w1, y1_1 + h1
@@ -145,8 +186,18 @@ class DetectionOnlyEvaluator(EvaluatorBase):
 
         return intersection / union if union > 0 else 0.0
 
-    def _match_detections(self, iou_matrix, iou_threshold):
-        """Match predictions to ground truth using Hungarian algorithm or greedy matching"""
+    def _match_detections(
+        self, iou_matrix: np.ndarray, iou_threshold: float
+    ) -> Tuple[List[Tuple[int, int]], int, int, int]:
+        """Match predictions to ground truth using greedy matching.
+
+        Args:
+            iou_matrix: 2D array of IoU values between predictions and ground truth.
+            iou_threshold: Minimum IoU threshold for considering a match.
+
+        Returns:
+            Tuple of (matches, true_positives, false_positives, false_negatives).
+        """
         n_pred, n_gt = iou_matrix.shape
 
         if n_pred == 0 or n_gt == 0:
@@ -185,8 +236,12 @@ class DetectionOnlyEvaluator(EvaluatorBase):
 
         return matches, tp, fp, fn
 
-    def _log_results(self, results):
-        """Log evaluation results in a nice format"""
+    def _log_results(self, results: Dict[str, Union[float, str]]) -> None:
+        """Log evaluation results in a formatted manner.
+
+        Args:
+            results: Dictionary containing evaluation metrics.
+        """
         log.info("Detection Evaluation Results:")
         log.info("=" * 40)
 

@@ -1,6 +1,9 @@
+"""SoccerNet Game State format exporter for TrackLab tracking data."""
+
 import json
 import zipfile
 import logging
+from typing import Any, Dict, List, Optional, Union
 import numpy as np
 import pandas as pd
 from .base_exporter import BaseExporter
@@ -8,8 +11,15 @@ from .base_exporter import BaseExporter
 log = logging.getLogger(__name__)
 
 
-def transform_bbox_image(bbox):
-    """Transform bbox format for SoccerNet GS."""
+def transform_bbox_image(bbox: Any) -> Optional[Dict[str, float]]:
+    """Transform bbox format for SoccerNet GS.
+
+    Args:
+        bbox: Bounding box in LTWH format (left, top, width, height).
+
+    Returns:
+        Dictionary with transformed bbox coordinates, or None if invalid.
+    """
     try:
         if isinstance(bbox, (list, tuple, np.ndarray)) and len(bbox) == 4:
             # Convert from ltwh (left, top, width, height) to center-based format
@@ -36,9 +46,11 @@ def transform_bbox_image(bbox):
 
 
 class GSExporter(BaseExporter):
-    """
-    Exporter for SoccerNet Game State format.
+    """Exporter for SoccerNet Game State format.
+
     Exports tracking data in JSON format matching SoccerNet GameState requirements.
+    This format is used for evaluating tracking performance on soccer videos with
+    additional metadata like player roles, jersey numbers, and team information.
     """
 
     def export(
@@ -120,15 +132,14 @@ class GSExporter(BaseExporter):
     def _soccernet_encoding(
         self, dataframe: pd.DataFrame, supercategory: str
     ) -> pd.DataFrame:
-        """
-        Convert dataframe to SoccerNet Game State encoding format.
+        """Convert dataframe to SoccerNet Game State encoding format.
 
         Args:
-            dataframe: Input dataframe to encode
-            supercategory: Type of data ("object", "camera", or "pitch")
+            dataframe: Input dataframe to encode.
+            supercategory: Type of data ("object", "camera", or "pitch").
 
         Returns:
-            Encoded dataframe in SoccerNet format
+            Encoded dataframe in SoccerNet format.
         """
         dataframe["supercategory"] = supercategory
         dataframe = dataframe.replace({np.nan: None})
@@ -136,7 +147,7 @@ class GSExporter(BaseExporter):
         if supercategory == "object":
             # Remove detections that don't have mandatory columns
             # Detections with no track_id will therefore be removed and not count as FP at evaluation
-            mandatory_columns = []
+            mandatory_columns: List[str] = []
             if "bbox_ltwh" in dataframe.columns:
                 mandatory_columns.append("bbox_ltwh")
             if "track_id" in dataframe.columns:
@@ -155,7 +166,7 @@ class GSExporter(BaseExporter):
                 dataframe["track_id"] = -1  # Default for detections without tracking
 
             # Rename columns if they exist
-            rename_dict = {}
+            rename_dict: Dict[str, str] = {}
             if "bbox_ltwh" in dataframe.columns:
                 rename_dict["bbox_ltwh"] = "bbox_image"
             if "jersey_number" in dataframe.columns:
@@ -197,7 +208,7 @@ class GSExporter(BaseExporter):
                     bbox = dataframe.at[idx, "bbox_image"]
                     transformed = transform_bbox_image(bbox)
                     if transformed is not None:
-                        dataframe.at[idx, "bbox_image"] = transformed
+                        dataframe.at[idx, "bbox_image"] = transformed  # type: ignore
                     else:
                         # Invalid bbox, mark for removal
                         dataframe.at[idx, "bbox_image"] = None

@@ -1,5 +1,8 @@
+"""TrackEval-based evaluator for TrackLab tracking evaluation."""
+
 import logging
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import numpy as np
 import trackeval
@@ -11,36 +14,46 @@ log = logging.getLogger(__name__)
 
 
 class TrackEvalEvaluator(EvaluatorBase):
-    """
-    Evaluator using the TrackEval library (https://github.com/JonathonLuiten/TrackEval).
-    Uses tracking predictions exported by the export_callback and evaluates them using TrackEval.
+    """Evaluator using the TrackEval library for comprehensive tracking evaluation.
+
+    This evaluator uses the TrackEval library (https://github.com/JonathonLuiten/TrackEval)
+    to perform standardized evaluation of tracking predictions. It works with exported
+    tracking data and provides comprehensive metrics for tracking performance assessment.
     """
 
     def __init__(
         self,
-        tracking_dataset=None,
-        export_path=None,
-        *args,
-        **kwargs,
-    ):
+        tracking_dataset: Optional[Any] = None,
+        export_path: Optional[str] = None,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
+        """Initialize the TrackEval evaluator.
+
+        Args:
+            tracking_dataset: The tracking dataset instance.
+            export_path: Path where tracking results were exported.
+            *args: Additional positional arguments.
+            **kwargs: Configuration parameters from Hydra.
+        """
         # Handle Hydra instantiate pattern where all config comes via kwargs
         from omegaconf import OmegaConf
 
         self.cfg = OmegaConf.create(kwargs)
         self.export_path = export_path
 
-        self.show_progressbar = self.cfg.get("show_progressbar", True)
-        self.eval_set = self.cfg.get("eval_set", "val")
-        self.dataset_path = self.cfg.get("dataset_path", None)
+        self.show_progressbar: bool = self.cfg.get("show_progressbar", True)
+        self.eval_set: str = self.cfg.get("eval_set", "val")
+        self.dataset_path: Optional[str] = self.cfg.get("dataset_path", None)
         if self.dataset_path is None:
             raise ValueError("dataset_path must be specified in the config")
         self.tracking_dataset = tracking_dataset
-        self.trackeval_dataset_name = self.cfg.dataset.dataset_class
+        self.trackeval_dataset_name: str = self.cfg.dataset.dataset_class
         self.trackeval_dataset_class = getattr(
             trackeval.datasets, self.trackeval_dataset_name
         )
 
-    def run(self, tracker_state):
+    def run(self, tracker_state: Any) -> None:
         log.info(
             "Starting evaluation using TrackEval library (https://github.com/JonathonLuiten/TrackEval)"
         )
@@ -191,13 +204,22 @@ class TrackEvalEvaluator(EvaluatorBase):
 
 
 def _print_results(
-    res_combined,
-    res_by_video=None,
-    scale_factor=1.0,
-    title="",
-    print_by_video=False,
-):
-    headers = res_combined.keys()
+    res_combined: Dict[str, float],
+    res_by_video: Optional[Dict[str, Dict[str, float]]] = None,
+    scale_factor: float = 1.0,
+    title: str = "",
+    print_by_video: bool = False,
+) -> None:
+    """Print evaluation results in a formatted table.
+
+    Args:
+        res_combined: Combined results across all videos.
+        res_by_video: Results broken down by individual videos.
+        scale_factor: Factor to scale metric values for display.
+        title: Title for the results table.
+        print_by_video: Whether to print per-video results.
+    """
+    headers = list(res_combined.keys())
     data = [format_metric(name, res_combined[name], scale_factor) for name in headers]
     log.info(f"{title}\n" + tabulate([data], headers=headers, tablefmt="plain"))
     if print_by_video and res_by_video:
@@ -213,7 +235,19 @@ def _print_results(
         )
 
 
-def format_metric(metric_name, metric_value, scale_factor):
+def format_metric(
+    metric_name: str, metric_value: Union[int, float], scale_factor: float
+) -> Union[int, float]:
+    """Format a metric value for display.
+
+    Args:
+        metric_name: Name of the metric.
+        metric_value: Raw metric value.
+        scale_factor: Factor to scale the value.
+
+    Returns:
+        Formatted metric value.
+    """
     if (
         "TP" in metric_name
         or "FN" in metric_name

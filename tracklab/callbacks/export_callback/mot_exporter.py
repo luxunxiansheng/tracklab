@@ -1,6 +1,8 @@
+"""MOT Challenge format exporter for TrackLab tracking data."""
+
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict, Optional
 import logging
 
 import pandas as pd
@@ -11,9 +13,12 @@ log = logging.getLogger(__name__)
 
 
 class MOTExporter(BaseExporter):
-    """
-    Exporter for MOT Challenge format.
-    Exports tracking data in the standard MOT Challenge format.
+    """Exporter for MOT Challenge format.
+
+    Exports tracking data in the standard MOT Challenge format used for
+    multi-object tracking evaluation. The format includes frame number,
+    track ID, bounding box coordinates, confidence score, and additional
+    fields for compatibility.
     """
 
     def export(
@@ -26,21 +31,20 @@ class MOTExporter(BaseExporter):
         save_classes: bool = False,
         is_ground_truth: bool = False,
         save_zip: bool = True,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
-        """
-        Export detections in MOT Challenge format.
+        """Export detections in MOT Challenge format.
 
         Args:
-            detections: DataFrame containing detection data
-            image_metadatas: DataFrame containing image metadata
-            video_metadatas: DataFrame containing video metadata
-            save_path: Path where to save the exported data
-            bbox_column: Column name containing bounding box data
-            save_classes: Whether to include class information
-            is_ground_truth: Whether this is ground truth data
-            save_zip: Whether to save as zip (not implemented yet)
-            **kwargs: Additional parameters
+            detections: DataFrame containing detection and tracking data.
+            image_metadatas: DataFrame containing image metadata.
+            video_metadatas: DataFrame containing video metadata.
+            save_path: Path where to save the exported data.
+            bbox_column: Column name containing bounding box data.
+            save_classes: Whether to include class information.
+            is_ground_truth: Whether this is ground truth data.
+            save_zip: Whether to save as zip (not implemented yet).
+            **kwargs: Additional parameters.
         """
         mot_df = self._mot_encoding(
             detections, image_metadatas, video_metadatas, bbox_column
@@ -93,9 +97,19 @@ class MOTExporter(BaseExporter):
         video_metadatas: pd.DataFrame,
         bbox_column: str,
     ) -> pd.DataFrame:
-        """
-        Convert detections to MOT format DataFrame.
-        Uses the same logic as TrackingDataset._mot_encoding.
+        """Convert detections to MOT format DataFrame.
+
+        Uses the same logic as TrackingDataset._mot_encoding to ensure
+        consistency with the dataset loading.
+
+        Args:
+            detections: DataFrame containing detection data.
+            image_metadatas: DataFrame containing image metadata.
+            video_metadatas: DataFrame containing video metadata.
+            bbox_column: Column name containing bounding box data.
+
+        Returns:
+            DataFrame in MOT Challenge format.
         """
         # Merge detections with image metadata to get frame information
         image_metadatas = image_metadatas.copy()

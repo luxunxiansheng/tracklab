@@ -1,26 +1,34 @@
-from abc import abstractmethod, ABC
+"""Base evaluator classes for TrackLab evaluation functionality."""
+
+from abc import ABC, abstractmethod
+from typing import Any
 
 from tracklab.datastruct.tracker_state import TrackerState
 
 
-# FIXME is this usefull ?
 class Evaluator(ABC):
-    """Abstract class to implement for the integration of a new dataset evaluator
-    in wrappers/eval. The functions to implement are __init__ and run. A description
-    of the expected behavior is provided below."""
+    """Abstract base class for dataset evaluators in TrackLab.
+
+    This class defines the interface for implementing custom evaluators
+    that can assess tracking performance on different datasets. Evaluators
+    are responsible for computing metrics and generating evaluation reports.
+    """
 
     @abstractmethod
-    def __init__(self, cfg):
-        """Init function
+    def __init__(self, cfg: Any) -> None:
+        """Initialize the evaluator.
+
         Args:
-            cfg (NameSpace): configuration file from Hydra for the evaluator
+            cfg: Configuration object from Hydra containing evaluator settings.
         """
         self.cfg = cfg
 
     @abstractmethod
-    def run(self, tracker_state: TrackerState):
-        """Run the evaluation
+    def run(self, tracker_state: TrackerState) -> None:
+        """Run the evaluation on the provided tracker state.
+
         Args:
-            tracker_state (TrackerState): the tracker state for the evaluation
+            tracker_state: The tracker state containing predictions and ground truth
+                data to evaluate.
         """
         pass
