@@ -48,7 +48,7 @@ class VisualizationCallback(Callback):
         process_n_frames_by_video: Optional[int] = None,
         save_dir: Optional[str] = None,
         **kwargs: Any,
-    ) -> None:
+    ):
         """Initialize the visualization callback.
 
         Args:

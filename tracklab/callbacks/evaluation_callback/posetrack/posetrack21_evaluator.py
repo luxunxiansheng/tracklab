@@ -1,19 +1,27 @@
+"""PoseTrack21 evaluator for TrackLab pose tracking evaluation."""
+
 import json
+import logging
 import os
 import tempfile
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
 import torch
 from tabulate import tabulate
+
 from tracklab.callbacks.evaluation_callback.evaluator import Evaluator as EvaluatorBase
 from tracklab.utils import wandb
 
+if TYPE_CHECKING:
+    from tracklab.datastruct import TrackerState
+
 try:
-    import posetrack21
-    import posetrack21_mot
-    from poseval.eval_helpers import (
+    import posetrack21  # type: ignore
+    import posetrack21_mot  # type: ignore
+    from poseval.eval_helpers import (  # type: ignore
         load_data_dir,
         Joint,
         mapmetrics2dict,
@@ -21,24 +29,41 @@ try:
         recallmetrics2dict,
         motmetrics2dict,
     )
-    from poseval.evaluateAP import evaluateAP
-    from poseval.evaluateTracking import evaluateTracking
+    from poseval.evaluateAP import evaluateAP  # type: ignore
+    from poseval.evaluateTracking import evaluateTracking  # type: ignore
 except ImportError:
-    posetrack21 = None
+    posetrack21 = None  # type: ignore
 
 from torchmetrics.detection.mean_ap import MeanAveragePrecision
-
-import logging
 
 log = logging.getLogger(__name__)
 
 
 # FIXME some parts can be cleaned but works for now
 class PoseTrack21Evaluator(EvaluatorBase):
-    def __init__(self, cfg, *args, **kwargs):
+    """Evaluator for PoseTrack21 dataset pose tracking evaluation.
+
+    This evaluator performs comprehensive evaluation of pose tracking results
+    on the PoseTrack21 dataset, including pose estimation and pose tracking
+    metrics using the official PoseTrack evaluation toolkit.
+    """
+
+    def __init__(self, cfg: Any, *args: Any, **kwargs: Any) -> None:
+        """Initialize the PoseTrack21 evaluator.
+
+        Args:
+            cfg: Configuration object containing evaluation parameters.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+        """
         self.cfg = cfg
 
-    def run(self, tracker_state):
+    def run(self, tracker_state: "TrackerState") -> None:
+        """Run PoseTrack21 evaluation on the tracker state.
+
+        Args:
+            tracker_state: The tracker state containing predictions and ground truth.
+        """
         log.info("Starting evaluation on PoseTrack21")
         image_metadatas = (
             tracker_state.image_metadatas.merge(

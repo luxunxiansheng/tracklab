@@ -159,10 +159,10 @@ class DetectionVisualizer(Visualizer, ABC):
         return image
 
     @abstractmethod
-    def draw_detection(self, image, detection_pred, detection_gt, metric=None):
+    def draw_detection(self, image, detection_pred, detection_gt, metric=None) -> None:
         pass
 
-    def color(self, detection, is_prediction, color_type="default"):
+    def color(self, detection, is_prediction, color_type="default") -> Any:
         assert self.colors is not None
         if color_type not in self.colors:
             raise ValueError(

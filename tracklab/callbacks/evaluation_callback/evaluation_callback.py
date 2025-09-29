@@ -27,23 +27,19 @@ class EvaluationCallback(Callback):
         export_path: Optional[str] = None,
         eval_tracking: bool = True,
     ) -> None:
-        """Initialize the evaluation callback.
+        """
+        Initialize the evaluation callback.
 
         Args:
             eval_cfg: Configuration for the evaluator, typically instantiated by Hydra.
             export_path: Path where tracking results were exported, if applicable.
             eval_tracking: Whether to perform evaluation after tracking.
         """
-        self.eval_cfg = eval_cfg
-        self.export_path = export_path
-        self.eval_tracking = eval_tracking
+        self.eval_cfg: Any = eval_cfg
+        self.export_path: Optional[str] = export_path
+        self.eval_tracking: bool = eval_tracking
 
     def on_dataset_track_end(self, engine: "TrackingEngine") -> None:
-        """Run evaluation on the entire dataset after tracking completes.
-
-        Args:
-            engine: The tracking engine instance containing the tracker state.
-        """
         if self.eval_tracking:
             try:
                 log.info("Starting evaluation...")

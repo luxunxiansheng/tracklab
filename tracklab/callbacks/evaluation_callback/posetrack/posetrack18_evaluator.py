@@ -1,9 +1,17 @@
+"""PoseTrack18 evaluator for TrackLab pose tracking evaluation."""
+
+import logging
 import os
+from typing import Any, TYPE_CHECKING
 
 import numpy as np
 from tabulate import tabulate
+
 from tracklab.callbacks.evaluation_callback.evaluator import Evaluator as EvaluatorBase
 from tracklab.utils import wandb
+
+if TYPE_CHECKING:
+    from tracklab.datastruct import TrackerState
 
 try:
     from poseval.eval_helpers import (
@@ -17,20 +25,37 @@ try:
     from poseval.evaluateAP import evaluateAP
     from poseval.evaluateTracking import evaluateTracking
 except ImportError:
-    poseval = None
+    poseval = None  # type: ignore
 
 from .posetrack21_evaluator import PoseTrack21Evaluator as PTEvaluator
-
-import logging
 
 log = logging.getLogger(__name__)
 
 
 class PoseTrack18Evaluator(EvaluatorBase):
-    def __init__(self, cfg, *args, **kwargs):
+    """Evaluator for PoseTrack18 dataset pose tracking evaluation.
+
+    This evaluator performs comprehensive evaluation of pose tracking results
+    on the PoseTrack18 dataset, including pose estimation and pose tracking
+    metrics using the official PoseTrack evaluation toolkit.
+    """
+
+    def __init__(self, cfg: Any, *args: Any, **kwargs: Any) -> None:
+        """Initialize the PoseTrack18 evaluator.
+
+        Args:
+            cfg: Configuration object containing evaluation parameters.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+        """
         self.cfg = cfg
 
-    def run(self, tracker_state):
+    def run(self, tracker_state: "TrackerState") -> None:
+        """Run PoseTrack18 evaluation on the tracker state.
+
+        Args:
+            tracker_state: The tracker state containing predictions and ground truth.
+        """
         log.info("Starting evaluation on PoseTrack18")
         images = PTEvaluator._images(tracker_state.image_metadatas)
         category = PTEvaluator._category(tracker_state.video_metadatas)
