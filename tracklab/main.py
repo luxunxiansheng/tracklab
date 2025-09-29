@@ -13,7 +13,7 @@ from tracklab.pipeline import Pipeline
 from tracklab.utils import progress, wandb
 
 from hydra.utils import instantiate
-from omegaconf import OmegaConf
+from omegaconf import OmegaConf, DictConfig
 
 
 os.environ["HYDRA_FULL_ERROR"] = "1"
@@ -25,7 +25,18 @@ warnings.filterwarnings("ignore")
 @hydra.main(
     version_base=None, config_path="pkg://tracklab.configs", config_name="config"
 )
-def main(cfg):
+def main(cfg: DictConfig) -> int:
+    """Main entry point for the TrackLab tracking pipeline.
+
+    Initializes the environment, instantiates dataset and modules based on the
+    configuration, trains modules if enabled, and runs tracking inference.
+
+    Args:
+        cfg: Hydra configuration object containing all settings.
+
+    Returns:
+        Exit code (0 for success).
+    """
     device = init_environment(cfg)
 
     # Instantiate all modules
@@ -76,11 +87,23 @@ def main(cfg):
     return 0
 
 
-def set_sharing_strategy():
+def set_sharing_strategy() -> None:
+    """Set PyTorch multiprocessing sharing strategy to file_system for compatibility."""
     torch.multiprocessing.set_sharing_strategy("file_system")
 
 
-def init_environment(cfg):
+def init_environment(cfg: DictConfig) -> str:
+    """Initialize the tracking environment and return the device to use.
+
+    Sets up progress reporting, multiprocessing strategy, device detection,
+    logging configuration, and Weights & Biases initialization.
+
+    Args:
+        cfg: Hydra configuration object.
+
+    Returns:
+        The device string ('cuda', 'mps', or 'cpu').
+    """
     # For Hydra and Slurm compatibility
     progress.use_rich = cfg.use_rich
     set_sharing_strategy()  # Do not touch
@@ -109,7 +132,8 @@ def init_environment(cfg):
     return device
 
 
-def close_environment():
+def close_environment() -> None:
+    """Close the tracking environment, finishing Weights & Biases logging."""
     wandb.finish()
 
 

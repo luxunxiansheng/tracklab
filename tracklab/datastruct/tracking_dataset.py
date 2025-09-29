@@ -4,7 +4,7 @@ import os
 from abc import ABC
 from pathlib import Path
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Dict, List, Union, Any
 
 import numpy as np
 import pandas as pd
@@ -15,7 +15,9 @@ log = logging.getLogger(__name__)
 
 
 class SetsDict(dict):
-    def __getitem__(self, key):
+    """Dictionary subclass that provides better error messages for missing dataset splits."""
+
+    def __getitem__(self, key: str) -> Any:
         if key not in self:
             raise KeyError(
                 f"Trying to access a '{key}' split of the dataset that is not available. "
@@ -27,36 +29,59 @@ class SetsDict(dict):
 
 @dataclass
 class TrackingSet:
+    """Represents a set of tracking data including videos, images, and detections."""
+
     video_metadatas: pd.DataFrame
     image_metadatas: pd.DataFrame
-    detections_gt: pd.DataFrame
+    detections_gt: Optional[pd.DataFrame]
     image_gt: pd.DataFrame = field(
         default_factory=lambda: pd.DataFrame(columns=["video_id"])
     )
+    detections_public: Optional[pd.DataFrame] = None
+    detections_pred: Optional[pd.DataFrame] = None
 
-    def filter_videos(self, keep_video_ids):
+    def filter_videos(self, keep_video_ids: List[int]) -> None:
+        """Filter the tracking set to keep only specified video IDs.
+
+        Args:
+            keep_video_ids: List of video IDs to keep.
+        """
         self.video_metadatas = self.video_metadatas.loc[keep_video_ids]
         self.image_metadatas = self.image_metadatas[
             self.image_metadatas.video_id.isin(keep_video_ids)
         ]
-        self.detections_gt = self.detections_gt[
-            self.detections_gt.video_id.isin(keep_video_ids)
-        ]
+        if self.detections_gt is not None:
+            self.detections_gt = self.detections_gt[
+                self.detections_gt.video_id.isin(keep_video_ids)
+            ]
         self.image_gt = self.image_gt[self.image_gt.video_id.isin(keep_video_ids)]
 
 
 class TrackingDataset(ABC):
+    """Abstract base class for tracking datasets."""
+
     def __init__(
         self,
         dataset_path: str,
-        sets: dict[str, TrackingSet],
+        sets: Dict[str, TrackingSet],
         nvid: int = -1,
         nframes: int = -1,
-        vids_dict: list = None,
+        vids_dict: Optional[Dict[str, List[str]]] = None,
         *,
-        set_split_idxs: Optional[dict[str, int]] = None,
+        set_split_idxs: Optional[Dict[str, int]] = None,
         **kwargs,
-    ):
+    ) -> None:
+        """Initialize the tracking dataset.
+
+        Args:
+            dataset_path: Path to the dataset.
+            sets: Dictionary of dataset splits.
+            nvid: Number of videos to subsample (-1 for all).
+            nframes: Number of frames per video to subsample (-1 for all).
+            vids_dict: Dictionary of video names per split.
+            set_split_idxs: Indices for dataset splits.
+            **kwargs: Additional arguments.
+        """
         set_split_idxs = set_split_idxs or {}
         self.dataset_path = Path(dataset_path)
         self.sets = SetsDict(sets)
@@ -82,7 +107,13 @@ class TrackingDataset(ABC):
             self.sets[set_name] = self.set_splits[set_name][split_idx]
             self.training_sets[set_name] = self.set_splits[set_name][split_idx]
 
-    def _split_set(self, set_name, num_splits=2):
+    def _split_set(self, set_name: str, num_splits: int = 2) -> None:
+        """Split a dataset set into multiple parts for cross-validation.
+
+        Args:
+            set_name: Name of the set to split.
+            num_splits: Number of splits to create.
+        """
         video_groups = [[] for i in range(num_splits)]
         people_in_video = [set() for i in range(num_splits)]
         for video_id, _ in (
@@ -116,7 +147,24 @@ class TrackingDataset(ABC):
             current_set.filter_videos(video_ids)
             self.set_splits[set_name].append(current_set)
 
-    def _subsample(self, tracking_set, nvid, nframes, vids_names):
+    def _subsample(
+        self,
+        tracking_set: TrackingSet,
+        nvid: int,
+        nframes: int,
+        vids_names: Optional[List[str]],
+    ) -> TrackingSet:
+        """Subsample a tracking set to reduce its size.
+
+        Args:
+            tracking_set: The tracking set to subsample.
+            nvid: Number of videos to keep.
+            nframes: Number of frames per video to keep.
+            vids_names: List of specific video names to keep.
+
+        Returns:
+            Subsampled tracking set.
+        """
         if (
             nvid < 1
             and nframes < 1
@@ -204,7 +252,23 @@ class TrackingDataset(ABC):
         return tiny_tracking_set
 
     @staticmethod
-    def _mot_encoding(detections, image_metadatas, video_metadatas, bbox_column):
+    def _mot_encoding(
+        detections: pd.DataFrame,
+        image_metadatas: pd.DataFrame,
+        video_metadatas: pd.DataFrame,
+        bbox_column: str,
+    ) -> pd.DataFrame:
+        """Encode detections in MOT format.
+
+        Args:
+            detections: Detection dataframe.
+            image_metadatas: Image metadata dataframe.
+            video_metadatas: Video metadata dataframe.
+            bbox_column: Name of the bbox column.
+
+        Returns:
+            DataFrame in MOT format.
+        """
         detections = detections.copy()
         image_metadatas["id"] = image_metadatas.index
         df = pd.merge(
@@ -237,11 +301,23 @@ class TrackingDataset(ABC):
         df = df.assign(x=-1, y=-1, z=-1)
         return df
 
-    def process_trackeval_results(self, results, dataset_config, eval_config):
+    def process_trackeval_results(
+        self,
+        results: Dict[str, Any],
+        dataset_config: Dict[str, Any],
+        eval_config: Dict[str, Any],
+    ) -> None:
+        """Process and log TrackEval results.
+
+        Args:
+            results: Evaluation results dictionary.
+            dataset_config: Dataset configuration.
+            eval_config: Evaluation configuration.
+        """
         log.info(f"TrackEval results = {results}")
         wandb.log(results)
 
-    def __str__(self):
+    def __str__(self) -> str:
         set_str = []
         for set_name, set_data in self.sets.items():
             if set_data is not None:

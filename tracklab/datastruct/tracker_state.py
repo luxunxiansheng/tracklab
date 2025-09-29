@@ -11,6 +11,7 @@ import pandas as pd
 from contextlib import AbstractContextManager
 from os.path import abspath
 from pathlib import Path
+from typing import Optional, Union, Dict, List, Any, Set, Tuple
 
 from tracklab.datastruct.tracking_dataset import TrackingSet
 from tracklab.utils.coordinates import generate_bbox_from_keypoints, ltrb_to_ltwh
@@ -23,18 +24,38 @@ log = logging.getLogger(__name__)
 
 
 class TrackerState(AbstractContextManager):
+    """Manages the state of tracking data and predictions for a tracking dataset.
+
+    This class handles loading, saving, and managing tracking states including
+    detections, images, and metadata. It supports loading from various sources
+    like ground truth, public detections, or saved states.
+    """
+
     def __init__(
         self,
         tracking_set: TrackingSet,
-        load_file=None,
-        json_file=None,  # TODO merge with above behavior
-        save_file=None,
-        load_from_groundtruth=False,
-        load_from_public_dets=False,
-        compression=zipfile.ZIP_DEFLATED,
-        bbox_format=None,
-        pipeline=None,
-    ):
+        load_file: Optional[Union[str, Path]] = None,
+        json_file: Optional[Union[str, Path]] = None,  # TODO merge with above behavior
+        save_file: Optional[Union[str, Path]] = None,
+        load_from_groundtruth: bool = False,
+        load_from_public_dets: bool = False,
+        compression: int = zipfile.ZIP_DEFLATED,
+        bbox_format: Optional[str] = None,
+        pipeline: Optional[Any] = None,
+    ) -> None:
+        """Initialize the TrackerState.
+
+        Args:
+            tracking_set: The tracking dataset set to track.
+            load_file: Path to a saved state file to load from.
+            json_file: Path to JSON file with detections to load.
+            save_file: Path to save the state to.
+            load_from_groundtruth: Whether to load from ground truth data.
+            load_from_public_dets: Whether to load from public detections.
+            compression: Compression method for saving (zipfile constant).
+            bbox_format: Format of bounding boxes ('ltrb' or None).
+            pipeline: The tracking pipeline object.
+        """
         self.pipeline = pipeline or {}
         self.tracking_set = tracking_set
         self.video_metadatas = tracking_set.video_metadatas
@@ -223,11 +244,11 @@ class TrackerState(AbstractContextManager):
                 "bbox_ltwh"
             ]  # FIXME config to decide if track_bbox_kf_ltwh or bbox_ltwh should be used
 
-    def __call__(self, video_id):
+    def __call__(self, video_id: int) -> "TrackerState":
         self.video_id = video_id
         return self
 
-    def __enter__(self):
+    def __enter__(self) -> "TrackerState":
         self.zf = {}
         if self.load_file is None:
             load_zf = None
@@ -270,15 +291,15 @@ class TrackerState(AbstractContextManager):
         video_idx: int,
         detections: pd.DataFrame,
         image_pred: pd.DataFrame,
-    ):
+    ) -> None:
         self.update(detections, image_pred)
         self.save()
 
-    def on_dataset_track_end(self, engine: "TrackingEngine"):
+    def on_dataset_track_end(self, engine: "TrackingEngine") -> None:
         log.info("Tracking ended, final TrackerState stats:")
         self.display_stats()
 
-    def update(self, detections: pd.DataFrame, image_metadata):
+    def update(self, detections: pd.DataFrame, image_metadata: pd.DataFrame) -> None:
         if self.detections_pred is None:
             self.detections_pred = detections
             self.image_pred = image_metadata
@@ -301,7 +322,7 @@ class TrackerState(AbstractContextManager):
                 ]
                 self.image_pred = pd.concat([self.image_pred, image_metadata])
 
-    def save(self):
+    def save(self) -> None:
         """
         Saves a pickle in a zip file if the video_id is not yet stored in it.
         """
@@ -357,11 +378,13 @@ class TrackerState(AbstractContextManager):
         else:
             log.info(f"{self.video_id} already exists in {self.save_file} file")
 
-    def load(self):
+    def load(self) -> Union[pd.DataFrame, Tuple[pd.DataFrame, pd.DataFrame]]:
         """
+        Load detections and image predictions for the current video.
+
         Returns:
-            bool: True if the pickle contains the video detections,
-                and False otherwise.
+            If json_file is set, returns DataFrame of detections.
+            Otherwise, returns tuple of (detections DataFrame, image_preds DataFrame).
         """
         from tracklab.engine.engine import merge_dataframes
 
@@ -420,7 +443,7 @@ class TrackerState(AbstractContextManager):
 
         return video_detections, video_image_preds
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         """
         TODO : remove all heavy data associated to a video_id
         """
@@ -435,7 +458,7 @@ class TrackerState(AbstractContextManager):
                 columns=self.forget_columns, errors="ignore"
             )
 
-    def display_stats(self):
+    def display_stats(self) -> None:
         log.info(
             f"Total # detections: {len(self.detections_pred)} (GT={len(self.detections_gt)})"
         )

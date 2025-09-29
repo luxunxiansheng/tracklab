@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Any
+from typing import Any, Optional, Union, List
 
 import pandas as pd
 from torch.utils.data.dataloader import default_collate, DataLoader
@@ -30,11 +30,11 @@ class DetectionLevelModule(Module):
     """
 
     collate_fn = default_collate
-    input_columns = None
-    output_columns = None
+    input_columns: Optional[Union[List[str], dict]] = None
+    output_columns: Optional[Union[List[str], dict]] = None
 
     @abstractmethod
-    def __init__(self, batch_size: int):
+    def __init__(self, batch_size: int) -> None:
         """Init function
 
         The arguments to this function are completely free
@@ -43,10 +43,10 @@ class DetectionLevelModule(Module):
         You should call the __init__ function from the super() class.
         """
         self.batch_size = batch_size
-        self._datapipe = None
+        self._datapipe: Optional[EngineDatapipe] = None
 
     @abstractmethod
-    def preprocess(self, image, detection: pd.Series, metadata: pd.Series) -> Any:
+    def preprocess(self, image: Any, detection: pd.Series, metadata: pd.Series) -> Any:
         """Adapts the default input to your specific case.
 
         Args:
@@ -61,7 +61,9 @@ class DetectionLevelModule(Module):
         pass
 
     @abstractmethod
-    def process(self, batch: Any, detections: pd.DataFrame, metadatas: pd.DataFrame):
+    def process(
+        self, batch: Any, detections: pd.DataFrame, metadatas: pd.DataFrame
+    ) -> Union[pd.DataFrame, List[pd.DataFrame], List[pd.Series]]:
         """The main processing function. Runs on GPU.
 
         Args:
@@ -82,12 +84,21 @@ class DetectionLevelModule(Module):
         pass
 
     @property
-    def datapipe(self):
+    def datapipe(self) -> EngineDatapipe:
+        """Get the datapipe for this module."""
         if self._datapipe is None:
             self._datapipe = EngineDatapipe(self)
         return self._datapipe
 
-    def dataloader(self, engine: "TrackingEngine"):
+    def dataloader(self, engine: "TrackingEngine") -> DataLoader:
+        """Create a DataLoader for this module.
+
+        Args:
+            engine: The tracking engine.
+
+        Returns:
+            DataLoader for the module's datapipe.
+        """
         datapipe = self.datapipe
         return DataLoader(
             dataset=datapipe,

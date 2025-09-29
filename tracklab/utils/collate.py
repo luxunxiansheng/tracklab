@@ -1,8 +1,10 @@
+import collections.abc
 import re
+from typing import Any, Dict, List, Sequence, Tuple, Union
+
 import torch
 
 np_str_obj_array_pattern = re.compile(r"[SaUO]")
-import collections
 
 default_collate_err_msg_format = (
     "default_collate: batch must contain tensors, numpy arrays, numbers, "
@@ -14,19 +16,21 @@ class Unbatchable(tuple):
     pass
 
 
-def default_collate(batch):
+def default_collate(
+    batch: Sequence[Any],
+) -> Union[torch.Tensor, Dict[str, Any], Tuple[Any, ...], List[Any], Any]:
     r"""Puts each data field into a tensor with outer dimension batch size"""
     elem = batch[0]
     elem_type = type(elem)
     if isinstance(elem, torch.Tensor):
         out = None
-        if torch.utils.data.get_worker_info() is not None:
+        if torch.utils.data.get_worker_info() is not None:  # type: ignore
             # If we're in a background process, concatenate directly into a
             # shared memory tensor to avoid an extra copy
             numel = sum([x.numel() for x in batch])
             storage = elem.storage()._new_shared(numel)
             out = elem.new(storage).view(-1, *list(elem.size()))
-        return torch.stack(batch, 0, out=out)
+        return torch.stack(batch, 0, out=out)  # type: ignore
     elif (
         elem_type.__module__ == "numpy"
         and elem_type.__name__ != "str_"
@@ -50,7 +54,7 @@ def default_collate(batch):
     elif isinstance(elem, tuple) and hasattr(elem, "_fields"):  # namedtuple
         return elem_type(*(default_collate(samples) for samples in zip(*batch)))
     elif isinstance(elem, Unbatchable):
-        return [default_collate(b).squeeze(0) for b in batch]  # is this correct ?
+        return [default_collate(b).squeeze(0) for b in batch]  # type: ignore
     elif isinstance(elem, collections.abc.Sequence):
         # check to make sure that the elements in batch have consistent size
         it = iter(batch)

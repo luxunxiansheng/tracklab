@@ -1,15 +1,31 @@
+import hashlib
+import logging
+import time
 from pathlib import Path
+from typing import Optional
 
 import requests
-import hashlib
 from tqdm import tqdm
-import time
-import logging
 
 
-def download_file(url, local_filename, md5=None, max_retries=10, retry_delay=5):
-    """
-    Download file with retry logic and better error handling for proxy/network issues.
+def download_file(
+    url: str,
+    local_filename: str,
+    md5: Optional[str] = None,
+    max_retries: int = 10,
+    retry_delay: int = 5,
+) -> str:
+    """Download file with retry logic and better error handling for proxy/network issues.
+
+    Args:
+        url: URL to download from.
+        local_filename: Local path to save the file.
+        md5: Expected MD5 checksum.
+        max_retries: Maximum number of retry attempts.
+        retry_delay: Initial delay between retries in seconds.
+
+    Returns:
+        Path to the downloaded file.
     """
     if Path(local_filename).exists():
         if md5 is not None:
@@ -107,7 +123,16 @@ def download_file(url, local_filename, md5=None, max_retries=10, retry_delay=5):
     return local_filename
 
 
-def check_md5(local_filename, md5):
+def check_md5(local_filename: str, md5: str) -> bool:
+    """Check MD5 checksum of a file.
+
+    Args:
+        local_filename: Path to the file.
+        md5: Expected MD5 checksum.
+
+    Returns:
+        True if checksum matches, False otherwise.
+    """
     with open(local_filename, "rb") as f:
         file_hash = hashlib.md5()
         while chunk := f.read(8192):

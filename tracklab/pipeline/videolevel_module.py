@@ -1,14 +1,12 @@
-from abc import abstractmethod
-from typing import Any
+from abc import ABC, abstractmethod
+from typing import Any, Optional
 
 import pandas as pd
-from torch.utils.data.dataloader import default_collate, DataLoader
-from tracklab.datastruct import EngineDatapipe
+
 from tracklab.pipeline import Module
-from tracklab.utils.cv2 import cv2_load_image
 
 
-class VideoLevelModule(Module):
+class VideoLevelModule(Module, ABC):
     """Abstract class to implement a module that operates on whole videos, image per image.
 
     This can for example be an offline tracker, or a video visualizer, by implementing
@@ -25,8 +23,8 @@ class VideoLevelModule(Module):
      A description of the expected behavior is provided below.
     """
 
-    input_columns = None
-    output_columns = None
+    input_columns: Optional[list] = None
+    output_columns: Optional[list] = None
 
     @abstractmethod
     def __init__(self):
@@ -40,7 +38,7 @@ class VideoLevelModule(Module):
         pass
 
     @abstractmethod
-    def process(self, detections: pd.DataFrame, metadatas: pd.DataFrame):
+    def process(self, detections: pd.DataFrame, metadatas: pd.DataFrame) -> Any:
         """The main processing function. Runs on GPU.
 
         Args:

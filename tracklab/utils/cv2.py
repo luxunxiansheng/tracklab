@@ -1,13 +1,15 @@
+import logging
+from functools import lru_cache
+from typing import Any, Optional, Tuple, Union
+
 import cv2
-import pandas as pd
 import colorsys
-import matplotlib.cm as cm
 import distinctipy
+import matplotlib.cm as cm
+import numpy as np
+import pandas as pd
 
 from .coordinates import *
-from functools import lru_cache
-
-import logging
 
 log = logging.getLogger(__name__)
 
@@ -53,7 +55,15 @@ video_reader = VideoReader()
 
 
 @lru_cache(maxsize=32)
-def cv2_load_image(file_path):
+def cv2_load_image(file_path: Union[str, Any]) -> np.ndarray:
+    """Load an image from file path, supporting video frames with vid:// prefix.
+
+    Args:
+        file_path: Path to the image file, or vid://video_file:frame_id for video frames.
+
+    Returns:
+        RGB image as numpy array.
+    """
     file_path = str(file_path)
     if file_path.startswith("vid://"):
         file_path = file_path.removeprefix("vid://")
@@ -67,7 +77,16 @@ def cv2_load_image(file_path):
     return image
 
 
-def crop_bbox_ltwh(img, bbox):
+def crop_bbox_ltwh(img: np.ndarray, bbox: Union[list, np.ndarray]) -> np.ndarray:
+    """Crop image using bounding box in LTWH format.
+
+    Args:
+        img: Input image.
+        bbox: Bounding box [left, top, width, height].
+
+    Returns:
+        Cropped image.
+    """
     bbox = np.array(bbox).astype(int)
     img = img[bbox[1] : bbox[1] + bbox[3], bbox[0] : bbox[0] + bbox[2]]
     return img

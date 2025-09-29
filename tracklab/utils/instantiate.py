@@ -1,9 +1,15 @@
+import functools
+from typing import Any, Callable, Dict, Tuple
+
 from hydra._internal.instantiate._instantiate2 import *
 from hydra._internal.instantiate._instantiate2 import (
-    _extract_pos_args,
     _convert_target_to_string,
+    _extract_pos_args,
 )
 from hydra._internal.instantiate import _instantiate2
+from omegaconf import OmegaConf
+
+from hydra.errors import InstantiationException
 
 
 def call_target(

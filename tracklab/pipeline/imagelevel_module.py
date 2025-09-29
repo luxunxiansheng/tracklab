@@ -1,13 +1,17 @@
-from abc import abstractmethod
-from typing import Any
+from abc import ABC, abstractmethod
+from typing import Any, Optional, TYPE_CHECKING
 
 import pandas as pd
-from torch.utils.data.dataloader import default_collate, DataLoader
+from torch.utils.data.dataloader import DataLoader, default_collate
+
 from tracklab.datastruct import EngineDatapipe
 from tracklab.pipeline import Module
 
+if TYPE_CHECKING:
+    from tracklab.engine import TrackingEngine
 
-class ImageLevelModule(Module):
+
+class ImageLevelModule(Module, ABC):
     """Abstract class to implement a module that operates directly on images.
 
     This can for example be a bounding box detector, or a bottom-up
@@ -31,8 +35,8 @@ class ImageLevelModule(Module):
     """
 
     collate_fn = default_collate
-    input_columns = None
-    output_columns = None
+    input_columns: Optional[list] = None
+    output_columns: Optional[list] = None
 
     @abstractmethod
     def __init__(self, batch_size: int):
@@ -44,10 +48,64 @@ class ImageLevelModule(Module):
         You should call the __init__ function from the super() class.
         """
         self.batch_size = batch_size
-        self._datapipe = None
+        self._datapipe: Optional[EngineDatapipe] = None
 
     @abstractmethod
-    def preprocess(self, image, detections: pd.DataFrame, metadata: pd.Series) -> Any:
+    def preprocess(
+        self, image: Any, detections: pd.DataFrame, metadata: pd.Series
+    ) -> Any:
+        """Adapts the default input to your specific case.
+
+        Args:
+            image: a numpy array of the current image
+            detections: a DataFrame containing all the detections pertaining to a single
+                        image
+            metadata: additional information about the image
+
+        Returns:
+            preprocessed_sample: input for the process function
+        """
+        pass
+
+    @abstractmethod
+    def process(
+        self, batch: Any, detections: pd.DataFrame, metadatas: pd.DataFrame
+    ) -> Any:
+        """The main processing function. Runs on GPU.
+
+        Args:
+            batch: The batched outputs of `preprocess`
+            detections: The previous detections.
+            metadatas: The previous image metadatas
+
+        Returns:
+            output : Either a DataFrame containing the new/updated detections
+                    or a tuple containing detections and metadatas (in that order)
+                    The DataFrames can be either a list of Series, a list of DataFrames
+                    or a single DataFrame. The returned objects will be aggregated
+                    automatically according to the `name` of the Series/`index` of
+                    the DataFrame. **It is thus mandatory here to name correctly
+                    your series or index your dataframes.**
+                    The output will override the previous detections
+                    with the same name/index.
+        """
+        pass
+
+    @property
+    def datapipe(self) -> EngineDatapipe:
+        if self._datapipe is None:
+            self._datapipe = EngineDatapipe(self)
+        return self._datapipe
+
+    def dataloader(self, engine: "TrackingEngine") -> DataLoader:
+        datapipe = self.datapipe
+        return DataLoader(
+            dataset=datapipe,
+            batch_size=self.batch_size,
+            collate_fn=type(self).collate_fn,
+            num_workers=engine.num_workers,
+            persistent_workers=False,
+        )
         """Adapts the default input to your specific case.
 
         Args:

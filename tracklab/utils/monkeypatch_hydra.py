@@ -1,13 +1,14 @@
 import functools
-from typing import Callable, Any, Tuple, Dict, Union
+from typing import Any, Callable, Dict, Tuple, Union
 
+import torch
 from hydra._internal.instantiate import _instantiate2
 from hydra._internal.instantiate._instantiate2 import (
-    _extract_pos_args,
     _convert_target_to_string,
+    _extract_pos_args,
 )
-from hydra.errors import InstantiationException
 from hydra._internal.utils import _locate
+from hydra.errors import InstantiationException
 from omegaconf import OmegaConf
 
 
@@ -74,13 +75,16 @@ _instantiate2._resolve_target = new_resolve_target
 
 # Monkeypatch torch.load to handle weights_only issue
 try:
-    import torch
-
     original_torch_load = torch.load
 
     def patched_torch_load(
-        fpath, map_location=None, pickle_module=None, *, weights_only=None, **kwargs
-    ):
+        fpath: Any,
+        map_location: Any = None,
+        pickle_module: Any = None,
+        *,
+        weights_only: Any = None,
+        **kwargs: Any,
+    ) -> Any:
         try:
             return original_torch_load(
                 fpath,

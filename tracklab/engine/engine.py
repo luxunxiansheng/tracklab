@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Dict, TYPE_CHECKING, Any
+from typing import Dict, TYPE_CHECKING, Any, Tuple, Optional, Union, List
 
 import numpy as np
 import pandas as pd
@@ -16,7 +16,18 @@ from tracklab.datastruct import TrackerState
 from tracklab.utils.progress import progress
 
 
-def merge_dataframes(main_df, appended_piece):
+def merge_dataframes(
+    main_df: pd.DataFrame, appended_piece: Union[pd.Series, pd.DataFrame, List]
+) -> pd.DataFrame:
+    """Merge dataframes by updating main_df with appended_piece data.
+
+    Args:
+        main_df: Main dataframe to update.
+        appended_piece: Data to append/update, can be Series, DataFrame, or list.
+
+    Returns:
+        Updated main dataframe.
+    """
     # Convert appended_piece to a DataFrame if it's not already
     if isinstance(appended_piece, pd.Series):
         appended_piece = pd.DataFrame(appended_piece).T
@@ -79,8 +90,8 @@ class TrackingEngine(ABC):
         modules: Pipeline,
         tracker_state: TrackerState,
         num_workers: int,
-        callbacks: "Dict[Callback]" = None,
-    ):
+        callbacks: Optional[Dict[str, Callback]] = None,
+    ) -> None:
         # super().__init__()
         self.module_names = [module.name for module in modules]
         self.callbacks = callbacks or {}
@@ -107,7 +118,7 @@ class TrackingEngine(ABC):
                 model, "dataloader", lambda **kwargs: ...
             )(engine=self)
 
-    def track_dataset(self):
+    def track_dataset(self) -> None:
         """Run tracking on complete dataset."""
         self.callback("on_dataset_track_start")
         video_items = list(self.video_metadatas.iterrows())
@@ -136,7 +147,7 @@ class TrackingEngine(ABC):
     @abstractmethod
     def video_loop(
         self, tracker_state: TrackerState, video_metadata: pd.Series, video_id: int
-    ) -> pd.DataFrame:
+    ) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """Run tracking on one video.
 
         The pipeline for each video looks like :
@@ -144,12 +155,12 @@ class TrackingEngine(ABC):
         detect_multi -> (detect_single) -> reid -> track
 
         Args:
-            tracker_state (TrackerState): tracker state object
-            video_metadata (pd.Series): metadata for the video
-            video_id (int): id of the video
+            tracker_state: Tracker state object.
+            video_metadata: Metadata for the video.
+            video_id: ID of the video.
 
         Returns:
-            detections: a dataframe of all detections
+            Tuple of (detections dataframe, image predictions dataframe).
         """
         pass
 
@@ -160,7 +171,19 @@ class TrackingEngine(ABC):
         detections: pd.DataFrame,
         image_pred: pd.DataFrame,
         **kwargs,
-    ):
+    ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+        """Execute a default processing step for a module.
+
+        Args:
+            batch: Input batch data.
+            task: Name of the task/module.
+            detections: Current detections dataframe.
+            image_pred: Current image predictions dataframe.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            Updated (detections, image_pred) tuple.
+        """
         model = self.models[task]
         self.callback(f"on_module_step_start", task=task, batch=batch)
         idxs, batch = batch

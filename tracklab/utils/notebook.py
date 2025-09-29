@@ -1,15 +1,14 @@
-import os
 import copy
-import torch
-
-from pathlib import Path
+import os
 from collections import namedtuple
-from omegaconf import OmegaConf, read_write, open_dict
+from pathlib import Path
+from typing import Any, List
 
-# from hydra import initialize_config_module as init_hydra, compose
-from hydra import initialize_config_dir as init_hydra, compose
-from hydra.utils import instantiate
+import torch
+from hydra import compose, initialize_config_dir as init_hydra
 from hydra.core.utils import configure_log
+from hydra.utils import instantiate
+from omegaconf import OmegaConf, open_dict, read_write
 
 from tracklab.datastruct import TrackerState
 
@@ -18,13 +17,20 @@ TrackEngine = namedtuple(
 )
 
 
-def _save_config(cfg, filename: str, output_dir: Path) -> None:
+def _save_config(cfg: Any, filename: str, output_dir: Path) -> None:
+    """Save configuration to YAML file.
+
+    Args:
+        cfg: Configuration object.
+        filename: Output filename.
+        output_dir: Output directory.
+    """
     output_dir.mkdir(parents=True, exist_ok=True)
     with open(str(output_dir / filename), "w", encoding="utf-8") as file:
         file.write(OmegaConf.to_yaml(cfg))
 
 
-def load_from_overrides(overrides=[]) -> TrackEngine:
+def load_from_overrides(overrides: List[str] = []) -> TrackEngine:
     """Load everything as in main(), but from notebook.
 
     Use with ::
@@ -86,7 +92,7 @@ def load_from_overrides(overrides=[]) -> TrackEngine:
     evaluator = instantiate(cfg.eval)
     vis_engine = instantiate(cfg.visualization)
 
-    val_state = TrackerState(tracking_dataset.sets['val'])
+    val_state = TrackerState(tracking_dataset.sets["val"])
 
     tracking_engine = instantiate(
         cfg.engine,
