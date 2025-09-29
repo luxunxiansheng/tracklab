@@ -15,7 +15,7 @@ class EvaluationCallback(Callback):
     Callback that runs evaluation on the tracking results at the end of dataset tracking.
     """
 
-    def __init__(self, eval_cfg, export_cfg, eval_tracking: bool = True):
+    def __init__(self, eval_cfg, eval_tracking: bool = True):
         """
         Initialize the evaluation callback.
 
@@ -25,7 +25,6 @@ class EvaluationCallback(Callback):
             eval_tracking: Whether to perform evaluation
         """
         self.eval_cfg = eval_cfg
-        self.export_cfg = export_cfg
         self.eval_tracking = eval_tracking
 
     def on_dataset_track_end(self, engine: "TrackingEngine"):
@@ -33,11 +32,9 @@ class EvaluationCallback(Callback):
         if self.eval_tracking:
             try:
                 log.info("Starting evaluation...")
-                exporter = self.export_cfg
                 evaluator = instantiate(
                     self.eval_cfg,
                     tracking_dataset=engine.tracker_state.tracking_set,
-                    exporter=exporter,
                 )
                 evaluator.run(engine.tracker_state)
                 log.info("Evaluation completed.")

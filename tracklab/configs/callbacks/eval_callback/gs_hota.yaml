@@ -1,12 +1,13 @@
 _target_: tracklab.callbacks.evaluation_callback.EvaluationCallback
 
 eval_cfg:
-  _target_: tracklab.callbacks.evaluation_callback.TrackEvalEvaluator
+  _target_: tracklab.callbacks.evaluation_callback.trackeval_evaluator.TrackEvalEvaluator
   cfg:
     show_progressbar: True  # Show progressbar during evaluation
     eval_set: ${dataset.eval_set}
     dataset_path: ${dataset.dataset_path}
     dataset: ${dataset.track_eval} 
+    exporter: ${callbacks.export_callback.exporter}  # Use the same exporter as defined in the export callback to ensure consistent data format
     save_gt: False
     # Use bbox_ltwh as primary column, bbox_pitch_ltwh as fallback if available
     # bbox_pitch_ltwh is preferred for pitch-space evaluation but bbox_ltwh works for most cases
@@ -32,12 +33,5 @@ eval_cfg:
       OUTPUT_DETAILED: True
       PLOT_CURVES: True
 
-export_cfg:
-  _target_: tracklab.callbacks.export_callback.gs_exporter.GSExporter
-  save_path: "exports"
-  export_per_video: false
-  bbox_column: "bbox_ltwh"
-  save_classes: false
-  is_ground_truth: false
 
    

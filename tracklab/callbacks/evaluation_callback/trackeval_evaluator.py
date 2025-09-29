@@ -16,13 +16,10 @@ class TrackEvalEvaluator(EvaluatorBase):
     Save on disk the tracking predictions and ground truth in MOT Challenge format and run the evaluation by calling TrackEval.
     """
 
-    after_saved_state = False
-
     def __init__(
         self,
         cfg,
         tracking_dataset=None,
-        exporter=None,
         *args,
         **kwargs,
     ):
@@ -35,8 +32,6 @@ class TrackEvalEvaluator(EvaluatorBase):
         if self.dataset_path is None:
             raise ValueError("dataset_path must be specified in the config")
         self.tracking_dataset = tracking_dataset
-        self.exporter = exporter
-
         self.trackeval_dataset_name = self.cfg.dataset.dataset_class
         self.trackeval_dataset_class = getattr(
             trackeval.datasets, self.trackeval_dataset_name
@@ -48,14 +43,9 @@ class TrackEvalEvaluator(EvaluatorBase):
         )
 
         tracker_name = "tracklab"
-        save_classes = self.trackeval_dataset_name != "MotChallenge2DBox"
+        
 
-        # Save predictions
-        pred_save_path = (
-            Path(self.cfg.dataset.TRACKERS_FOLDER)
-            / f"{self.trackeval_dataset_name}-{self.eval_set}"
-            / tracker_name
-        ).resolve()
+ 
 
         dataset_config = self.trackeval_dataset_class.get_default_dataset_config()
         for key, value in self.cfg.dataset.items():
@@ -65,19 +55,6 @@ class TrackEvalEvaluator(EvaluatorBase):
         if tracker_sub_folder:
             pred_save_path = pred_save_path / tracker_sub_folder
 
-        self.exporter.export(
-            tracker_state.detections_pred,
-            tracker_state.image_metadatas,
-            tracker_state.video_metadatas,
-            str(pred_save_path),
-            self.cfg.bbox_column_for_eval,
-            save_classes,  # do not use classes for MOTChallenge2DBox
-            is_ground_truth=False,
-        )
-
-        log.info(
-            f"Tracking predictions saved in {self.trackeval_dataset_name} format in {pred_save_path}"
-        )
 
         if tracker_state.detections_gt is None or len(tracker_state.detections_gt) == 0:
             log.warning(
