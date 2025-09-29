@@ -71,6 +71,13 @@ infer_tracking: True
 eval_tracking: True
 print_config:  False
 
+# Callback configuration overrides
+callbacks:
+  export_callback:
+    save_path: "exports"  # Path where tracking results are exported
+  eval_callback:
+    export_path: "${callbacks.export_callback.save_path}"  # Use same path as export callback
+
 # Dataset
 dataset:
   nvid: 1  # For a quick first inference, only the first video is processed. Use "-1" to process all the videos.

@@ -13,22 +13,25 @@ log = logging.getLogger(__name__)
 class TrackEvalEvaluator(EvaluatorBase):
     """
     Evaluator using the TrackEval library (https://github.com/JonathonLuiten/TrackEval).
-    Save on disk the tracking predictions and ground truth in MOT Challenge format and run the evaluation by calling TrackEval.
+    Uses tracking predictions exported by the export_callback and evaluates them using TrackEval.
     """
 
     def __init__(
         self,
-        cfg,
         tracking_dataset=None,
+        export_path=None,
         *args,
         **kwargs,
     ):
-        self.cfg = cfg
+        # Handle Hydra instantiate pattern where all config comes via kwargs
+        from omegaconf import OmegaConf
 
-        self.show_progressbar = cfg.get("show_progressbar", True)
-        self.save_gt = cfg.get("save_gt", False)
-        self.eval_set = cfg.get("eval_set", "val")
-        self.dataset_path = cfg.get("dataset_path", None)
+        self.cfg = OmegaConf.create(kwargs)
+        self.export_path = export_path
+
+        self.show_progressbar = self.cfg.get("show_progressbar", True)
+        self.eval_set = self.cfg.get("eval_set", "val")
+        self.dataset_path = self.cfg.get("dataset_path", None)
         if self.dataset_path is None:
             raise ValueError("dataset_path must be specified in the config")
         self.tracking_dataset = tracking_dataset
@@ -43,18 +46,41 @@ class TrackEvalEvaluator(EvaluatorBase):
         )
 
         tracker_name = "tracklab"
-        
+        # save_classes = self.trackeval_dataset_class.__name__ != 'MotChallenge2DBox'
 
- 
+        # Get the path where predictions were exported by the export_callback
+        if self.export_path is None:
+            log.error(
+                "No export_path provided. TrackEvalEvaluator requires exported predictions."
+            )
+            return
+
+        # Use the export path as the TRACKERS_FOLDER
+        export_save_path = Path(self.export_path)
+
+        # Make path absolute if it's relative
+        if not export_save_path.is_absolute():
+            export_save_path = Path.cwd() / export_save_path
+
+        if not export_save_path.exists():
+            # Try to create the directory in case export callback hasn't run yet
+            try:
+                export_save_path.mkdir(parents=True, exist_ok=True)
+                log.info(f"Created export directory: {export_save_path}")
+            except Exception as e:
+                log.error(
+                    f"Export path {export_save_path} does not exist and could not be created: {e}. Make sure export_callback runs before evaluation."
+                )
+                return
 
         dataset_config = self.trackeval_dataset_class.get_default_dataset_config()
         for key, value in self.cfg.dataset.items():
             dataset_config[key] = value
 
-        tracker_sub_folder = dataset_config.get("TRACKER_SUB_FOLDER", "")
-        if tracker_sub_folder:
-            pred_save_path = pred_save_path / tracker_sub_folder
-
+        # Set up tracker folder configuration
+        dataset_config["TRACKERS_FOLDER"] = str(export_save_path)
+        dataset_config["TRACKER_SUB_FOLDER"] = ""
+        dataset_config["OUTPUT_FOLDER"] = str(export_save_path / "results")
 
         if tracker_state.detections_gt is None or len(tracker_state.detections_gt) == 0:
             log.warning(
@@ -74,6 +100,46 @@ class TrackEvalEvaluator(EvaluatorBase):
         dataset_config["GT_LOC_FORMAT"] = (
             "{gt_folder}/{seq}/Labels-GameState.json"  # '{gt_folder}/{seq}/gt/gt.txt'
         )
+
+        # Create a single tracker list pointing to the exported data
+        dataset_config["TRACKERS_TO_EVAL"] = [tracker_name]
+
+        # Create the expected TrackEval directory structure
+        # TrackEval expects: TRACKERS_FOLDER/{benchmark_name}-{split}/{tracker_name}/files
+        # But our export saves directly to export_path/files
+        # So we need to create the expected directory structure and copy/symlink files
+        benchmark_split_name = f"{dataset_config['BENCHMARK']}-{self.eval_set}"
+        trackeval_tracker_path = export_save_path / benchmark_split_name / tracker_name
+        trackeval_tracker_path.mkdir(parents=True, exist_ok=True)
+
+        # Create symlinks for all JSON files from export_path to the expected tracker path
+        json_files = list(export_save_path.glob("*.json"))
+        log.info(
+            f"Found {len(json_files)} JSON files in {export_save_path}: {[f.name for f in json_files]}"
+        )
+
+        for json_file in json_files:
+            symlink_target = trackeval_tracker_path / json_file.name
+            if not symlink_target.exists():
+                try:
+                    symlink_target.symlink_to(json_file.resolve())
+                    log.info(f"Created symlink: {symlink_target} -> {json_file}")
+                except Exception as e:
+                    log.warning(f"Could not create symlink for {json_file}: {e}")
+                    # If symlink fails, try copying the file
+                    try:
+                        import shutil
+
+                        shutil.copy2(json_file, symlink_target)
+                        log.info(f"Copied file: {json_file} -> {symlink_target}")
+                    except Exception as copy_e:
+                        log.error(f"Could not copy file {json_file}: {copy_e}")
+
+        if len(json_files) == 0:
+            log.warning(
+                f"No JSON files found in {export_save_path}. Export callback may not have run yet."
+            )
+
         dataset = self.trackeval_dataset_class(dataset_config)
 
         # Build metrics
@@ -116,7 +182,9 @@ class TrackEvalEvaluator(EvaluatorBase):
             return
 
         # if the dataset has the process_trackeval_results method, use it to process the results
-        if hasattr(self.tracking_dataset, "process_trackeval_results"):
+        if self.tracking_dataset is not None and hasattr(
+            self.tracking_dataset, "process_trackeval_results"
+        ):
             self.tracking_dataset.process_trackeval_results(
                 results, dataset_config, eval_config
             )
