@@ -200,7 +200,12 @@ class MOT(TrackingDataset):
             df["bbox_conf"] = 1.0
         return df[["image_id", "bbox_ltwh", "bbox_conf", "category_id"]]
 
-    def load_set(self, dataset_path, nvid=-1, vids_filter_set=None):
+    def load_set(
+        self,
+        dataset_path: Union[str, Path],
+        nvid: int = -1,
+        vids_filter_set: Optional[List[str]] = None,
+    ) -> TrackingSet:
         video_metadatas_list = []
         image_metadata_list = []
         detections_list = []
@@ -431,7 +436,12 @@ class MOT(TrackingDataset):
 
         return tracking_set
 
-    def process_trackeval_results(self, results, dataset_config, eval_config):
+    def process_trackeval_results(
+        self,
+        results: Dict,
+        dataset_config: Dict,
+        eval_config: Dict,
+    ) -> None:
         if "SUMMARIES" in results and "pedestrian" in results["SUMMARIES"]:
             res = {
                 f"{k}": float(v) if "." in v else int(v)
