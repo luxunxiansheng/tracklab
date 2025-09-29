@@ -21,11 +21,11 @@ class Timer(Callback):
     and pipeline modules, including frames per second calculations.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         """Initialize the timer callback."""
         self.start_times: Dict[str, float] = {}
 
-    def on_dataset_track_start(self, engine: "TrackingEngine"):
+    def on_dataset_track_start(self, engine: "TrackingEngine") -> None:
         """Start timing when dataset tracking begins.
 
         Args:
@@ -33,7 +33,7 @@ class Timer(Callback):
         """
         self.start_times["dataset"] = time.perf_counter()
 
-    def on_dataset_track_end(self, engine: "TrackingEngine"):
+    def on_dataset_track_end(self, engine: "TrackingEngine") -> None:
         """Log total dataset processing time when tracking ends.
 
         Args:
@@ -50,7 +50,7 @@ class Timer(Callback):
         video_metadata: pd.Series,
         video_idx: int,
         index: int,
-    ):
+    ) -> None:
         """Start timing when video processing begins.
 
         Args:
@@ -68,7 +68,7 @@ class Timer(Callback):
         video_idx: int,
         detections: pd.DataFrame,
         image_pred: pd.DataFrame,
-    ):
+    ) -> None:
         """Log video processing time and FPS when video ends.
 
         Args:
@@ -86,7 +86,7 @@ class Timer(Callback):
 
     def on_module_start(
         self, engine: "TrackingEngine", task: str, dataloader: DataLoader
-    ):
+    ) -> None:
         """Start timing when module processing begins.
 
         Args:
@@ -98,7 +98,7 @@ class Timer(Callback):
 
     def on_module_end(
         self, engine: "TrackingEngine", task: str, detections: pd.DataFrame
-    ):
+    ) -> None:
         """Log module processing time and FPS when module ends.
 
         Args:

@@ -26,7 +26,7 @@ class EvaluationCallback(Callback):
         eval_cfg: Any,
         export_path: Optional[str] = None,
         eval_tracking: bool = True,
-    ):
+    ) -> None:
         """Initialize the evaluation callback.
 
         Args:
@@ -38,7 +38,7 @@ class EvaluationCallback(Callback):
         self.export_path = export_path
         self.eval_tracking = eval_tracking
 
-    def on_dataset_track_end(self, engine: "TrackingEngine"):
+    def on_dataset_track_end(self, engine: "TrackingEngine") -> None:
         """Run evaluation on the entire dataset after tracking completes.
 
         Args:

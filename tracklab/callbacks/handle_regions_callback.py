@@ -1,3 +1,5 @@
+"""Callback for handling ignored regions in TrackLab tracking."""
+
 import cv2
 import numpy as np
 import pandas as pd
@@ -13,15 +15,17 @@ class IgnoredRegions(Callback):
     """Callback for marking detections in ignored regions.
 
     This callback identifies detections that overlap significantly with predefined
-    ignore regions in the video frames and marks them as ignored.
+    ignore regions in the video frames and marks them as ignored. This is useful
+    for excluding detections in areas like scoreboards, crowd regions, or other
+    areas where tracking is not desired.
     """
 
-    def __init__(self, max_intersection: float = 0.9):
+    def __init__(self, max_intersection: float = 0.9) -> None:
         """Initialize the IgnoredRegions callback.
 
         Args:
             max_intersection: Maximum fraction of detection area that can overlap
-                with an ignore region before being marked as ignored.
+                with an ignore region before being marked as ignored. Defaults to 0.9.
         """
         self.max_intersection = max_intersection
 
@@ -32,7 +36,7 @@ class IgnoredRegions(Callback):
         video_idx: int,
         detections: pd.DataFrame,
         image_pred: pd.DataFrame,
-    ):
+    ) -> None:
         """Mark detections in ignored regions at the end of video processing.
 
         Args:
@@ -57,7 +61,7 @@ class IgnoredRegions(Callback):
         else:
             detections["ignored"] = pd.NA
 
-    def mark_ignored(self, detection, image_metadatas: pd.DataFrame) -> bool:
+    def mark_ignored(self, detection: pd.Series, image_metadatas: pd.DataFrame) -> bool:
         """Mark a detection as ignored if it overlaps with ignore regions.
 
         Args:

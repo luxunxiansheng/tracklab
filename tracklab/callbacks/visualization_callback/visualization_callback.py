@@ -48,7 +48,7 @@ class VisualizationCallback(Callback):
         process_n_frames_by_video: Optional[int] = None,
         save_dir: Optional[str] = None,
         **kwargs: Any,
-    ):
+    ) -> None:
         """Initialize the visualization callback.
 
         Args:
@@ -82,7 +82,7 @@ class VisualizationCallback(Callback):
         for visualizer in visualizers.values():
             visualizer.post_init(**kwargs)
 
-    def on_dataset_track_end(self, engine: "TrackingEngine"):
+    def on_dataset_track_end(self, engine: "TrackingEngine") -> None:
         """Log visualization output location when dataset tracking completes.
 
         Args:
@@ -98,7 +98,7 @@ class VisualizationCallback(Callback):
         video_idx: int,
         detections: pd.DataFrame,
         image_pred: pd.DataFrame,
-    ):
+    ) -> None:
         """Process visualization for completed video.
 
         Args:
@@ -149,7 +149,7 @@ class VisualizationCallback(Callback):
         detections: pd.DataFrame,
         image_preds: pd.DataFrame,
         progress: Optional[Any] = None,
-    ):
+    ) -> None:
         """Generate visualizations for a video.
 
         Args:

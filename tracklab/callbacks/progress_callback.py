@@ -46,7 +46,7 @@ class Progressbar(Callback):
         else:
             return RichProgressbar()
 
-    def init_progress_bar(self, task: str, desc: str, length: int):
+    def init_progress_bar(self, task: str, desc: str, length: int) -> None:
         """Initialize a progress bar for a task.
 
         Args:
@@ -60,13 +60,13 @@ class Progressbar(Callback):
 class TQDMProgressbar(Progressbar):
     """TQDM-based progress bar callback."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         """Initialize TQDM progress bar."""
         self.pbar: Optional[tqdm] = None
         self.task_pbars: Dict[str, tqdm] = {}
         self.video_id: Optional[int] = None
 
-    def on_dataset_track_start(self, engine: "TrackingEngine"):
+    def on_dataset_track_start(self, engine: "TrackingEngine") -> None:
         """Initialize main progress bar when dataset tracking starts.
 
         Args:
@@ -78,7 +78,7 @@ class TQDMProgressbar(Progressbar):
         )
         self.pbar = tqdm(total=total, desc="Tracking videos")
 
-    def on_dataset_track_end(self, engine: "TrackingEngine"):
+    def on_dataset_track_end(self, engine: "TrackingEngine") -> None:
         """Close main progress bar when dataset tracking ends.
 
         Args:
@@ -93,7 +93,7 @@ class TQDMProgressbar(Progressbar):
         video_metadata: pd.Series,
         video_idx: int,
         index: int,
-    ):
+    ) -> None:
         """Update progress bar description when video processing starts.
 
         Args:
@@ -113,7 +113,7 @@ class TQDMProgressbar(Progressbar):
         video_idx: int,
         detections: pd.DataFrame,
         image_pred: pd.DataFrame,
-    ):
+    ) -> None:
         """Update main progress bar when video processing ends.
 
         Args:
@@ -129,7 +129,7 @@ class TQDMProgressbar(Progressbar):
 
     def on_module_start(
         self, engine: "TrackingEngine", task: str, dataloader: DataLoader
-    ):
+    ) -> None:
         """Initialize task-specific progress bar when module starts.
 
         Args:
@@ -146,7 +146,7 @@ class TQDMProgressbar(Progressbar):
             length = len(dataloader)
         self.init_progress_bar(task, desc, length)
 
-    def init_progress_bar(self, task: str, desc: str, length: int):
+    def init_progress_bar(self, task: str, desc: str, length: int) -> None:
         """Initialize TQDM progress bar for a task.
 
         Args:
@@ -162,7 +162,7 @@ class TQDMProgressbar(Progressbar):
         task: str,
         batch: Any,
         detections: pd.DataFrame,
-    ):
+    ) -> None:
         """Update task progress bar after each step.
 
         Args:
@@ -175,7 +175,7 @@ class TQDMProgressbar(Progressbar):
 
     def on_module_end(
         self, engine: "TrackingEngine", task: str, detections: pd.DataFrame
-    ):
+    ) -> None:
         """Close task progress bar when module ends.
 
         Args:
@@ -189,13 +189,13 @@ class TQDMProgressbar(Progressbar):
 class RichProgressbar(Progressbar):
     """Rich-based progress bar callback."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         """Initialize Rich progress bar."""
         self.pbar: Optional[Progress] = None
         self.tasks: Dict[str, TaskID] = {}
         self.video_id: Optional[int] = None
 
-    def on_dataset_track_start(self, engine: "TrackingEngine"):
+    def on_dataset_track_start(self, engine: "TrackingEngine") -> None:
         """Initialize main Rich progress bar when dataset tracking starts.
 
         Args:
@@ -214,7 +214,7 @@ class RichProgressbar(Progressbar):
         self.pbar.start()
         self.tasks["main"] = self.pbar.add_task("[yellow]Tracking videos", total=total)
 
-    def on_dataset_track_end(self, engine: "TrackingEngine"):
+    def on_dataset_track_end(self, engine: "TrackingEngine") -> None:
         """Stop main Rich progress bar when dataset tracking ends.
 
         Args:
@@ -229,7 +229,7 @@ class RichProgressbar(Progressbar):
         video_metadata: pd.Series,
         video_idx: int,
         index: int,
-    ):
+    ) -> None:
         """Update progress bar description when video processing starts.
 
         Args:
@@ -252,7 +252,7 @@ class RichProgressbar(Progressbar):
         video_idx: int,
         detections: pd.DataFrame,
         image_pred: pd.DataFrame,
-    ):
+    ) -> None:
         """Update main progress bar when video processing ends.
 
         Args:
@@ -267,7 +267,7 @@ class RichProgressbar(Progressbar):
 
     def on_module_start(
         self, engine: "TrackingEngine", task: str, dataloader: DataLoader
-    ):
+    ) -> None:
         """Initialize task-specific progress bar when module starts.
 
         Args:
@@ -284,7 +284,7 @@ class RichProgressbar(Progressbar):
             length = len(dataloader)
         self.init_progress_bar(task, desc, length)
 
-    def init_progress_bar(self, task: str, desc: str, length: int):
+    def init_progress_bar(self, task: str, desc: str, length: int) -> None:
         """Initialize Rich progress bar for a task.
 
         Args:
@@ -301,7 +301,7 @@ class RichProgressbar(Progressbar):
         task: str,
         batch: Any,
         detections: pd.DataFrame,
-    ):
+    ) -> None:
         """Update task progress bar after each step.
 
         Args:
@@ -315,7 +315,7 @@ class RichProgressbar(Progressbar):
 
     def on_module_end(
         self, engine: "TrackingEngine", task: str, detections: pd.DataFrame
-    ):
+    ) -> None:
         """Remove task progress bar when module ends.
 
         Args:
