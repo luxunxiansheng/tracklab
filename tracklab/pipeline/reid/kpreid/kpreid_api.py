@@ -1,22 +1,41 @@
+"""Keypoint Promptable ReID module for TrackLab."""
+
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 import torch
 from huggingface_hub import hf_hub_download
 from omegaconf import OmegaConf
-from torchreid.data import ImageDataset
-from torchreid.data.masks_transforms import masks_preprocess_all
-from torchreid.data.datasets.image.occluded_posetrack21 import clip_keypoints_to_image
-from torchreid.data.datasets.keypoints_to_masks import KeypointsToMasks
-from torchreid.data.transforms import build_transforms
-from torchreid.scripts.builder import (
-    build_config,
-    build_torchreid_model_engine,
-    build_model,
-)
-from torchreid.scripts.default_config import engine_run_kwargs
-from torchreid.utils.tools import extract_test_embeddings
-from yacs.config import CfgNode as CN
+
+try:
+    from torchreid.data import ImageDataset
+    from torchreid.data.masks_transforms import masks_preprocess_all
+    from torchreid.data.datasets.image.occluded_posetrack21 import (
+        clip_keypoints_to_image,
+    )
+    from torchreid.data.datasets.keypoints_to_masks import KeypointsToMasks
+    from torchreid.data.transforms import build_transforms
+    from torchreid.scripts.builder import (
+        build_config,
+        build_torchreid_model_engine,
+        build_model,
+    )
+    from torchreid.scripts.default_config import engine_run_kwargs
+    from torchreid.utils.tools import extract_test_embeddings
+    from yacs.config import CfgNode as CN
+except ImportError:
+    ImageDataset = None  # type: ignore
+    masks_preprocess_all = None  # type: ignore
+    clip_keypoints_to_image = None  # type: ignore
+    KeypointsToMasks = None  # type: ignore
+    build_transforms = None  # type: ignore
+    build_config = None  # type: ignore
+    build_torchreid_model_engine = None  # type: ignore
+    build_model = None  # type: ignore
+    engine_run_kwargs = None  # type: ignore
+    extract_test_embeddings = None  # type: ignore
+    CN = None  # type: ignore
 
 from tracklab.utils.collate import default_collate
 from ...pipeline.detectionlevel_module import DetectionLevelModule
@@ -24,21 +43,39 @@ from ...pipeline.detectionlevel_module import DetectionLevelModule
 
 # TODO clean code
 class KPReId(DetectionLevelModule):
+    """Keypoint Promptable ReID module for TrackLab.
+
+    This module performs person re-identification using keypoint-based prompts
+    and mask-guided feature extraction for robust tracking.
+    """
+
     collate_fn = default_collate
-    input_columns = ["bbox_ltwh"]
-    output_columns = ["embeddings", "visibility_scores"]
+    input_columns: List[str] = ["bbox_ltwh"]
+    output_columns: List[str] = ["embeddings", "visibility_scores"]
 
     def __init__(
         self,
-        cfg,
-        device,
-        save_path,
-        training_enabled,
-        batch_size,
-        job_id=0,
-        *args,
-        **kwargs,
-    ):
+        cfg: Any,
+        device: str,
+        save_path: str,
+        training_enabled: bool,
+        batch_size: int,
+        job_id: int = 0,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
+        """Initialize the KPReID module.
+
+        Args:
+            cfg: Configuration object for the model.
+            device: Device to run inference on.
+            save_path: Path to save model outputs.
+            training_enabled: Whether training is enabled.
+            batch_size: Batch size for processing.
+            job_id: Job identifier for distributed training.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+        """
         super().__init__(batch_size)
         self.cfg = cfg
         self.device = device
@@ -62,14 +99,14 @@ class KPReId(DetectionLevelModule):
         #        configure_dataset_class(TorchreidDataset, **additional_args),
         #        tracking_dataset.nickname,
         #    )
-        self.cfg = CN(OmegaConf.to_container(cfg, resolve=True))
+        self.cfg = CN(OmegaConf.to_container(cfg, resolve=True))  # type: ignore
         self.download_models(load_weights=self.cfg.model.load_weights)
         # set parts information (number of parts K and each part name),
         # depending on the original loaded masks size or the transformation applied:
         self.cfg.data.save_dir = save_path
         self.cfg.project.job_id = job_id
         self.cfg.use_gpu = torch.cuda.is_available()
-        self.cfg = build_config(config=self.cfg, training_enabled=training_enabled)
+        self.cfg = build_config(config=self.cfg, training_enabled=training_enabled)  # type: ignore
         self.test_embeddings = self.cfg.model.kpr.test_embeddings
         # Register the PoseTrack21ReID dataset to Torchreid that will be instantiated when building Torchreid engine.
         self.training_enabled = training_enabled
@@ -77,28 +114,28 @@ class KPReId(DetectionLevelModule):
         self.model = None
 
         self.coco_transform = (
-            masks_preprocess_all[self.cfg.model.kpr.masks.preprocess]()
+            masks_preprocess_all[self.cfg.model.kpr.masks.preprocess]()  # type: ignore
             if self.cfg.model.kpr.masks.preprocess != "none"
             else None
         )
 
-        self.keypoints_to_prompt_masks = KeypointsToMasks(
+        self.keypoints_to_prompt_masks = KeypointsToMasks(  # type: ignore
             mode=self.cfg.model.kpr.keypoints.prompt_masks,
             vis_thresh=self.cfg.model.kpr.keypoints.vis_thresh,
             vis_continous=self.cfg.model.kpr.keypoints.vis_continous,
         )
 
-        self.keypoints_to_target_masks = KeypointsToMasks(
+        self.keypoints_to_target_masks = KeypointsToMasks(  # type: ignore
             mode=self.cfg.model.kpr.keypoints.target_masks,
             vis_thresh=self.cfg.model.kpr.keypoints.vis_thresh,
             vis_continous=False,
         )
 
-        self.model = build_model(self.cfg, 0, verbose=False)
+        self.model = build_model(self.cfg, 0, verbose=False)  # type: ignore
         self.model.eval()
 
         _, self.transforms, self.target_preprocess, self.prompt_preprocess = (
-            build_transforms(
+            build_transforms(  # type: ignore
                 self.cfg.data.height,
                 self.cfg.data.width,
                 self.cfg,
@@ -115,7 +152,12 @@ class KPReId(DetectionLevelModule):
             )
         )
 
-    def download_models(self, load_weights):
+    def download_models(self, load_weights: Union[str, Path]) -> None:
+        """Download model weights from HuggingFace Hub if not present locally.
+
+        Args:
+            load_weights: Path to the model weights file.
+        """
         load_weights = Path(load_weights)
         if not load_weights.is_file():
             hf_hub_download(
@@ -126,8 +168,18 @@ class KPReId(DetectionLevelModule):
 
     @torch.no_grad()
     def preprocess(
-        self, image, detection: pd.Series, metadata: pd.Series
-    ):  # Tensor RGB (1, 3, H, W)
+        self, image: Any, detection: pd.Series, metadata: pd.Series
+    ) -> Dict[str, Any]:  # Tensor RGB (1, 3, H, W)
+        """Preprocess image and detection for ReID feature extraction.
+
+        Args:
+            image: Input image array.
+            detection: Detection series containing bounding box and keypoints.
+            metadata: Image metadata series.
+
+        Returns:
+            Dictionary containing preprocessed batch data.
+        """
         l, t, r, b = detection.bbox.ltrb(
             image_shape=(image.shape[1], image.shape[0]), rounded=True
         )
@@ -138,16 +190,16 @@ class KPReId(DetectionLevelModule):
         }
 
         if "keypoints" in detection:
-            sample["keypoints_xyc"] = clip_keypoints_to_image(
+            sample["keypoints_xyc"] = clip_keypoints_to_image(  # type: ignore
                 detection.keypoints.keypoints_bbox_xyc(),
                 (crop.shape[1] - 1, crop.shape[0] - 1),
             )
         if "negative_kps" in detection:
-            sample["negative_kps"] = clip_keypoints_to_image(
+            sample["negative_kps"] = clip_keypoints_to_image(  # type: ignore
                 detection.negative_kps, (crop.shape[1] - 1, crop.shape[0] - 1)
             )
 
-        batch = ImageDataset.getitem(
+        batch = ImageDataset.getitem(  # type: ignore
             sample,
             self.cfg,
             self.keypoints_to_prompt_masks,
@@ -161,19 +213,33 @@ class KPReId(DetectionLevelModule):
         return batch
 
     @torch.no_grad()
-    def process(self, batch, detections: pd.DataFrame, metadatas: pd.DataFrame):
-        args = {}
+    def process(
+        self, batch: Dict[str, Any], detections: pd.DataFrame, metadatas: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Process batch and extract ReID embeddings and visibility scores.
+
+        Args:
+            batch: Preprocessed batch data.
+            detections: Detection DataFrame to update.
+            metadatas: Image metadata DataFrame.
+
+        Returns:
+            DataFrame with embeddings and visibility scores.
+        """
+        args: Dict[str, Any] = {}
         args["images"] = batch["image"]
         if "prompt_masks" in batch:
             args["prompt_masks"] = batch["prompt_masks"]
-        model_output = self.model(**args)
+        model_output = self.model(**args)  # type: ignore
 
         (
             embeddings,
             visibility_scores,
             parts_masks,
             pixels_cls_scores,
-        ) = extract_test_embeddings(model_output, self.cfg.model.kpr.test_embeddings)
+        ) = extract_test_embeddings(
+            model_output, self.cfg.model.kpr.test_embeddings
+        )  # type: ignore
 
         embeddings = embeddings.cpu().detach().numpy()
         visibility_scores = visibility_scores.cpu().detach().numpy()
@@ -196,6 +262,12 @@ class KPReId(DetectionLevelModule):
         )
         return reid_df
 
-    def train(self, *args, **kwargs):
-        self.engine, self.model = build_torchreid_model_engine(self.cfg)
-        self.engine.run(**engine_run_kwargs(self.cfg))
+    def train(self, *args: Any, **kwargs: Any) -> None:
+        """Train the KPReID model.
+
+        Args:
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+        """
+        self.engine, self.model = build_torchreid_model_engine(self.cfg)  # type: ignore
+        self.engine.run(**engine_run_kwargs(self.cfg))  # type: ignore

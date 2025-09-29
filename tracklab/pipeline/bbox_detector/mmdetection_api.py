@@ -1,5 +1,7 @@
+"""MMDetection-based bounding box detector for TrackLab."""
+
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 import torch
@@ -16,19 +18,42 @@ from tracklab.utils.openmmlab import get_checkpoint
 
 
 class MMDetection(ImageLevelModule):
+    """MMDetection-based bounding box detector for person detection.
+
+    This module integrates MMDetection models for detecting persons in images.
+    It supports various MMDetection model configurations and provides
+    standardized output format for the TrackLab pipeline.
+    """
+
     collate_fn = default_collate
-    input_columns = []
-    output_columns = ["image_id", "video_id", "category_id", "bbox_ltwh", "bbox_conf"]
+    input_columns: List[str] = []
+    output_columns: List[str] = [
+        "image_id",
+        "video_id",
+        "category_id",
+        "bbox_ltwh",
+        "bbox_conf",
+    ]
 
     def __init__(
         self,
-        config_name,
-        path_to_checkpoint,
-        device,
-        batch_size,
-        min_confidence,
-        **kwargs,
-    ):
+        config_name: str,
+        path_to_checkpoint: str,
+        device: str,
+        batch_size: int,
+        min_confidence: float,
+        **kwargs: Any,
+    ) -> None:
+        """Initialize the MMDetection detector.
+
+        Args:
+            config_name: Name of the MMDetection model configuration.
+            path_to_checkpoint: Path to the model checkpoint file.
+            device: Device to run inference on (e.g., 'cuda:0', 'cpu').
+            batch_size: Batch size for processing images.
+            min_confidence: Minimum confidence threshold for detections.
+            **kwargs: Additional configuration parameters.
+        """
         super().__init__(batch_size)
 
         self.device = device
@@ -44,21 +69,45 @@ class MMDetection(ImageLevelModule):
         self.model = init_detector(
             str(path_to_config), path_to_checkpoint, device=device
         )
-        self.test_pipeline = get_test_pipeline_cfg(self.model.cfg.copy())
+        self.test_pipeline = get_test_pipeline_cfg(self.model.cfg.copy())  # type: ignore
         self.test_pipeline[0].type = "mmdet.LoadImageFromNDArray"
         self.test_pipeline = Compose(self.test_pipeline)
-        self.current_id = 0
+        self.current_id: int = 0
 
     @torch.no_grad()
-    def preprocess(self, image, detections: pd.DataFrame, metadata: pd.Series) -> Any:
-        return self.test_pipeline(dict(img=image, img_id=0))
+    def preprocess(
+        self, image: Any, detections: pd.DataFrame, metadata: pd.Series
+    ) -> Any:
+        """Preprocess image for MMDetection inference.
+
+        Args:
+            image: Input image array.
+            detections: Detection DataFrame (unused in preprocessing).
+            metadata: Image metadata series.
+
+        Returns:
+            Preprocessed data for model inference.
+        """
+        return self.test_pipeline(dict(img=image, img_id=0))  # type: ignore
 
     @torch.no_grad()
-    def process(self, batch: Any, detections: pd.DataFrame, metadatas: pd.DataFrame):
-        results = self.model.test_step(batch)
+    def process(
+        self, batch: Any, detections: pd.DataFrame, metadatas: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Process batch of images and extract detections.
+
+        Args:
+            batch: Preprocessed batch data.
+            detections: Input detections DataFrame (unused).
+            metadatas: Image metadata DataFrame.
+
+        Returns:
+            DataFrame containing detected bounding boxes.
+        """
+        results = self.model.test_step(batch)  # type: ignore
         img_metas = batch["data_samples"]
         shapes = [(x.ori_shape[1], x.ori_shape[0]) for x in batch["data_samples"]]
-        detections = []
+        detections_list = []
         for preds, image_shape, (_, metadata) in zip(
             results, shapes, metadatas.iterrows()
         ):
@@ -68,7 +117,7 @@ class MMDetection(ImageLevelModule):
             ):
                 if score < self.min_confidence or label != 0:
                     continue
-                detections.append(
+                detections_list.append(
                     pd.Series(
                         dict(
                             image_id=metadata.name,
@@ -82,4 +131,4 @@ class MMDetection(ImageLevelModule):
                 )
                 self.current_id += 1
 
-        return pd.DataFrame(detections)
+        return pd.DataFrame(detections_list)
