@@ -1,6 +1,3 @@
-defaults:
-  - colors_gs # For more specific color tuning
-
 _target_: tracklab.callbacks.VisualizationCallback
 save_videos: False
 save_gifs:   False
@@ -8,13 +5,13 @@ save_images: False
 
 visualizers:
   frame_counter:
-    _target_: tracklab.callbacks.visualization.FrameCount
+    _target_: tracklab.callbacks.visualization_callback.FrameCount
   pitch:
-    _target_: tracklab.callbacks.visualization.pitch.Pitch
+    _target_: tracklab.callbacks.visualization_callback.pitch.Pitch
   players:
-    _target_: tracklab.callbacks.visualization.players.CompletePlayerEllipse
+    _target_: tracklab.callbacks.visualization_callback.players.CompletePlayerEllipse
   radar:
-    _target_: tracklab.callbacks.visualization.pitch.Radar
+    _target_: tracklab.callbacks.visualization_callback.pitch.Radar
 
 
   # minimap:
@@ -31,3 +28,6 @@ colors:
     no_id: null  # Color setting for objects with no ID (null means no display).
     prediction: "team"  # Color setting for tracked predictions, based on team.
     ground_truth: null  # Color setting for ground truth, specified as an RGB value.
+  # Estimated number of objects to track to generate colors that are visually
+  # distinct from one another when using "track_id" or colormap name.
+  cmap: 22

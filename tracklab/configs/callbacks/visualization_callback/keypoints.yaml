@@ -1,7 +1,7 @@
 defaults:
   - colors # For more specific color tuning
 
-_target_: tracklab.callbacks.visualization.VisualizationEngine
+_target_: tracklab.callbacks.VisualizationCallback
 save_videos: True
 
 visualizers:
@@ -12,11 +12,11 @@ visualizers:
   # - Tracking: TrackingLine # shows tracking history
   # - Images: FrameCount, IgnoreRegions
   frame_counter:
-    _target_: tracklab.callbacks.visualization.FrameCount
+    _target_: tracklab.callbacks.visualization_callback.FrameCount
   detections:
-    _target_: tracklab.callbacks.visualization.DefaultDetection
+    _target_: tracklab.callbacks.visualization_callback.DefaultDetection
   keypoints:
-    _target_: tracklab.callbacks.visualization.DefaultKeypoints
+    _target_: tracklab.callbacks.visualization_callback.DefaultKeypoints
 
 # Color settings for visualization.
 colors:

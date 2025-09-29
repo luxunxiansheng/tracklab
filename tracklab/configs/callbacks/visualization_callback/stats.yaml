@@ -1,7 +1,7 @@
 defaults:
   - colors # For more specific color tuning
 
-_target_: tracklab.callbacks.visualization.VisualizationEngine
+_target_: tracklab.callbacks.VisualizationCallback
 save_videos: True
 
 visualizers:
@@ -12,9 +12,9 @@ visualizers:
   # - Tracking: TrackingLine # shows tracking history
   # - Images: FrameCount, IgnoreRegions
   frame_counter:
-    _target_: tracklab.callbacks.visualization.FrameCount
+    _target_: tracklab.callbacks.visualization_callback.FrameCount
   detections:
-    _target_: tracklab.callbacks.visualization.EllipseDetection
+    _target_: tracklab.callbacks.visualization_callback.SimpleDetectionStats
 
 # Color settings for visualization.
 colors:

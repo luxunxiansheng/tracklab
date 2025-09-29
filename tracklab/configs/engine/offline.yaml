@@ -5,4 +5,4 @@ callbacks:
   progress:
     _target_: tracklab.callbacks.Progressbar
     use_rich: ${use_rich}
-  vis: ${visualization}
+  vis: ${callbacks.visualization_callback}
