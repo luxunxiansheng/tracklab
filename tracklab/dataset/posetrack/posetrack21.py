@@ -30,7 +30,7 @@ class PoseTrack21(TrackingDataset):
         posetrack_version: int = 21,
         *args,
         **kwargs,
-    ):
+    ) -> None:
         """Initialize PoseTrack dataset.
 
         Args:

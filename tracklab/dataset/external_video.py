@@ -57,7 +57,7 @@ class ExternalVideo(TrackingDataset):
         and tracking engine should adapt its batch loop accordingly.
     """
 
-    def __init__(self, dataset_path: str, video_path: str, *args, **kwargs):
+    def __init__(self, dataset_path: str, video_path: str, *args, **kwargs) -> None:
         """Initialize ExternalVideo dataset.
 
         Args:

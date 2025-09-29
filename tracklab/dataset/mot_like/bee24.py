@@ -25,7 +25,7 @@ class Bee24(MOT):
         public_dets_subpath: Optional[str] = None,
         *args,
         **kwargs,
-    ):
+    ) -> None:
         """Initialize Bee24 dataset.
 
         Args:

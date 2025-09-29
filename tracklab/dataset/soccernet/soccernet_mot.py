@@ -20,7 +20,7 @@ class SoccerNetMOT(TrackingDataset):
         vids_dict: Optional[Dict[str, List[str]]] = None,
         *args,
         **kwargs,
-    ):
+    ) -> None:
         """Initialize SoccerNetMOT dataset.
 
         Args:

@@ -41,7 +41,7 @@ class SportsMOT(MOT):
         public_dets_subpath: Optional[str] = None,
         *args,
         **kwargs,
-    ):
+    ) -> None:
         """Initialize SportsMOT dataset.
 
         Args:

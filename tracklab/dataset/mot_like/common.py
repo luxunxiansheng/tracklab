@@ -27,7 +27,7 @@ class MOT(TrackingDataset):
         leave_one_out_idx: Optional[int] = None,
         *args,
         **kwargs,
-    ):
+    ) -> None:
         """Initialize MOT dataset.
 
         Args:

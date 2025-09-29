@@ -26,7 +26,7 @@ class SoccerNetGameState(TrackingDataset):
         vids_dict: Optional[dict] = None,
         *args,
         **kwargs,
-    ):
+    ) -> None:
         self.dataset_path = Path(dataset_path)
         if not self.dataset_path.exists():
             download_dataset(self.dataset_path)
@@ -54,7 +54,7 @@ class SoccerNetGameState(TrackingDataset):
         # We pass 'nvid=-1', 'vids_dict=None' because video subsampling is already done in the load_set function
         super().__init__(dataset_path, sets, nvid=-1, vids_dict=None, *args, **kwargs)
 
-    def process_trackeval_results(self, results, dataset_config, eval_config):
+    def process_trackeval_results(self, results, dataset_config, eval_config) -> None:
         combined_results = results["SUMMARIES"]["cls_comb_det_av"]
         combined_results["GS-HOTA"] = combined_results.pop("HOTA")
         # In all keys, replace the substring "HOTA" with "GS-HOTA"
@@ -71,7 +71,7 @@ class SoccerNetGameState(TrackingDataset):
         return combined_results
 
 
-def extract_category(attributes):
+def extract_category(attributes) -> str:
     if attributes["role"] == "goalkeeper":
         team = attributes["team"]
         role = "goalkeeper"
@@ -120,7 +120,9 @@ def extract_category(attributes):
     return category
 
 
-def dict_to_df_detections(annotation_dict, categories_list):
+def dict_to_df_detections(
+    annotation_dict, categories_list
+) -> tuple[pd.DataFrame, pd.DataFrame, list]:
     df = pd.DataFrame.from_dict(annotation_dict)
 
     annotations_pitch_camera = df.loc[
@@ -172,13 +174,13 @@ def dict_to_df_detections(annotation_dict, categories_list):
     return df, annotations_pitch_camera, video_level_categories
 
 
-def read_json_file(file_path):
+def read_json_file(file_path) -> dict:
     with open(file_path, "r") as file:
         file_json = json.load(file)
     return file_json
 
 
-def video_dir_to_dfs(args):
+def video_dir_to_dfs(args) -> dict:
     dataset_path = args["dataset_path"]
     video_folder = args["video_folder"]
     split = args["split"]
@@ -296,7 +298,7 @@ def video_dir_to_dfs(args):
         }
 
 
-def load_set(dataset_path, nvid=-1, vids_filter_set=None):
+def load_set(dataset_path, nvid=-1, vids_filter_set=None) -> TrackingSet:
     video_metadatas_list = []
     image_metadata_list = []
     annotations_pitch_camera_list = []
@@ -462,7 +464,9 @@ def load_set(dataset_path, nvid=-1, vids_filter_set=None):
     )
 
 
-def download_dataset(dataset_path, splits=("train", "valid", "test", "challenge")):
+def download_dataset(
+    dataset_path, splits=("train", "valid", "test", "challenge")
+) -> None:
     mySoccerNetDownloader = SoccerNetDownloader(LocalDirectory=str(dataset_path))
     download = Confirm.ask(
         "Do you want to download the "

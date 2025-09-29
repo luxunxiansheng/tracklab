@@ -39,7 +39,7 @@ class DanceTrack(MOT):
         public_dets_subpath: Optional[str] = None,
         *args,
         **kwargs,
-    ):
+    ) -> None:
         """Initialize DanceTrack dataset.
 
         Args:
