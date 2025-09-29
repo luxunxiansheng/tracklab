@@ -15,6 +15,8 @@ class EvaluationCallback(Callback):
     Callback that runs evaluation on the tracking results at the end of dataset tracking.
     """
 
+    after_saved_state = True
+
     def __init__(
         self, eval_cfg, export_path: Optional[str] = None, eval_tracking: bool = True
     ):
