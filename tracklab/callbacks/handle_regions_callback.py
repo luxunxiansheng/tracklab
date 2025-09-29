@@ -1,11 +1,30 @@
 import cv2
 import numpy as np
 import pandas as pd
+from typing import TYPE_CHECKING, Tuple
 
 from tracklab.callbacks import Callback
 
+if TYPE_CHECKING:
+    from tracklab.engine import TrackingEngine
+
 
 class IgnoredRegions(Callback):
+    """Callback for marking detections in ignored regions.
+
+    This callback identifies detections that overlap significantly with predefined
+    ignore regions in the video frames and marks them as ignored.
+    """
+
+    def __init__(self, max_intersection: float = 0.9):
+        """Initialize the IgnoredRegions callback.
+
+        Args:
+            max_intersection: Maximum fraction of detection area that can overlap
+                with an ignore region before being marked as ignored.
+        """
+        self.max_intersection = max_intersection
+
     def on_video_loop_end(
         self,
         engine: "TrackingEngine",
@@ -14,6 +33,15 @@ class IgnoredRegions(Callback):
         detections: pd.DataFrame,
         image_pred: pd.DataFrame,
     ):
+        """Mark detections in ignored regions at the end of video processing.
+
+        Args:
+            engine: The tracking engine instance.
+            video_metadata: Metadata for the current video.
+            video_idx: Index of the current video.
+            detections: DataFrame containing detection results.
+            image_pred: DataFrame containing image predictions.
+        """
         image_metadatas = engine.img_metadatas[
             engine.img_metadatas.video_id == video_idx
         ]
@@ -29,10 +57,16 @@ class IgnoredRegions(Callback):
         else:
             detections["ignored"] = pd.NA
 
-    def __init__(self, max_intersection=0.9):
-        self.max_intersection = max_intersection
+    def mark_ignored(self, detection, image_metadatas: pd.DataFrame) -> bool:
+        """Mark a detection as ignored if it overlaps with ignore regions.
 
-    def mark_ignored(self, detection, image_metadatas):
+        Args:
+            detection: Detection data containing bbox and image_id.
+            image_metadatas: DataFrame with image metadata including ignore regions.
+
+        Returns:
+            True if the detection should be ignored, False otherwise.
+        """
         if hasattr(image_metadatas, "ignore_regions_x") and hasattr(
             image_metadatas, "ignore_regions_y"
         ):
@@ -44,18 +78,22 @@ class IgnoredRegions(Callback):
             )
         return False
 
-    def compute_iou(self, bbox_ltrb, ignore_regions_x, ignore_regions_y):
-        """Compute the intersection of a detection and a list of ignore regions and check whether
-        it is higher than a portion of the area or not.
+    def compute_iou(
+        self,
+        bbox_ltrb: np.ndarray,
+        ignore_regions_x: Tuple,
+        ignore_regions_y: Tuple,
+    ) -> bool:
+        """Compute intersection over union with ignore regions.
 
         Args:
-            bbox_ltrb (np.array): bounding box of the detection [left, top, right, bottom]
-            ignore_regions_x (tuple): list of ignore regions x coordinates
-            ignore_regions_y (tuple): list of ignore regions y coordinates
+            bbox_ltrb: Bounding box coordinates [left, top, right, bottom].
+            ignore_regions_x: X coordinates of ignore region polygons.
+            ignore_regions_y: Y coordinates of ignore region polygons.
 
         Returns:
-            bool: True if the area of the detection is higher than a certain threshold in an ignore region,
-            False otherwise
+            True if the detection area exceeds the threshold in an ignore region,
+            False otherwise.
         """
         l, t, r, b = bbox_ltrb
 
@@ -70,7 +108,7 @@ class IgnoredRegions(Callback):
             bbox_mask = np.zeros(image_dim_max, dtype=np.uint8)
             bbox_mask[t:b, l:r] = 1
             ignore_mask = np.zeros(image_dim_max, dtype=np.uint8)
-            ignore_mask = cv2.fillPoly(ignore_mask, [polygon_points], 1)
+            ignore_mask = cv2.fillPoly(ignore_mask, [polygon_points], (1,))
             intersection_area = np.logical_and(bbox_mask, ignore_mask).sum()
             bbox_area = (r - l) * (b - t)
             if intersection_area > self.max_intersection * bbox_area:

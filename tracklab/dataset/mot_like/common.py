@@ -1,15 +1,13 @@
 import copy
-import os
 import logging
-from typing import Optional
+import os
+from multiprocessing import Pool
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
-
-from multiprocessing import Pool
-
 from rich.progress import track
-from pathlib import Path
 
 from tracklab.datastruct import TrackingDataset, TrackingSet
 from tracklab.utils import wandb
@@ -21,15 +19,28 @@ class MOT(TrackingDataset):
     def __init__(
         self,
         dataset_path: str,
-        categories_list: list,
+        categories_list: List[Dict[str, Union[int, str]]],
         nvid: int = -1,
         nframes: int = -1,
-        vids_dict: Optional[dict] = None,
-        public_dets_subpath: str = None,
+        vids_dict: Optional[Dict[str, List[str]]] = None,
+        public_dets_subpath: Optional[str] = None,
         leave_one_out_idx: Optional[int] = None,
         *args,
         **kwargs,
     ):
+        """Initialize MOT dataset.
+
+        Args:
+            dataset_path: Path to the dataset directory.
+            categories_list: List of categories.
+            nvid: Number of videos to use (-1 for all).
+            nframes: Number of frames per video (-1 for all).
+            vids_dict: Dictionary mapping set names to video IDs.
+            public_dets_subpath: Subpath for public detections.
+            leave_one_out_idx: Index for leave-one-out validation.
+            *args: Additional arguments.
+            **kwargs: Additional keyword arguments.
+        """
         self.categories_list = categories_list
         self.dataset_path = Path(dataset_path)
         self.public_dets_subpath = public_dets_subpath
@@ -76,7 +87,17 @@ class MOT(TrackingDataset):
         log.info(sets_dict.keys())
         super().__init__(dataset_path, sets_dict, nvid, nframes, None, *args, **kwargs)
 
-    def load_set_wrapper(self, args):
+    def load_set_wrapper(
+        self, args: Tuple[str, Path, int, List[str]]
+    ) -> Tuple[str, Optional[TrackingSet]]:
+        """Wrapper for loading a dataset set in multiprocessing context.
+
+        Args:
+            args: Tuple containing (set_name, dataset_path, nvid, vids_dict).
+
+        Returns:
+            Tuple of (set_name, TrackingSet) or (set_name, None) if failed.
+        """
         set_name, dataset_path, nvid, vids_dict = args
         set_path = dataset_path / set_name
         if os.path.isdir(set_path):
@@ -85,7 +106,15 @@ class MOT(TrackingDataset):
             log.warning(f"The {set_name} split does not exist.")
             return set_name, None
 
-    def read_ini_file(self, file_path):
+    def read_ini_file(self, file_path: Union[str, Path]) -> Dict[str, str]:
+        """Read INI file and return key-value pairs.
+
+        Args:
+            file_path: Path to the INI file.
+
+        Returns:
+            Dictionary of key-value pairs from the INI file.
+        """
         with open(file_path, "r") as file:
             lines = file.readlines()
         return {
@@ -95,7 +124,17 @@ class MOT(TrackingDataset):
             for k, v in [split_line]
         }
 
-    def read_motchallenge_formatted_file(self, file_path):
+    def read_motchallenge_formatted_file(
+        self, file_path: Union[str, Path]
+    ) -> pd.DataFrame:
+        """Read MOT challenge formatted file.
+
+        Args:
+            file_path: Path to the MOT file.
+
+        Returns:
+            DataFrame with MOT challenge data.
+        """
         columns = [
             "image_id",
             "track_id",
@@ -118,7 +157,17 @@ class MOT(TrackingDataset):
             ["image_id", "track_id", "bbox_ltwh", "bbox_conf", "class", "visibility"]
         ]
 
-    def read_motchallenge_result_formatted_file(self, file_path):
+    def read_motchallenge_result_formatted_file(
+        self, file_path: Union[str, Path]
+    ) -> pd.DataFrame:
+        """Read MOT challenge result formatted file.
+
+        Args:
+            file_path: Path to the result file.
+
+        Returns:
+            DataFrame with result data.
+        """
         columns = [
             "image_id",
             "track_id",

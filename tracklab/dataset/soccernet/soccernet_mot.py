@@ -1,11 +1,12 @@
 import logging
 import os
+from pathlib import Path
+from typing import Dict, List, Optional
+
 import numpy as np
 import pandas as pd
-
-from pathlib import Path
 from tqdm import tqdm
-from typing import Optional
+
 from tracklab.datastruct import TrackingDataset, TrackingSet
 
 log = logging.getLogger(__name__)
@@ -16,10 +17,19 @@ class SoccerNetMOT(TrackingDataset):
         self,
         dataset_path: str,
         nvid: int = -1,
-        vids_dict: Optional[dict] = None,
+        vids_dict: Optional[Dict[str, List[str]]] = None,
         *args,
         **kwargs,
     ):
+        """Initialize SoccerNetMOT dataset.
+
+        Args:
+            dataset_path: Path to the dataset directory.
+            nvid: Number of videos to use (-1 for all).
+            vids_dict: Dictionary of video IDs per split.
+            *args: Additional arguments.
+            **kwargs: Additional keyword arguments.
+        """
         self.dataset_path = Path(dataset_path)
         assert (
             self.dataset_path.exists()
@@ -46,13 +56,29 @@ class SoccerNetMOT(TrackingDataset):
         super().__init__(dataset_path, sets, nvid=-1, vids_dict=None, *args, **kwargs)
 
 
-def read_ini_file(file_path):
+def read_ini_file(file_path: str) -> Dict[str, str]:
+    """Read INI file and return key-value pairs.
+
+    Args:
+        file_path: Path to the INI file.
+
+    Returns:
+        Dictionary of key-value pairs from the INI file.
+    """
     with open(file_path, "r") as file:
         lines = file.readlines()
     return dict(line.strip().split("=") for line in lines[1:])
 
 
-def read_motchallenge_formatted_file(file_path):
+def read_motchallenge_formatted_file(file_path: str) -> pd.DataFrame:
+    """Read MOT challenge formatted file.
+
+    Args:
+        file_path: Path to the MOT file.
+
+    Returns:
+        DataFrame with MOT challenge data.
+    """
     columns = [
         "image_id",
         "track_id",
@@ -73,7 +99,19 @@ def read_motchallenge_formatted_file(file_path):
     return df[["image_id", "track_id", "bbox_ltwh", "bbox_conf", "class", "visibility"]]
 
 
-def load_set(dataset_path, nvid=-1, vids_filter_set=None):
+def load_set(
+    dataset_path: Path, nvid: int = -1, vids_filter_set: Optional[List[str]] = None
+) -> TrackingSet:
+    """Load a dataset set from the given path.
+
+    Args:
+        dataset_path: Path to the dataset split directory.
+        nvid: Number of videos to load (-1 for all).
+        vids_filter_set: List of video IDs to filter.
+
+    Returns:
+        TrackingSet containing the loaded data.
+    """
     video_metadatas_list = []
     image_metadata_list = []
     detections_list = []

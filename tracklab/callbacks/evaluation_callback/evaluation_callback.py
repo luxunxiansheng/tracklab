@@ -1,7 +1,8 @@
 import logging
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from hydra.utils import instantiate
+
 from tracklab.callbacks.callback import Callback
 
 if TYPE_CHECKING:
@@ -11,29 +12,38 @@ log = logging.getLogger(__name__)
 
 
 class EvaluationCallback(Callback):
-    """
-    Callback that runs evaluation on the tracking results at the end of dataset tracking.
+    """Callback that runs evaluation on tracking results at the end of dataset tracking.
+
+    This callback instantiates and runs an evaluator on the complete tracking results
+    after all videos have been processed. It can optionally skip evaluation based on
+    configuration.
     """
 
     after_saved_state = True
 
     def __init__(
-        self, eval_cfg, export_path: Optional[str] = None, eval_tracking: bool = True
+        self,
+        eval_cfg: Any,
+        export_path: Optional[str] = None,
+        eval_tracking: bool = True,
     ):
-        """
-        Initialize the evaluation callback.
+        """Initialize the evaluation callback.
 
         Args:
-            eval_cfg: Configuration for the evaluator
-            export_path: Path where tracking results were exported (optional)
-            eval_tracking: Whether to perform evaluation
+            eval_cfg: Configuration for the evaluator, typically instantiated by Hydra.
+            export_path: Path where tracking results were exported, if applicable.
+            eval_tracking: Whether to perform evaluation after tracking.
         """
         self.eval_cfg = eval_cfg
         self.export_path = export_path
         self.eval_tracking = eval_tracking
 
     def on_dataset_track_end(self, engine: "TrackingEngine"):
-        """Run evaluation on the entire dataset."""
+        """Run evaluation on the entire dataset after tracking completes.
+
+        Args:
+            engine: The tracking engine instance containing the tracker state.
+        """
         if self.eval_tracking:
             try:
                 log.info("Starting evaluation...")
