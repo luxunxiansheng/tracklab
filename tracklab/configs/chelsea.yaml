@@ -13,9 +13,7 @@ defaults:
 
   - callbacks/export_callback: gs  # Export tracking results in game state format
   # - callbacks/eval_callback: gs_hota  # Disabled for inference without evaluation
-  - callbacks/visualization_callback: minimap  # Save tracking results as a .mp4 video in the run directory specified below (sn-gamestate/outputs/...)
-
-
+  - callbacks/visualization_callback: minimap  
 
   - pipeline/bbox_detector: yolo_ultralytics_11_soccernet_finetune
   - pipeline/reid: prtreid
@@ -72,13 +70,6 @@ modules: # Allows module-specific batch_size and other configuration
 infer_tracking: True
 print_config:  False
 
-# Callback configuration overrides
-callbacks:
-  export_callback:
-    save_path: "exports"  # Path where tracking results are exported
-  eval_callback:
-    export_path: "${callbacks.export_callback.save_path}"  # Use same path as export callback
-
 
 # Tracker state (save computation time by dumping tracking results on disk for later re-use)
 # Dump tracking results to a .pcklz file to save computation time on the next run. Have a look at TrackLab tutorials for more details.
@@ -89,9 +80,7 @@ state:
 # Visualization
 visualization:
   cfg:
-    save_videos: False  # Save a .mp4 video on disk with the game state reconstruction output (see 'tracklab/tracklab/configs/visualization' for more options)
-
-# configure Hydra to use the current working directory
+    save_gifs: True  
 # and set up the output directory according to experiment_name
 project_dir: "${hydra:runtime.cwd}"
 hydra:

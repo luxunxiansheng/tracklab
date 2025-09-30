@@ -1,3 +1,6 @@
+defaults:
+  - colors_gs # For team-specific color tuning
+
 _target_: tracklab.callbacks.VisualizationCallback
 save_videos: False
 save_gifs: False
