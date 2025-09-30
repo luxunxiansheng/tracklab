@@ -13,7 +13,7 @@ defaults:
 
   - callbacks/export_callback: gs  # Export tracking results in game state format
   # - callbacks/eval_callback: gs_hota  # Disabled for inference without evaluation
-  - callbacks/visualization_callback: gamestate  # Save tracking results as a .mp4 video in the run directory specified below (sn-gamestate/outputs/...)
+  - callbacks/visualization_callback: minimap  # Save tracking results as a .mp4 video in the run directory specified below (sn-gamestate/outputs/...)
 
 
 

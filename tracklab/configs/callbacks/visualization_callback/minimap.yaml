@@ -1,18 +1,11 @@
 _target_: tracklab.callbacks.VisualizationCallback
 save_videos: False
-save_gifs:   False
+save_gifs: False
 save_images: False
 
 visualizers:
-  frame_counter:
-    _target_: tracklab.callbacks.visualization_callback.FrameCount
-  pitch:
-    _target_: tracklab.callbacks.visualization_callback.pitch.Pitch
-  players:
-    _target_: tracklab.callbacks.visualization_callback.players.CompletePlayerEllipse
-  radar:
-    _target_: tracklab.callbacks.visualization_callback.pitch.Radar
-
+  minimap:
+    _target_: tracklab.callbacks.visualization_callback.pitch.Minimap
 
 # Color settings for visualization.
 colors:
