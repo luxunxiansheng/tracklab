@@ -7,6 +7,7 @@ import torch
 import hydra
 import warnings
 import logging
+from typing import TYPE_CHECKING
 
 from tracklab.datastruct import TrackerState
 from tracklab.pipeline import Pipeline

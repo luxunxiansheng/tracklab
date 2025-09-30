@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import pandas as pd
 import logging
+from typing import Any, Optional
 
 from .visualizer import DetectionVisualizer
 
@@ -9,7 +10,7 @@ log = logging.getLogger(__name__)
 
 
 class TrackingLine(DetectionVisualizer):
-    def __init__(self, max_length: int = 60, vertical_pos: float = 0.0):
+    def __init__(self, max_length: int = 60, vertical_pos: float = 0.0) -> None:
         super().__init__()
         self.max_length = max_length
         self.vertical_pos = vertical_pos
@@ -23,7 +24,7 @@ class TrackingLine(DetectionVisualizer):
         video_detections_gt,
         video_image_pred,
         video_image_gt,
-    ):
+    ) -> None:
         for (track_id, image_id), detection in video_detections_pred.groupby(
             ["track_id", "image_id"]
         ):
@@ -35,11 +36,13 @@ class TrackingLine(DetectionVisualizer):
             self.xy.append(xy)
             self.track_id.append(track_id)
 
-    def draw_frame(self, image, detections_pred, detections_gt, image_pred, image_gt):
+    def draw_frame(
+        self, image, detections_pred, detections_gt, image_pred, image_gt
+    ) -> None:
         self.current_frame_id = image_gt.id
         super().draw_frame(image, detections_pred, detections_gt, image_pred, image_gt)
 
-    def draw_detection(self, image, detection_pred, detection_gt, metric=None):
+    def draw_detection(self, image, detection_pred, detection_gt, metric=None) -> None:
         if detection_pred is None:
             return
 

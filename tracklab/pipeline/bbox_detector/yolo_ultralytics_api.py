@@ -107,7 +107,7 @@ class YOLOUltralytics(ImageLevelModule):
             self.model = YOLO(default_model)
 
     @torch.no_grad()
-    def preprocess(self, image, detections, metadata: pd.Series):
+    def preprocess(self, image, detections, metadata: pd.Series) -> Dict[str, Any]:
         return {
             "image": image,
             "shape": (image.shape[1], image.shape[0]),

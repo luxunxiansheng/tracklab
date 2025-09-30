@@ -25,7 +25,7 @@ class MMOCR(DetectionLevelModule):
     output_columns = ["jersey_number_detection", "jersey_number_confidence"]
     collate_fn = default_collate
 
-    def __init__(self, batch_size, device, tracking_dataset=None):
+    def __init__(self, batch_size, device, tracking_dataset=None) -> None:
         super().__init__(batch_size=batch_size)
 
         # Simple MMOCR initialization

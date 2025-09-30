@@ -1,6 +1,6 @@
 from functools import partial
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict, List, Callable
 from PIL import Image
 
 import os
@@ -27,7 +27,7 @@ from .utils.utils_heatmap import (
 from .utils.utils_calib import FramebyFrameCalib
 
 
-def kp_to_line(keypoints):
+def kp_to_line(keypoints) -> Dict[str, List[int]]:
     line_keypoints_match = {
         "Big rect. left bottom": [24, 68, 25],
         "Big rect. left main": [5, 64, 31, 46, 34, 66, 25],
@@ -134,7 +134,9 @@ class PnLCalib_Keypoints(ImageLevelModule):
         # image = self.tfms(image)
         return image
 
-    def process(self, batch: Any, detections: pd.DataFrame, metadatas: pd.DataFrame):
+    def process(
+        self, batch: Any, detections: pd.DataFrame, metadatas: pd.DataFrame
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
 
         with torch.no_grad():
             heatmaps = self.model(batch.to(self.device))
@@ -180,14 +182,14 @@ class PnLCalib_Keypoints(ImageLevelModule):
 
         return pd.DataFrame(), pd.DataFrame(output_pred)
 
-    def flatten_dict(self, d):
+    def flatten_dict(self, d) -> Dict[str, Any]:
         flat_dict = {}
         for outer_key, inner_dict in d.items():
             for inner_key, value in inner_dict.items():
                 flat_dict[f"{outer_key}_{inner_key}"] = value
         return flat_dict
 
-    def reconstruct_dict(self, row, original_keys):
+    def reconstruct_dict(self, row, original_keys) -> Dict[int, Dict[str, Any]]:
         new_dict = {}
         for key in original_keys:
             sub_dict = {
@@ -234,7 +236,9 @@ class PnLCalib(ImageLevelModule):
     def preprocess(self, image, detections: pd.DataFrame, metadata: pd.Series) -> Any:
         return image
 
-    def process(self, batch: Any, detections: pd.DataFrame, metadatas: pd.DataFrame):
+    def process(
+        self, batch: Any, detections: pd.DataFrame, metadatas: pd.DataFrame
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
         keypoints = metadatas["keypoints"].iloc[0]
         lines = metadatas["lines_det"].iloc[0]
 
@@ -331,7 +335,7 @@ class PnLCalib(ImageLevelModule):
             )
 
 
-def get_bbox_pitch(h):
+def get_bbox_pitch(h) -> Callable[[Any], Any]:
     def unproject_point_on_planeZ0(h, point):
         unproj_point = h @ np.array([point[0], point[1], 1])
         unproj_point /= unproj_point[2]

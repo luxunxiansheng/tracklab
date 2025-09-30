@@ -4,6 +4,7 @@ import cv2
 import torch
 import numpy as np
 import pandas as pd
+from typing import Any, Dict, Optional, List
 
 from math import ceil
 from pathlib import Path
@@ -55,13 +56,15 @@ class ReidDataset(ImageDataset):
     }
 
     @staticmethod
-    def get_masks_config(masks_dir):
+    def get_masks_config(masks_dir) -> Optional[tuple[int, bool, str, List[str]]]:
         if masks_dir not in ReidDataset.masks_dirs:
             return None
         else:
             return ReidDataset.masks_dirs[masks_dir]
 
-    def gallery_filter(self, q_pid, q_camid, q_ann, g_pids, g_camids, g_anns):
+    def gallery_filter(
+        self, q_pid, q_camid, q_ann, g_pids, g_camids, g_anns
+    ) -> np.ndarray:
         """camid refers to video id: remove gallery samples from the different videos than query sample"""
         if self.eval_metric == "mot_inter_intra_video":
             return np.zeros_like(q_pid)
@@ -159,7 +162,7 @@ class ReidDataset(ImageDataset):
 
         super().__init__(train, query, gallery, **kwargs)
 
-    def build_reid_set(self, tracking_set, reid_config, split, is_test_set):
+    def build_reid_set(self, tracking_set, reid_config, split, is_test_set) -> None:
         """
         Build ReID metadata for a given MOT dataset split.
         Only a subset of all MOT groundtruth detections is used for ReID.
@@ -245,7 +248,7 @@ class ReidDataset(ImageDataset):
         if is_test_set:
             self.query_gallery_split(detections, reid_set_cfg.ratio_query_per_id)
 
-    def load_reid_annotations(self, gt_dets, reid_anns_filepath, columns):
+    def load_reid_annotations(self, gt_dets, reid_anns_filepath, columns) -> None:
         if reid_anns_filepath.exists():
             reid_anns = pd.read_json(
                 reid_anns_filepath, convert_dates=False, convert_axes=False
@@ -262,7 +265,7 @@ class ReidDataset(ImageDataset):
             for col in columns:
                 gt_dets[col] = None
 
-    def sample_detections_for_reid(self, dets_df, reid_cfg):
+    def sample_detections_for_reid(self, dets_df, reid_cfg) -> None:
         dets_df["split"] = "none"
 
         # Filter detections by visibility
@@ -332,7 +335,7 @@ class ReidDataset(ImageDataset):
         reid_anns_filepath,
         metadatas_df,
         max_crop_size,
-    ):
+    ) -> None:
         """
         Save on disk all detections image crops from the ground truth dataset to build the reid dataset.
         Create a json annotation file with crops metadata.
@@ -398,7 +401,7 @@ class ReidDataset(ImageDataset):
         fig_size,
         masks_size,
         mode="gaussian_keypoints",
-    ):
+    ) -> None:
         """
         Save on disk all human parsing gt for each reid crop.
         Create a json annotation file with human parsing metadata.
@@ -530,7 +533,9 @@ class ReidDataset(ImageDataset):
         reid_anns_filepath.parent.mkdir(parents=True, exist_ok=True)
         gt_dets[["id", "masks_path"]].to_json(reid_anns_filepath)
 
-    def rescale_and_filter_keypoints(self, keypoints, bbox_ltwh, new_w, new_h):
+    def rescale_and_filter_keypoints(
+        self, keypoints, bbox_ltwh, new_w, new_h
+    ) -> tuple[Dict[int, np.ndarray], int]:
         l, t, w, h = bbox_ltwh.astype(int)
         discarded_keypoints = 0
         rescaled_keypoints = {}
@@ -553,7 +558,7 @@ class ReidDataset(ImageDataset):
             rescaled_keypoints[i] = np.array([int(kpx), int(kpy), 1])
         return rescaled_keypoints, discarded_keypoints
 
-    def query_gallery_split(self, gt_dets, ratio):
+    def query_gallery_split(self, gt_dets, ratio) -> None:
         def random_tracklet_sampling(_df):
             x = list(_df.index)
             size = ceil(len(x) * ratio)
@@ -583,7 +588,7 @@ class ReidDataset(ImageDataset):
         gt_dets.loc[gt_dets.split != "none", "split"] = "gallery"
         gt_dets.loc[gt_dets.id.isin(queries_per_pid.id), "split"] = "query"
 
-    def to_torchreid_dataset_format(self, dataframes):
+    def to_torchreid_dataset_format(self, dataframes) -> List[List[Dict[str, Any]]]:
         results = []
         column_mapping = {}
         column_mapping["role"] = self.role_mapping
@@ -634,7 +639,7 @@ class ReidDataset(ImageDataset):
             results.append(data_list)
         return results
 
-    def ad_pid_column(self, gt_dets):
+    def ad_pid_column(self, gt_dets) -> None:
         # create pids as 0-based increasing numbers
         gt_dets["pid"] = None
         gt_dets_for_reid = gt_dets[(gt_dets.split != "none")]
@@ -642,7 +647,9 @@ class ReidDataset(ImageDataset):
             gt_dets_for_reid.person_id
         )[0]
 
-    def uniform_tracklet_sampling(self, _df, max_samples_per_id, column):
+    def uniform_tracklet_sampling(
+        self, _df, max_samples_per_id, column
+    ) -> pd.DataFrame:
         _df.sort_values(column)
         num_det = len(_df)
         if num_det > max_samples_per_id:

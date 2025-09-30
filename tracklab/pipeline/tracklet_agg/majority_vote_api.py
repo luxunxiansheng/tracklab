@@ -22,22 +22,24 @@ log = logging.getLogger(__name__)
 
 
 class MajorityVoteTracklet(VideoLevelModule):
-    
+
     input_columns = []
     output_columns = []
-    
-    def __init__(self, cfg, device, tracking_dataset=None):
+
+    def __init__(self, cfg, device, tracking_dataset=None) -> None:
         self.attributes = cfg.attributes
         for attribute in self.attributes:
             self.input_columns.append(f"{attribute}_detection")
             self.input_columns.append(f"{attribute}_confidence")
             self.output_columns.append(attribute)
-        
+
     @torch.no_grad()
-    def process(self, detections: pd.DataFrame, metadatas: pd.DataFrame):
-        
+    def process(
+        self, detections: pd.DataFrame, metadatas: pd.DataFrame
+    ) -> pd.DataFrame:
+
         detections[self.output_columns] = np.nan
-        
+
         if "track_id" not in detections.columns:
             return detections
         for track_id in detections.track_id.unique():
@@ -45,7 +47,9 @@ class MajorityVoteTracklet(VideoLevelModule):
             for attribute in self.attributes:
                 attribute_detection = tracklet[f"{attribute}_detection"]
                 attribute_confidence = tracklet[f"{attribute}_confidence"]
-                attribute_value = [select_highest_voted_att(attribute_detection, attribute_confidence)] * len(tracklet)            
+                attribute_value = [
+                    select_highest_voted_att(attribute_detection, attribute_confidence)
+                ] * len(tracklet)
                 detections.loc[tracklet.index, attribute] = attribute_value
-            
+
         return detections

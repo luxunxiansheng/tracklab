@@ -17,11 +17,13 @@ class TrackletTeamSideLabeling(VideoLevelModule):
     input_columns = ["track_id", "team_cluster", "bbox_pitch", "role"]
     output_columns = ["team"]
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__()
 
     @torch.no_grad()
-    def process(self, detections: pd.DataFrame, metadatas: pd.DataFrame):
+    def process(
+        self, detections: pd.DataFrame, metadatas: pd.DataFrame
+    ) -> pd.DataFrame:
 
         if "track_id" not in detections.columns:
             return detections

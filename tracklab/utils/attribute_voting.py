@@ -1,4 +1,7 @@
-def select_highest_voted_att(atts, atts_confidences=None):
+from typing import Any, List, Optional
+
+
+def select_highest_voted_att(atts, atts_confidences=None) -> Optional[Any]:
     confidence_sum = {}
     atts_confidences = [1] * len(atts) if atts_confidences is None else atts_confidences
 

@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from pathlib import Path
+from typing import Any, Optional
 
 from tracklab.utils.cv2 import draw_text
 from .visualizer import ImageVisualizer
@@ -17,12 +18,16 @@ pitch_file = Path(__file__).parent / "Radar.png"
 
 
 class Pitch(ImageVisualizer):
-    def draw_frame(self, image, detections_pred, detections_gt, image_pred, image_gt):
+    def draw_frame(
+        self, image, detections_pred, detections_gt, image_pred, image_gt
+    ) -> None:
         draw_pitch(image, detections_pred, detections_gt, image_pred)
 
 
 class Radar(ImageVisualizer):
-    def draw_frame(self, image, detections_pred, detections_gt, image_pred, image_gt):
+    def draw_frame(
+        self, image, detections_pred, detections_gt, image_pred, image_gt
+    ) -> None:
         for detection, group in zip(
             [detections_pred, detections_gt], ["Predictions", "Ground Truth"]
         ):
@@ -31,7 +36,9 @@ class Radar(ImageVisualizer):
 
 
 class Minimap(ImageVisualizer):
-    def draw_frame(self, image, detections_pred, detections_gt, image_pred, image_gt):
+    def draw_frame(
+        self, image, detections_pred, detections_gt, image_pred, image_gt
+    ) -> None:
         # Create a small minimap image
         pitch_width = 105 + 2 * 10  # pitch size + 2 * margin
         pitch_height = 68 + 2 * 5  # pitch size + 2 * margin
@@ -51,7 +58,7 @@ class Minimap(ImageVisualizer):
         image[:] = cv2.resize(minimap, (image.shape[1], image.shape[0]))
 
 
-def draw_radar_view_minimap(radar_img, detections, scale=8):
+def draw_radar_view_minimap(radar_img, detections, scale=8) -> None:
     pitch_width = 105 + 2 * 10
     pitch_height = 68 + 2 * 5
     radar_center_x = int(pitch_width * scale / 2)
@@ -124,7 +131,7 @@ def draw_pitch(
     detections_gt,
     image_pred,
     line_thickness=3,
-):
+) -> None:
     # Draw the lines on the image pitch
     if "lines" in image_pred:
         image_height, image_width, _ = patch.shape
@@ -160,7 +167,7 @@ def draw_pitch(
                     )
 
 
-def draw_radar_view(patch, detections, scale=4, delta=32, group="Ground Truth"):
+def draw_radar_view(patch, detections, scale=4, delta=32, group="Ground Truth") -> None:
     pitch_width = 105 + 2 * 10  # pitch size + 2 * margin
     pitch_height = 68 + 2 * 5  # pitch size + 2 * margin
     sign = -1 if group == "Ground Truth" else +1
