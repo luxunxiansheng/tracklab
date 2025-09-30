@@ -3,7 +3,7 @@ defaults:
 
 _target_: tracklab.callbacks.VisualizationCallback
 save_videos: False
-save_gifs: False
+save_gifs: True
 save_images: False
 
 visualizers:

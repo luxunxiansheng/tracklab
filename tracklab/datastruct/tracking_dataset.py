@@ -233,6 +233,7 @@ class TrackingDataset(ABC):
 
         if (
             hasattr(tracking_set, "detections_public")
+            and tracking_set.detections_public is not None
             and not tracking_set.detections_public.empty
         ):
             tiny_public_detections = tracking_set.detections_public[
@@ -242,6 +243,7 @@ class TrackingDataset(ABC):
 
         if (
             hasattr(tracking_set, "detections_pred")
+            and tracking_set.detections_pred is not None
             and not tracking_set.detections_pred.empty
         ):
             tiny_pred_detections = tracking_set.detections_pred[

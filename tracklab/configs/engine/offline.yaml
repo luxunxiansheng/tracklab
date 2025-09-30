@@ -7,4 +7,4 @@ callbacks:
     use_rich: ${use_rich}
   vis: ${callbacks.visualization_callback}
   export: ${callbacks.export_callback}
-  eval: ${callbacks.eval_callback}
+  eval: ${oc.select:callbacks.eval_callback, null}

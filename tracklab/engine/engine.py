@@ -99,8 +99,12 @@ class TrackingEngine(ABC):
             module.name: module for module in modules if isinstance(module, Callback)
         }
         callbacks = {**self.callbacks, **module_callbacks}
-        callbacks_before = [c for c in callbacks.values() if not c.after_saved_state]
-        callbacks_after = [c for c in callbacks.values() if c.after_saved_state]
+        callbacks_before = [
+            c for c in callbacks.values() if c is not None and not c.after_saved_state
+        ]
+        callbacks_after = [
+            c for c in callbacks.values() if c is not None and c.after_saved_state
+        ]
         callbacks = callbacks_before + [tracker_state] + callbacks_after
 
         self.fabric = Fabric(callbacks=callbacks)
