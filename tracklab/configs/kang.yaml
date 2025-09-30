@@ -7,7 +7,7 @@
 # Define here which implementation (yolov8, oc_sort, ..) to use for each generic (detection, tracking, ...) component.
 defaults:
   - dataset: kang
-  - eval: gs_hota
+  - callbacks/eval_callback: gs_hota
   - engine: offline
   - callbacks/visualization_callback: gamestate  # Save tracking results as a .mp4 video in the run directory specified below (sn-gamestate/outputs/...)
   - pipeline/bbox_detector: yolo_ultralytics

@@ -22,29 +22,25 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 
-class Progressbar(Callback):
-    """Base class for progress bar callbacks.
+def create_progressbar(use_rich: bool = False, dummy: bool = False) -> "Progressbar":
+    """Create a progress bar instance.
 
-    Provides a factory method to create either TQDM or Rich progress bars
-    based on configuration.
+    Args:
+        use_rich: Whether to use Rich progress bars.
+        dummy: Whether to create a dummy progress bar.
+
+    Returns:
+        Progress bar instance.
     """
+    if dummy:
+        return Progressbar()
+    elif not use_rich:
+        return TQDMProgressbar()
+    else:
+        return RichProgressbar()
 
-    def __new__(cls, use_rich: bool = False, dummy: bool = False) -> "Progressbar":
-        """Create a progress bar instance.
 
-        Args:
-            use_rich: Whether to use Rich progress bars.
-            dummy: Whether to create a dummy progress bar.
-
-        Returns:
-            Progress bar instance.
-        """
-        if dummy:
-            return super().__new__(cls)
-        elif not use_rich:
-            return TQDMProgressbar()
-        else:
-            return RichProgressbar()
+class Progressbar(Callback):
 
     def init_progress_bar(self, task: str, desc: str, length: int) -> None:
         """Initialize a progress bar for a task.

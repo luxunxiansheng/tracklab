@@ -12,7 +12,6 @@ from skimage.transform import resize
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from tracklab.datastruct import EngineDatapipe
 from tracklab.datastruct import TrackingDataset
 
 # FIXME this should be removed and use KeypointsSeriesAccessor and KeypointsFrameAccessor
@@ -94,6 +93,8 @@ class ReidDataset(ImageDataset):
         )
         self.dataset_path = Path(self.tracking_dataset.dataset_path)
         self.masks_dir = masks_dir
+        from tracklab.datastruct import EngineDatapipe
+
         self.pose_datapipe = EngineDatapipe(self.pose_model)
         self.column_mapping = {}
         self.pose_dl = DataLoader(

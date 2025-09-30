@@ -261,7 +261,7 @@ def draw_bbox_stats(
         log.warning(f"No 'bbox_ltwh' found in the detection during visualization.")
 
 
-def pretty_print(stat, value):
+def pretty_print(stat, value) -> Any:
     if stat in ["hits", "age", "time_since_update"]:
         return int(value) if not pd.isna(value) else "N/A"
     elif stat == "matched_with":
@@ -282,7 +282,7 @@ def pretty_print(stat, value):
         return value
 
 
-def draw_bpbreid_heatmaps(detection, patch, heatmaps_display_threshold):
+def draw_bpbreid_heatmaps(detection, patch, heatmaps_display_threshold) -> None:
     if hasattr(detection, "body_masks"):
         l, t, r, b = detection.bbox.ltrb(
             image_shape=(patch.shape[1], patch.shape[0]), rounded=True
@@ -336,7 +336,7 @@ def overlay_heatmap(
     return img_with_heatmap
 
 
-def draw_ignore_region(patch, image_metadata):
+def draw_ignore_region(patch, image_metadata) -> None:
     if hasattr(image_metadata, "ignore_regions_x") and hasattr(
         image_metadata, "ignore_regions_y"
     ):
@@ -352,7 +352,7 @@ def draw_ignore_region(patch, image_metadata):
         )
 
 
-def print_count_frame(patch, frame, nframes):
+def print_count_frame(patch, frame, nframes) -> None:
     draw_text(
         patch,
         f"{frame+1}/{nframes}",
@@ -368,7 +368,7 @@ def print_count_frame(patch, frame, nframes):
     )
 
 
-def final_patch(patch):
+def final_patch(patch) -> np.ndarray:
     return cv2.cvtColor(patch, cv2.COLOR_RGB2BGR).astype(np.uint8)
 
 
@@ -453,7 +453,7 @@ def draw_text(
         line_y -= size[1] + padding_v
 
 
-def scale_lightness(rgb, scale_l=1.4):
+def scale_lightness(rgb, scale_l=1.4) -> Tuple[float, float, float]:
     # convert rgb to hls
     h, l, s = colorsys.rgb_to_hls(*rgb)
     # manipulate h, l, s values and return as rgb

@@ -4,10 +4,10 @@ from typing import Any, Optional, TYPE_CHECKING
 import pandas as pd
 from torch.utils.data.dataloader import DataLoader, default_collate
 
-from tracklab.datastruct import EngineDatapipe
 from tracklab.pipeline import Module
 
 if TYPE_CHECKING:
+    from tracklab.datastruct import EngineDatapipe
     from tracklab.engine import TrackingEngine
 
 
@@ -48,7 +48,7 @@ class ImageLevelModule(Module, ABC):
         You should call the __init__ function from the super() class.
         """
         self.batch_size = batch_size
-        self._datapipe: Optional[EngineDatapipe] = None
+        self._datapipe: Optional["EngineDatapipe"] = None
 
     @abstractmethod
     def preprocess(
@@ -92,8 +92,10 @@ class ImageLevelModule(Module, ABC):
         pass
 
     @property
-    def datapipe(self) -> EngineDatapipe:
+    def datapipe(self) -> "EngineDatapipe":
         if self._datapipe is None:
+            from tracklab.datastruct import EngineDatapipe
+
             self._datapipe = EngineDatapipe(self)
         return self._datapipe
 

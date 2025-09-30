@@ -3,7 +3,7 @@ _target_: tracklab.engine.OfflineTrackingEngine
 num_workers: ${num_cores}
 callbacks:
   progress:
-    _target_: tracklab.callbacks.Progressbar
+    _target_: tracklab.callbacks.progress_callback.create_progressbar
     use_rich: ${use_rich}
   vis: ${callbacks.visualization_callback}
   export: ${callbacks.export_callback}
