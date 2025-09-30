@@ -25,7 +25,6 @@ class EvaluationCallback(Callback):
         self,
         eval_cfg: Any,
         export_path: Optional[str] = None,
-        eval_tracking: bool = True,
     ) -> None:
         """
         Initialize the evaluation callback.
@@ -33,26 +32,21 @@ class EvaluationCallback(Callback):
         Args:
             eval_cfg: Configuration for the evaluator, typically instantiated by Hydra.
             export_path: Path where tracking results were exported, if applicable.
-            eval_tracking: Whether to perform evaluation after tracking.
         """
         self.eval_cfg: Any = eval_cfg
         self.export_path: Optional[str] = export_path
-        self.eval_tracking: bool = eval_tracking
 
     def on_dataset_track_end(self, engine: "TrackingEngine") -> None:
-        if self.eval_tracking:
-            try:
-                log.info("Starting evaluation...")
+        try:
+            log.info("Starting evaluation...")
 
-                # eval_cfg should already be an instantiated evaluator from Hydra
-                evaluator = self.eval_cfg
-                # Update the export_path and tracking_dataset
-                evaluator.export_path = self.export_path
-                evaluator.tracking_dataset = engine.tracker_state.tracking_set
+            # eval_cfg should already be an instantiated evaluator from Hydra
+            evaluator = self.eval_cfg
+            # Update the export_path and tracking_dataset
+            evaluator.export_path = self.export_path
+            evaluator.tracking_dataset = engine.tracker_state.tracking_set
 
-                evaluator.run(engine.tracker_state)
-                log.info("Evaluation completed.")
-            except Exception as e:
-                log.error(f"Evaluation failed: {e}")
-        else:
-            log.info("Evaluation skipped (eval_tracking=False)")
+            evaluator.run(engine.tracker_state)
+            log.info("Evaluation completed.")
+        except Exception as e:
+            log.error(f"Evaluation failed: {e}")

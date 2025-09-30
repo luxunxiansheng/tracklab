@@ -27,11 +27,14 @@ model_dir: "${project_dir}/pretrained_models"
 num_cores: 32
 use_wandb: False  # Set to True if you want to use Weights & Biases logging
 use_rich: True
-print_config: False
 
 # Flags
 infer_tracking: True
-eval_tracking: True  # Enable evaluation to test our detection evaluator
+print_config: False
+
+# Callback configuration overrides
+callbacks:
+  eval_callback:
 
 # Tracker state
 state:

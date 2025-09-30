@@ -5,7 +5,7 @@
 # the first element in the file.
 defaults:
   - dataset: video  # Back to video dataset
-  - eval: trackeval
+  # - eval: trackeval
   - engine: offline
   - callbacks/visualization_callback: bbox
   - pipeline/bbox_detector: yolo_ultralytics
@@ -44,8 +44,11 @@ state:
 
 # Flag parameters
 infer_tracking: true   # Enable tracking operation (includes detection)
-eval_tracking: false  # Disable evaluation since tracking is disabled
 use_rich: true
+
+# Callback configuration overrides
+callbacks:
+  eval_callback:
 
 # configure Hydra to use the current working directory
 # and set up the output directory according to experiment_name
