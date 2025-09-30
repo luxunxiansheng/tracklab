@@ -10,6 +10,7 @@ import pandas as pd
 from pandas import DataFrame, Series
 
 from tracklab.callbacks import Progressbar, Callback
+from tracklab.callbacks.progress_callback import create_progressbar
 from .visualizer import Visualizer
 from tracklab.datastruct import TrackerState
 from tracklab.utils.cv2 import final_patch, cv2_load_image
@@ -109,7 +110,7 @@ class VisualizationCallback(Callback):
             image_pred: Image predictions for the video.
         """
         if self.save_videos or self.save_images or self.save_gifs:
-            progress = engine.callbacks.get("progress", Progressbar(dummy=True))
+            progress = engine.callbacks.get("progress", create_progressbar(dummy=True))
             self.visualize(
                 engine.tracker_state, video_idx, detections, image_pred, progress
             )
@@ -167,7 +168,7 @@ class VisualizationCallback(Callback):
         video_name = tracker_state.video_metadatas.loc[video_id]["name"]
         for visualizer in self.visualizers.values():
             try:
-                visualizer.preproces(
+                visualizer.preprocess(
                     detections,
                     tracker_state.detections_gt,
                     image_preds,
