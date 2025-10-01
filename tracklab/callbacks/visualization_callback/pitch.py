@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 from pathlib import Path
-from typing import Any, Optional
 
 from tracklab.utils.cv2 import draw_text
 from .visualizer import ImageVisualizer
@@ -172,10 +171,12 @@ def draw_radar_view(patch, detections, scale=4, delta=32, group="Ground Truth") 
     pitch_height = 68 + 2 * 5  # pitch size + 2 * margin
     sign = -1 if group == "Ground Truth" else +1
     y_delta = 3
-    radar_center_x = int(1920 / 2 - pitch_width * scale / 2 * sign - delta * sign)
-    radar_center_y = int(1080 - pitch_height * scale / 2 - y_delta)
+    # Use actual image dimensions instead of hardcoded 1920x1080
+    img_height, img_width = patch.shape[:2]
+    radar_center_x = int(img_width / 2 - pitch_width * scale / 2 * sign - delta * sign)
+    radar_center_y = int(img_height - pitch_height * scale / 2 - y_delta)
     radar_top_x = int(radar_center_x - pitch_width * scale / 2)
-    radar_top_y = int(1080 - pitch_height * scale - y_delta)
+    radar_top_y = int(img_height - pitch_height * scale - y_delta)
     radar_width = int(pitch_width * scale)
     radar_height = int(pitch_height * scale)
     if pitch_file is not None:
@@ -194,6 +195,15 @@ def draw_radar_view(patch, detections, scale=4, delta=32, group="Ground Truth") 
         )
     else:
         radar_img = np.ones((pitch_height * scale, pitch_width * scale, 3)) * 255
+
+    # Check if radar region is within image bounds
+    if (
+        radar_top_x < 0
+        or radar_top_y < 0
+        or radar_top_x + radar_width > img_width
+        or radar_top_y + radar_height > img_height
+    ):
+        return  # Skip radar if it doesn't fit
 
     alpha = 0.3
     patch[
