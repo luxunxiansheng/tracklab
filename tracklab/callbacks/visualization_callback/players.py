@@ -45,9 +45,12 @@ class TeamVisualizer(Visualizer):
         """
         assert self.colors is not None
         if color_type not in self.colors:
-            raise ValueError(
-                f"{color_type} not declared in the colors dict for visualization"
-            )
+            if "default" in self.colors:
+                color_type = "default"
+            else:
+                raise ValueError(
+                    f"{color_type} not declared in the colors dict for visualization"
+                )
 
         # Check if track_id column exists (it won't exist if tracking is disabled)
         has_track_id = hasattr(detection, "track_id") and "track_id" in detection.index
@@ -59,19 +62,22 @@ class TeamVisualizer(Visualizer):
             if self.colors[color_type][cmap_key] == "track_id":
                 color = self.cmap[(int(detection.track_id) - 1) % len(self.cmap)]
             elif self.colors[color_type][cmap_key] == "team":
-                try:
-                    if hasattr(detection, "role") and detection.role == "referee":
-                        return self.colors["team"][cmap_key]["referee"]
-                    elif hasattr(detection, "team") and detection.team in [
-                        "left",
-                        "right",
-                    ]:
-                        return self.colors["team"][cmap_key][detection.team]
-                    else:
-                        return self.colors["team"]["no_team"]
-                except (KeyError, AttributeError, TypeError) as e:
-                    log.warning(f"Error accessing team info for detection: {e}")
-                    return self.colors["team"]["no_team"]
+                if "team" not in self.colors:
+                    color = self.colors[color_type].get("no_id", [255, 0, 0])
+                else:
+                    try:
+                        if hasattr(detection, "role") and detection.role == "referee":
+                            color = self.colors["team"][cmap_key]["referee"]
+                        elif hasattr(detection, "team") and detection.team in [
+                            "left",
+                            "right",
+                        ]:
+                            color = self.colors["team"][cmap_key][detection.team]
+                        else:
+                            color = self.colors["team"]["no_team"]
+                    except Exception as e:
+                        log.warning(f"Error accessing team info for detection: {e}")
+                        color = self.colors[color_type].get("no_id", [255, 0, 0])
             else:
                 color = self.colors[color_type][cmap_key]
         return color

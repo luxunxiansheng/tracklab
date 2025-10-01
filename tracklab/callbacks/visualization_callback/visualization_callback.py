@@ -348,6 +348,7 @@ def create_draw_args(
         image_pred,
         image_gt,
         nframes,
+        image_id,
     )
 
 
@@ -368,12 +369,13 @@ def process_frame(args: Tuple) -> Tuple[Any, str]:
         image_pred,
         image_gt,
         nframes,
+        image_id,
     ) = args
     frame = instance.draw_frame(
         image_metadata, detections_pred, detections_gt, image_pred, image_gt, nframes
     )
 
-    return frame, Path(image_metadata.file_path).name
+    return frame, f"{image_id:06d}.jpg"
 
 
 def get_group(g: Any, key: int) -> DataFrame:
