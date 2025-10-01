@@ -375,7 +375,7 @@ def process_frame(args: Tuple) -> Tuple[Any, str]:
         image_metadata, detections_pred, detections_gt, image_pred, image_gt, nframes
     )
 
-    return frame, f"{image_id:06d}.jpg"
+    return frame, f"{int(image_id):06d}.jpg"
 
 
 def get_group(g: Any, key: int) -> DataFrame:
