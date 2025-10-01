@@ -13,7 +13,7 @@ defaults:
 
   - callbacks/export_callback: gs  # Export tracking results in game state format
   # - callbacks/eval_callback: gs_hota  # Disabled for inference without evaluation
-  - callbacks/visualization_callback: minimap  
+  - callbacks/visualization_callback: gamestate
 
   - pipeline/bbox_detector: yolo_ultralytics_11_soccernet_finetune
   - pipeline/reid: prtreid
@@ -22,8 +22,8 @@ defaults:
   - pipeline/team: kmeans_embeddings
   - pipeline/team_side: mean_position
   - pipeline/tracklet_agg: voting_role_jn
-  - pipeline/pitch : tvcalib
-  - pipeline/calibration: tvcalib
+  - pipeline/pitch : nbjw_calib
+  - pipeline/calibration: nbjw_calib
 
   - _self_
 
