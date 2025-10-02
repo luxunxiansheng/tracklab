@@ -78,13 +78,13 @@ callbacks:
     export_path: "${callbacks.export_callback.save_path}"  # Use same path as export callback
   
   visualization_callback:
-    save_videos: True  # Save a .mp4 video on disk with the game state reconstruction output (see 'tracklab/tracklab/configs/visualization' for more options)
+    save_images: True  # Save a .mp4 video on disk with the game state reconstruction output (see 'tracklab/tracklab/configs/visualization' for more options)
 
 
 # Dataset
 dataset:
   nvid: 1  # For a quick first inference, only the first video is processed. Use "-1" to process all the videos.
-  #nframes: 10 # For testing on only a few frames, set to a positive number. Will disable evaluation !
+  nframes: 10 # For testing on only a few frames, set to a positive number. Will disable evaluation !
   eval_set: "valid"  # Tracking is performed on the SoccerNet validation set. Choose from {"train", "valid", "test", "challenge"}.
   dataset_path: ${data_dir}/SoccerNetGS  # The SoccerNet game state dataset is located under the data path (defined above) in the 'SoccerNetGS' folder
   vids_dict: # Use one key per split (valid, test, etc)
