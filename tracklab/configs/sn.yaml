@@ -12,7 +12,7 @@ defaults:
 
   - callbacks/export_callback: gs  # Export tracking results in game state format
   - callbacks/eval_callback: gs_hota
-  - callbacks/visualization_callback: minimap  # Save tracking results as a .mp4 video in the run directory specified below (sn-gamestate/outputs/...)
+  - callbacks/visualization_callback: gamestate  # Save tracking results as a .mp4 video in the run directory specified below (sn-gamestate/outputs/...)
 
 
 
@@ -78,7 +78,7 @@ callbacks:
     export_path: "${callbacks.export_callback.save_path}"  # Use same path as export callback
   
   visualization_callback:
-    save_gifs: True  # Save a .mp4 video on disk with the game state reconstruction output (see 'tracklab/tracklab/configs/visualization' for more options)
+    save_videos: True  # Save a .mp4 video on disk with the game state reconstruction output (see 'tracklab/tracklab/configs/visualization' for more options)
 
 
 # Dataset
@@ -96,11 +96,6 @@ dataset:
 state:
   save_file: null # "states/${experiment_name}.pklz"  # 'null' to disable saving. This is the save path for the tracker_state object that contains all modules outputs (bboxes, reid embeddings, jersey numbers, roles, teams, etc)
   load_file: null  # 'null' to disable loading. Load a file that was saved with the 'state.save_file' option above. Don't forget to remove from the pipeline all modules that should not be run again, but loaded from the saved tracker state.
-
-# Visualization
-visualization:
-  cfg:
-    save_images: True  # Save a .mp4 video on disk with the game state reconstruction output (see 'tracklab/tracklab/configs/visualization' for more options)
 
 # configure Hydra to use the current working directory
 # and set up the output directory according to experiment_name
