@@ -22,8 +22,8 @@ defaults:
   - pipeline/team: kmeans_embeddings
   - pipeline/team_side: mean_position
   - pipeline/tracklet_agg: voting_role_jn
-  - pipeline/pitch : nbjw_calib
-  - pipeline/calibration: nbjw_calib
+  - pipeline/pitch : tvcalib
+  - pipeline/calibration: tvcalib
 
   - _self_
 
@@ -47,7 +47,7 @@ module_order:
 dataset:
   video_path: ${data_dir}/SoccerNet/england_epl/2014-2015/2015-02-21 - 18-00 Chelsea 1 - 1 Burnley/1_720p.mkv  # The SoccerNet videos are located under the data path (defined above) in the 'SoccerNet' folder
   nvid: 1 # For a quick first inference, only the first video is processed. Use "-1" to process all the videos.
-  nframes: 100 # For testing on only a few frames, set to a positive number. Will disable evaluation !
+  nframes: 5000 # For testing on only a few frames, set to a positive number. Will disable evaluation !
 
 
 # Machine configuration
@@ -60,8 +60,8 @@ modules: # Allows module-specific batch_size and other configuration
   pose_bottomup: {batch_size: 8}
   reid: {batch_size: 64}
   track: {batch_size: 64}
-  pitch: {batch_size: 1}
-  calibration: {batch_size: 1}
+  pitch: {batch_size: 2}
+  calibration: {batch_size: 256}
   jersey_number_detect: {batch_size: 8}
 
 # Flags
@@ -78,7 +78,7 @@ state:
 # Visualization callback configuration (overrides defaults from gamestate.yaml)
 callbacks:
   visualization_callback:
-    save_images: True
+    save_videos: True
 
 
 # and set up the output directory according to experiment_name
