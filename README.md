@@ -153,7 +153,7 @@ If you want to override some configuration parameters, e.g. to use another detec
 
 All parameters are also configurable from the command-line, e.g.: (more info on Hydra's override grammar [here](https://hydra.cc/docs/advanced/override_grammar/basic/))
 ```bash
-tracklab 'data_dir=${project_dir}/data' 'model_dir=${project_dir}/models' pipeline/reid=bpbreid module_order=[bbox_detector,reid,track]
+tracklab 'data_dir=${project_dir}/data' 'model_dir=${project_dir}/models' pipeline/reid=bpbreid pipeline_order=[bbox_detector,reid,track]
 ```
 `${project_dir}` is a variable that is configured to be the root of the project you're running the code in. When using
 it in a command, make sure to use single quotes (') as they would otherwise be seen as 

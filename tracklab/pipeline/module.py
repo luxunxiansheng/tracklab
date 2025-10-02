@@ -102,14 +102,14 @@ class Module(metaclass=ABCMeta):
 class Pipeline:
     """Manages a sequence of processing modules."""
 
-    def __init__(self, models: List[Module]) -> None:
+    def __init__(self, modules: List[Module]) -> None:
         """Initialize the pipeline with a list of modules.
 
         Args:
-            models: List of modules to include in the pipeline.
+            modules: List of modules to include in the pipeline.
         """
-        self.models = [model for model in models if model.name != "skip"]
-        log.info("Pipeline: " + " -> ".join(model.name for model in self.models))
+        self.modules = [module for module in modules if module.name != "skip"]
+        log.info("Pipeline: " + " -> ".join(module.name for module in self.modules))
 
     def validate(self, load_columns: Dict[str, Set[str]]) -> None:
         """Validate that the pipeline can process the loaded columns.
@@ -119,29 +119,29 @@ class Pipeline:
         """
         columns = {k: set(v) for k, v in load_columns.items()}
         for level in ["image", "detection"]:
-            for model in self.models:
-                if model.input_columns is None or model.output_columns is None:
+            for module in self.modules:
+                if module.input_columns is None or module.output_columns is None:
                     raise AttributeError(
-                        f"{type(model)} should contain input_ and output_columns"
+                        f"{type(module)} should contain input_ and output_columns"
                     )
-                if not set(model.get_input_columns(level)).issubset(columns[level]):
+                if not set(module.get_input_columns(level)).issubset(columns[level]):
                     raise AttributeError(
-                        f"The {model.name} model doesn't have "
+                        f"The {module.name} model doesn't have "
                         "all the input needed, "
-                        f"needed {model.get_input_columns(level)}, provided {columns[level]}"
+                        f"needed {module.get_input_columns(level)}, provided {columns[level]}"
                     )
-                columns[level].update(model.get_output_columns(level))
+                columns[level].update(module.get_output_columns(level))
         log.info(f"Pipeline has been validated")
 
     def __str__(self) -> str:
-        return " -> ".join(model.name for model in self.models)
+        return " -> ".join(module.name for module in self.modules)
 
     def __getitem__(self, item: int) -> Module:
-        return self.models[item]
+        return self.modules[item]
 
     def is_empty(self) -> bool:
         """Check if the pipeline has no modules."""
-        return len(self.models) == 0
+        return len(self.modules) == 0
 
 
 class Skip(Module):

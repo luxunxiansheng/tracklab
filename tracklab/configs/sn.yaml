@@ -31,8 +31,8 @@ defaults:
 # Module order definition :
 # - Defines the order in which the modules will be called
 # - If loading a tracking state from disk, remove modules whose outputs are already provided in the loaded state
-# Use 'module_order: []' for an empty pipeline (e.g. when loading all tracking results from a saved .pklz tracker state)
-module_order:
+# Use 'pipeline_order: []' for an empty pipeline (e.g. when loading all tracking results from a saved .pklz tracker state)
+pipeline_order:
   - bbox_detector
   - reid
   - track
@@ -56,15 +56,6 @@ model_dir: "${project_dir}/pretrained_models"
 num_cores: 8 # Set to 1 to avoid multiprocessing pickling issues
 use_wandb: False
 use_rich: True
-
-modules: # Allows module-specific batch_size and other configuration
-  bbox_detector: {batch_size: 8}
-  pose_bottomup: {batch_size: 8}
-  reid: {batch_size: 64}
-  track: {batch_size: 64}
-  pitch: {batch_size: 1}
-  calibration: {batch_size: 1}
-  jersey_number_detect: {batch_size: 8}
 
 # Flags
 infer_tracking: True

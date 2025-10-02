@@ -11,8 +11,8 @@ defaults:
   - pipeline/track: oc_sort
   - _self_
 
-# Module order - YOLO detector only for detection evaluation
-module_order:
+# Pipeline execution order - YOLO detector only for detection evaluation
+pipeline_order:
   - bbox_detector  # This will train the YOLO model on SoccerNet data
   #- reid
   #- track

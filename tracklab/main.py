@@ -40,22 +40,24 @@ def main(cfg: DictConfig) -> int:
     """
     device = init_environment(cfg)
 
-    # Instantiate all modules
+    # Instantiate all modules from pipeline configs
     tracking_dataset = instantiate(cfg.dataset)
 
-    modules = []
-    if cfg.module_order is not None:
-        for name in cfg.module_order:
-            module = cfg.pipeline[name]
-            inst_module = instantiate(
-                module, device=device, tracking_dataset=tracking_dataset
+    instantiated_modules = []
+    if cfg.pipeline_order is not None:
+        for name in cfg.pipeline_order:
+            module_config = cfg.pipeline[name]
+            module = instantiate(
+                module_config, device=device, tracking_dataset=tracking_dataset
             )
-            modules.append(inst_module)
+            instantiated_modules.append(module)
 
-    pipeline = Pipeline(models=modules)
+    pipeline = Pipeline(modules=instantiated_modules)
 
     # Train tracking modules
-    training_modules = [module for module in modules if module.training_enabled]
+    training_modules = [
+        module for module in instantiated_modules if module.training_enabled
+    ]
     if training_modules:
         for i, module in enumerate(training_modules, 1):
             module.train(

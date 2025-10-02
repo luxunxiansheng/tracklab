@@ -22,16 +22,16 @@ defaults:
   - pipeline/team: kmeans_embeddings
   - pipeline/team_side: mean_position
   - pipeline/tracklet_agg: voting_role_jn
-  - pipeline/pitch : tvcalib
-  - pipeline/calibration: tvcalib
+  - pipeline/pitch: nbjw_calib
+  - pipeline/calibration: nbjw_calib
 
   - _self_
 
-# Module order definition :
-# - Defines the order in which the modules will be called
+# Pipeline execution order:
+# - Defines the order in which the pipeline modules will be executed
 # - If loading a tracking state from disk, remove modules whose outputs are already provided in the loaded state
-# Use 'module_order: []' for an empty pipeline (e.g. when loading all tracking results from a saved .pklz tracker state)
-module_order:
+# Use 'pipeline_order: []' for an empty pipeline (e.g. when loading all tracking results from a saved .pklz tracker state)
+pipeline_order:
   - bbox_detector
   - reid
   - track
@@ -55,19 +55,19 @@ num_cores: 8 # Set to 1 to avoid multiprocessing pickling issues
 use_wandb: False
 use_rich: True
 
-modules: # Allows module-specific batch_size and other configuration
-  bbox_detector: {batch_size: 8}
-  pose_bottomup: {batch_size: 8}
-  reid: {batch_size: 64}
-  track: {batch_size: 64}
-  pitch: {batch_size: 2}
-  calibration: {batch_size: 256}
-  jersey_number_detect: {batch_size: 8}
-
 # Flags
 infer_tracking: True
 print_config:  False
 
+# Pipeline configuration overrides for 720p video
+pipeline:
+  pitch:
+    image_width: 1280
+    image_height: 720
+  calibration:
+    image_width: 1280
+    image_height: 720
+    ransac_iter: 300
 
 # Tracker state (save computation time by dumping tracking results on disk for later re-use)
 # Dump tracking results to a .pcklz file to save computation time on the next run. Have a look at TrackLab tutorials for more details.

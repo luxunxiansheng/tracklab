@@ -93,10 +93,14 @@ class TrackingEngine(ABC):
         callbacks: Optional[Dict[str, Callback]] = None,
     ) -> None:
         # super().__init__()
-        self.module_names = [module.name for module in modules]
+        # Extract module list from Pipeline object
+        pipeline_modules = modules.modules
+        self.module_names = [module.name for module in pipeline_modules]
         self.callbacks = callbacks or {}
         module_callbacks = {
-            module.name: module for module in modules if isinstance(module, Callback)
+            module.name: module
+            for module in pipeline_modules
+            if isinstance(module, Callback)
         }
         callbacks = {**self.callbacks, **module_callbacks}
         callbacks_before = [
@@ -113,7 +117,8 @@ class TrackingEngine(ABC):
         self.tracker_state = tracker_state
         self.img_metadatas = tracker_state.image_metadatas
         self.video_metadatas = tracker_state.video_metadatas
-        self.models = {model.name: model for model in modules}
+        # Store modules by name for easy lookup during processing
+        self.models = {module.name: module for module in pipeline_modules}
         self.datapipes = {}
         self.dataloaders = {}
         for model_name, model in self.models.items():
