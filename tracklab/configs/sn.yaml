@@ -30,8 +30,8 @@ defaults:
   - pipeline/team: kmeans_embeddings
   - pipeline/team_side: mean_position
   - pipeline/tracklet_agg: voting_role_jn
-  - pipeline/pitch : tvcalib
-  - pipeline/calibration: tvcalib
+  - pipeline/pitch : nbjw_calib
+  - pipeline/calibration: nbjw_calib
 
   - _self_
 
@@ -53,8 +53,8 @@ pipeline_order:
 
 # Dataset
 dataset:
-  nvid: 1  # For a quick first inference, only the first video is processed. Use "-1" to process all the videos.
-  nframes: 10 # For testing on only a few frames, set to a positive number. Will disable evaluation !
+  nvid: 10  # For a quick first inference, only the first video is processed. Use "-1" to process all the videos.
+  #nframes: 10 # For testing on only a few frames, set to a positive number. Will disable evaluation !
   eval_set: "valid"  # Tracking is performed on the SoccerNet validation set. Choose from {"train", "valid", "test", "challenge"}.
   dataset_path: ${data_dir}/SoccerNetGS  # The SoccerNet game state dataset is located under the data path (defined above) in the 'SoccerNetGS' folder
   vids_dict: # Use one key per split (valid, test, etc)
@@ -78,14 +78,14 @@ callbacks:
     export_path: "${callbacks.export_callback.save_path}"  # Use same path as export callback
   
   visualization_callback:
-    save_images: True  # Save a .mp4 video on disk with the game state reconstruction output (see 'tracklab/tracklab/configs/visualization' for more options)
+    #save_images: True  # Save a .mp4 video on disk with the game state reconstruction output (see 'tracklab/tracklab/configs/visualization' for more options)
 
 
 
 # Tracker state (save computation time by dumping tracking results on disk for later re-use)
 # Dump tracking results to a .pcklz file to save computation time on the next run. Have a look at TrackLab tutorials for more details.
 state:
-  save_file: null # "states/${experiment_name}.pklz"  # 'null' to disable saving. This is the save path for the tracker_state object that contains all modules outputs (bboxes, reid embeddings, jersey numbers, roles, teams, etc)
+  save_file: "states/${experiment_name}.pklz"  # 'null' to disable saving. This is the save path for the tracker_state object that contains all modules outputs (bboxes, reid embeddings, jersey numbers, roles, teams, etc)
   load_file: null  # 'null' to disable loading. Load a file that was saved with the 'state.save_file' option above. Don't forget to remove from the pipeline all modules that should not be run again, but loaded from the saved tracker state.
 
 # configure Hydra to use the current working directory
