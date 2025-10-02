@@ -1,0 +1,2 @@
+# Self-evaluation callback configuration (no ground truth required)
+_target_: tracklab.callbacks.SelfEvaluationCallback

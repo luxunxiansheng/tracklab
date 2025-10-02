@@ -12,7 +12,7 @@ defaults:
   - engine: offline
 
   - callbacks/export_callback: gs  # Export tracking results in game state format
-  # - callbacks/eval_callback: gs_hota  # Disabled for inference without evaluation
+  - callbacks/eval_callback: self_evaluation  # Self-evaluation without ground truth
   - callbacks/visualization_callback: gamestate
 
   - pipeline/bbox_detector: yolo_ultralytics_11_soccernet_finetune
