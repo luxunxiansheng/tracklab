@@ -45,8 +45,18 @@ class MajorityVoteTracklet(VideoLevelModule):
         for track_id in detections.track_id.unique():
             tracklet = detections[detections.track_id == track_id]
             for attribute in self.attributes:
-                attribute_detection = tracklet[f"{attribute}_detection"]
-                attribute_confidence = tracklet[f"{attribute}_confidence"]
+                det_col = f"{attribute}_detection"
+                conf_col = f"{attribute}_confidence"
+                if (
+                    det_col not in detections.columns
+                    or conf_col not in detections.columns
+                ):
+                    log.warning(
+                        f"Columns {det_col} and/or {conf_col} not found. Skipping voting for {attribute}."
+                    )
+                    continue
+                attribute_detection = tracklet[det_col]
+                attribute_confidence = tracklet[conf_col]
                 attribute_value = [
                     select_highest_voted_att(attribute_detection, attribute_confidence)
                 ] * len(tracklet)

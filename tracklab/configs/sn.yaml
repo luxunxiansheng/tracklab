@@ -45,7 +45,6 @@ pipeline_order:
   - track
   - pitch
   - calibration
-  - jersey_number_detect
   - tracklet_agg
   - team
   - team_side
@@ -92,7 +91,7 @@ state:
 pipeline:
   bbox_detector:
     cfg:
-      min_confidence: 0.4  # Further lower to 0.4 for higher recall
+      min_confidence: 0.4  # Reverted for better precision
 
 # configure Hydra to use the current working directory
 # and set up the output directory according to experiment_name
