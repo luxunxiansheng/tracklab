@@ -8,10 +8,10 @@ cfg:
   motion_criterium: "iou" # "iou" or "oks"
   max_iou_distance: 0.5 # Even stricter IOU gating threshold
   max_oks_distance: 0.7 # Gating threshold. Associations with cost larger than this value are disregarded.
-  max_age: 45 # Maximum number of misses before a track is deleted
-  n_init: 7 # Require even more consecutive detections to confirm a track
+  max_age: 120 # Maximum number of misses before a track is deleted
+  n_init: 5 # Require fewer consecutive detections to confirm a track
   nn_budget: 100 # Maximum size of the appearance descriptors gallery
-  min_bbox_confidence: 0.7  # Filter out even more low-confidence detections
+  min_bbox_confidence: 0.2  # Filter out low-confidence detections
   only_position_for_kf_gating: False  # if True, only the position (x, y) is used by the Kalman filter for gating
   max_kalman_prediction_without_update: 3  # do not make any predictions if the Kalman filter has no measurements for more than this number of frames
   matching_strategy: "strong_sort_matching"  # {"strong_sort_matching", "bot_sort_matching"}

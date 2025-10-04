@@ -29,8 +29,6 @@ class MajorityVoteTracklet(VideoLevelModule):
     def __init__(self, cfg, device, tracking_dataset=None) -> None:
         self.attributes = cfg.attributes
         for attribute in self.attributes:
-            self.input_columns.append(f"{attribute}_detection")
-            self.input_columns.append(f"{attribute}_confidence")
             self.output_columns.append(attribute)
 
     @torch.no_grad()
@@ -51,9 +49,7 @@ class MajorityVoteTracklet(VideoLevelModule):
                     det_col not in detections.columns
                     or conf_col not in detections.columns
                 ):
-                    log.warning(
-                        f"Columns {det_col} and/or {conf_col} not found. Skipping voting for {attribute}."
-                    )
+
                     continue
                 attribute_detection = tracklet[det_col]
                 attribute_confidence = tracklet[conf_col]
