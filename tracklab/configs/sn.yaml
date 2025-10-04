@@ -25,7 +25,6 @@ defaults:
   - callbacks/visualization_callback: gamestate  # Save tracking results as a .mp4 video in the run directory specified below (sn-gamestate/outputs/...)
   - pipeline/bbox_detector: yolo_ultralytics_11_soccernet_finetune
   - pipeline/reid: bpbreid
-  - pipeline/pose_estimator: rtmpose_rtmlib
   - pipeline/track: bpbreid_strong_sort
   - pipeline/jersey_number_detect: mmocr
   - pipeline/team: kmeans_embeddings
@@ -42,7 +41,6 @@ defaults:
 # Use 'pipeline_order: []' for an empty pipeline (e.g. when loading all tracking results from a saved .pklz tracker state)
 pipeline_order:
   - bbox_detector
-  - pose_estimator
   - reid
   - track
   - pitch
@@ -54,7 +52,7 @@ pipeline_order:
 
 # Dataset
 dataset:
-  nvid: 10  # For a quick first inference, only the first video is processed. Use "-1" to process all the videos.
+  nvid: 10  # Back to full run for final metrics
   #nframes: 10 # For testing on only a few frames, set to a positive number. Will disable evaluation !
   eval_set: "valid"  # Tracking is performed on the SoccerNet validation set. Choose from {"train", "valid", "test", "challenge"}.
   dataset_path: ${data_dir}/SoccerNetGS  # The SoccerNet game state dataset is located under the data path (defined above) in the 'SoccerNetGS' folder
@@ -93,7 +91,7 @@ state:
 pipeline:
   bbox_detector:
     cfg:
-      min_confidence: 0.3  # Lower for more detections
+      min_confidence: 0.4  # Revert to reduce false positives and boost AssA
 
 # configure Hydra to use the current working directory
 # and set up the output directory according to experiment_name
