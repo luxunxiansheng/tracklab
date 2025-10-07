@@ -7,7 +7,7 @@ batch_size: 8
 training_enabled: True
 cfg:
   # Start fresh training with YOLOv11x - comment out path_to_checkpoint to use default_model
-  # path_to_checkpoint: "${project_dir}/pretrained_models/yolo/yolo11x_soccernet_finetuned.pt"
+  path_to_checkpoint: "${project_dir}/pretrained_models/yolo/yolo11x.pt"
  
   # Low-level default if no path provided by the user
   default_model: "yolo11x.pt"
@@ -34,7 +34,7 @@ cfg:
     data_path: null      # set to your dataset path or leave as TrackingDataset input
 
     # Start fresh training (no resume)
-    resume: false
+    resume: True
 
     # YOLO11x optimized optimizer and lr schedule
     optimizer: AdamW
