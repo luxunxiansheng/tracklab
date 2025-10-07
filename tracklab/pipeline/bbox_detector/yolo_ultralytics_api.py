@@ -140,22 +140,26 @@ class YOLOUltralytics(ImageLevelModule):
             detections = []
             if results.boxes is not None and len(results.boxes) > 0:
                 boxes = results.boxes
-                # Filter for person class (class 0) with sufficient confidence
-                person_mask = (boxes.cls == 0) & (boxes.conf >= self.cfg.min_confidence)
+                # Filter for person (class 0) and ball (class 1) with sufficient confidence
+                valid_classes = [0, 1]  # 0: person, 1: ball
+                for cls_id in valid_classes:
+                    cls_mask = (boxes.cls == cls_id) & (
+                        boxes.conf >= self.cfg.min_confidence
+                    )
+                    if cls_mask.sum() > 0:
+                        cls_boxes = boxes.xyxy[cls_mask]
+                        cls_confs = boxes.conf[cls_mask]
 
-                if person_mask.sum() > 0:
-                    person_boxes = boxes.xyxy[person_mask]
-                    person_confs = boxes.conf[person_mask]
-
-                    for i in range(len(person_boxes)):
-                        detection = {
-                            "bbox": person_boxes[i].cpu().numpy(),  # [x1, y1, x2, y2]
-                            "conf": person_confs[i].cpu().numpy(),
-                            "image_id": metadata.name,
-                            "video_id": getattr(metadata, "video_id", 0),
-                            "shape": shape,
-                        }
-                        detections.append(detection)
+                        for i in range(len(cls_boxes)):
+                            detection = {
+                                "bbox": cls_boxes[i].cpu().numpy(),  # [x1, y1, x2, y2]
+                                "conf": cls_confs[i].cpu().numpy(),
+                                "image_id": metadata.name,
+                                "video_id": getattr(metadata, "video_id", 0),
+                                "shape": shape,
+                                "cls": cls_id,
+                            }
+                            detections.append(detection)
 
                 # Apply post-processing if configured
                 if detections:
@@ -163,6 +167,9 @@ class YOLOUltralytics(ImageLevelModule):
                         detections, tuple(shape)
                     )  # Convert to TrackLab format
                 for detection in detections:
+                    category_id = (
+                        1 if detection["cls"] == 0 else 2
+                    )  # 1 for person, 2 for ball
                     detections_out.append(
                         pd.Series(
                             dict(
@@ -172,7 +179,7 @@ class YOLOUltralytics(ImageLevelModule):
                                 ),
                                 bbox_conf=detection["conf"],
                                 video_id=detection["video_id"],
-                                category_id=1,  # `person` class in posetrack
+                                category_id=category_id,
                             ),
                             name=self.id,
                         )
@@ -375,8 +382,8 @@ class YOLOUltralytics(ImageLevelModule):
             "train": "images/train",
             "val": "images/valid",
             "test": "images/test",
-            "names": {0: "person"},  # Only person class for bbox_detector
-            "nc": 1,  # Number of classes
+            "names": {0: "person", 1: "ball"},  # Person and ball classes
+            "nc": 2,  # Number of classes
         }
 
         yaml_path = output_path / "data.yaml"
@@ -496,7 +503,7 @@ class YOLOUltralytics(ImageLevelModule):
                             detection, tracking_set
                         )
 
-                        if category_id == 0:  # person class
+                        if category_id in [0, 1]:  # person or ball class
                             # Convert bbox to YOLO format (normalized)
                             bbox = detection.bbox_ltwh
                             if isinstance(bbox, np.ndarray):
@@ -529,7 +536,7 @@ class YOLOUltralytics(ImageLevelModule):
                             h_norm = max(0.0, min(1.0, h_norm))
 
                             f.write(
-                                f"0 {x_center:.6f} {y_center:.6f} {w_norm:.6f} {h_norm:.6f}\n"
+                                f"{category_id} {x_center:.6f} {y_center:.6f} {w_norm:.6f} {h_norm:.6f}\n"
                             )
                             labels_written += 1
                             total_detections += 1
@@ -581,8 +588,7 @@ class YOLOUltralytics(ImageLevelModule):
             if role in ["player", "goalkeeper", "referee", "person", "human"]:
                 return 0  # YOLO person class
             elif role in ["ball", "football", "soccer_ball"]:
-                # Skip ball detections for person detector
-                return -1
+                return 1  # YOLO ball class
             else:
                 # For unknown roles, assume they might be person-related
                 return 0
@@ -590,11 +596,11 @@ class YOLOUltralytics(ImageLevelModule):
         # Fallback to category name checking - be more permissive
         if "category" in detection_row:
             category = str(detection_row["category"]).lower()
-            # Skip only clearly non-person categories
-            if any(
-                keyword in category for keyword in ["ball", "goal", "field", "line"]
-            ):
+            # Skip only clearly non-person/ball categories
+            if any(keyword in category for keyword in ["goal", "field", "line"]):
                 return -1
+            elif "ball" in category:
+                return 1
             else:
                 # Accept all other categories as potentially person-related
                 return 0

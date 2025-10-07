@@ -52,7 +52,7 @@ pipeline_order:
 
 # Dataset
 dataset:
-  nvid: 10  # Back to full run for final metrics
+  nvid: 1  # Back to full run for final metrics
   #nframes: 10 # For testing on only a few frames, set to a positive number. Will disable evaluation !
   eval_set: "valid"  # Tracking is performed on the SoccerNet validation set. Choose from {"train", "valid", "test", "challenge"}.
   dataset_path: ${data_dir}/SoccerNetGS  # The SoccerNet game state dataset is located under the data path (defined above) in the 'SoccerNetGS' folder

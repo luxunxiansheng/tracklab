@@ -176,7 +176,12 @@ class GSExporter(BaseExporter):
             dataframe["track_id"] = dataframe["track_id"]
             dataframe["attributes"] = [
                 {
-                    "role": x.get("role"),
+                    "role": x.get("role")
+                    or (
+                        "ball"
+                        if x.get("category_id") == 2
+                        else "person" if x.get("category_id") == 1 else None
+                    ),
                     "jersey": x.get("jersey"),
                     "team": x.get("team"),
                 }
