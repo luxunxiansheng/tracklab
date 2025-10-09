@@ -16,7 +16,7 @@ defaults:
   - callbacks/visualization_callback: gamestate
 
   - pipeline/bbox_detector: yolo_ultralytics_11_soccernet_finetune
-  - pipeline/reid: prtreid
+  - pipeline/reid: bpbreid
   - pipeline/track: bpbreid_strong_sort
   - pipeline/jersey_number_detect: mmocr
   - pipeline/team: kmeans_embeddings
@@ -47,7 +47,7 @@ pipeline_order:
 dataset:
   video_path: ${data_dir}/SoccerNet/england_epl/2014-2015/2015-02-21 - 18-00 Chelsea 1 - 1 Burnley/1_720p.mkv  # The SoccerNet videos are located under the data path (defined above) in the 'SoccerNet' folder
   nvid: 1 # For a quick first inference, only the first video is processed. Use "-1" to process all the videos.
-  nframes: 5000 # For testing on only a few frames, set to a positive number. Will disable evaluation !
+  nframes: 10000 # For testing on only a few frames, set to a positive number. Will disable evaluation !
 
 
 # Machine configuration
@@ -61,6 +61,10 @@ print_config:  False
 
 # Pipeline configuration overrides for 720p video
 pipeline:
+  bbox_detector:
+    cfg:
+      min_confidence: 0.1  # Lower threshold to detect balls
+
   pitch:
     image_width: 1280
     image_height: 720
@@ -77,6 +81,9 @@ state:
 
 # Visualization callback configuration (overrides defaults from gamestate.yaml)
 callbacks:
+  export_callback:
+    save_path: "exports"  # Path where tracking results are exported
+
   visualization_callback:
     save_videos: True
 
