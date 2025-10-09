@@ -7,13 +7,13 @@ batch_size: 8
 training_enabled: True
 cfg:
   # Start fresh training with YOLOv11x - comment out path_to_checkpoint to use default_model
-  path_to_checkpoint: "${project_dir}/pretrained_models/yolo/yolo11x.pt"
+  path_to_checkpoint: save_path: "${project_dir}/pretrained_models/yolo/yolo11x_finetuned_soccernet.pt"
  
   # Low-level default if no path provided by the user
   default_model: "yolo11x.pt"
 
     # Save path for trained model
-  save_path: "${project_dir}/pretrained_models/yolo/yolo11x_finetuned_soccernet.pt"
+  save_path: "${project_dir}/pretrained_models/yolo/yolo11x_finetuned_soccernet_v2.pt"
 
   # Detector-level minimum confidence used by the wrapper
   min_confidence: 0.6
@@ -28,36 +28,36 @@ cfg:
  
   training:
     # YOLO11x optimized training settings for speed and accuracy
-    epochs: 100
-    batch_size: 8       # Optimized for YOLO11x stability
+    epochs: 150          # More epochs for fine-tuning
+    batch_size: 8        # Optimized for YOLO11x stability
     img_size: 1280       # Keep high for accuracy
     data_path: null      # set to your dataset path or leave as TrackingDataset input
 
     # Start fresh training (no resume)
-    resume: True
+    resume: False        # Start fresh fine-tuning from best.pt
 
     # YOLO11x optimized optimizer and lr schedule
     optimizer: AdamW
-    lr0: 0.0005          # Optimized for YOLO11x convergence speed
-    lrf: 0.1             # Higher final LR ratio for better fine-tuning
+    lr0: 0.0001          # Lower LR for fine-tuning from best checkpoint
+    lrf: 0.01            # Lower final LR ratio for fine-tuning
     momentum: 0.9
     weight_decay: 0.0005 # Standard weight decay
 
     # Reduced augmentations for YOLO11x training stability
     augmentation:
-      hsv_h: 0.01        # Reduced for stability
-      hsv_s: 0.6         # Reduced for stability
-      hsv_v: 0.3         # Reduced for stability
-      degrees: 0.0       # Disabled - not useful for person detection
-      translate: 0.05    # Reduced for stability
-      scale: 0.3         # Reduced for stability
-      shear: 0.0         # Disabled for speed
-      perspective: 0.0   # Disabled for speed
-      flipud: 0.0        # Disabled - not useful for persons
-      fliplr: 0.5        # Keep horizontal flip
-      mosaic: 0.8        # Moderate mosaic for data efficiency
-      mixup: 0.0         # Disabled for training stability
-      copy_paste: 0.0    # Disabled for speed
+      hsv_h: 0.015        # Slightly increased for more variety
+      hsv_s: 0.7          # Slightly increased for more variety
+      hsv_v: 0.4          # Slightly increased for more variety
+      degrees: 0.0        # Disabled - not useful for person detection
+      translate: 0.1      # Increased for robustness
+      scale: 0.4          # Increased for robustness
+      shear: 0.0          # Disabled for speed
+      perspective: 0.0    # Disabled for speed
+      flipud: 0.0         # Disabled - not useful for persons
+      fliplr: 0.5         # Keep horizontal flip
+      mosaic: 1.0         # Increased for data efficiency
+      mixup: 0.1          # Light mixup for regularization
+      copy_paste: 0.0     # Disabled for speed
 
     # YOLO11x optimized training settings
     amp: True            # Essential for large model memory efficiency
@@ -66,13 +66,13 @@ cfg:
     workers: 12          # Moderate workers for stability
     val: True
     save_period: 5       # Save checkpoints less frequently
-    patience: 15          # Reasonable patience for convergence
+    patience: 25          # Higher patience for fine-tuning convergence
     plots: False         # Disable for speed
     verbose: False       # Reduce logging for speed
 
     # Additional YOLO11x optimizations
-    freeze: 11           # Freeze more layers for stability
-    warmup_epochs: 5     # Longer warmup for large model
+    freeze: 0            # Unfreeze all layers for fine-tuning
+    warmup_epochs: 2     # Shorter warmup for fine-tuning
     cos_lr: True         # Cosine LR scheduling
-    close_mosaic: 15     # Close mosaic later
-    dropout: 0.1         # Light regularization
+    close_mosaic: 10     # Close mosaic earlier
+    dropout: 0.0         # Remove dropout for fine-tuning
