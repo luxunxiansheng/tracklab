@@ -48,7 +48,7 @@ pipeline_order:
 # Dataset
 dataset:
   video_path: ${data_dir}/kang/xian.mp4 # The SoccerNet videos are located under the data path (defined above) in the 'SoccerNet' folder
-  start_frame: 10000  # Frame number to start processing from (0-based)
+  start_frame: 20000  # Frame number to start processing from (0-based)
   nvid: 1 # For a quick first inference, only the first video is processed. Use "-1" to process all the videos.
   nframes: 5000 # Reduce frames to avoid memory issues
 
@@ -80,7 +80,7 @@ pipeline:
 # Tracker state (save computation time by dumping tracking results on disk for later re-use)
 # Dump tracking results to a .pcklz file to save computation time on the next run. Have a look at TrackLab tutorials for more details.
 state:
-  save_file: null # "states/${experiment_name}.pklz"  # 'null' to disable saving. This is the save path for the tracker_state object that contains all modules outputs (bboxes, reid embeddings, jersey numbers, roles, teams, etc)
+  #save_file: null # "states/${experiment_name}.pklz"  # 'null' to disable saving. This is the save path for the tracker_state object that contains all modules outputs (bboxes, reid embeddings, jersey numbers, roles, teams, etc)
   load_file: null  # 'null' to disable loading. Load a file that was saved with the 'state.save_file' option above. Don't forget to remove from the pipeline all modules that should not be run again, but loaded from the saved tracker state.
 
 # Visualization callback configuration (overrides defaults from gamestate.yaml)
