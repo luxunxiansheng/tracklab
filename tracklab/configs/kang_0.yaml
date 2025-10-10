@@ -1,5 +1,5 @@
 # Experiment name
-experiment_name: "kang_baseline"
+experiment_name: "kang"
 
 # Path definitions
 home_dir: "${oc.env:HOME}"
@@ -22,8 +22,8 @@ defaults:
   - pipeline/team: kmeans_embeddings
   - pipeline/team_side: mean_position
   - pipeline/tracklet_agg: voting_role_jn
-  - pipeline/pitch: baseline
-  - pipeline/calibration: baseline
+  - pipeline/pitch: nbjw_calib
+  - pipeline/calibration: nbjw_calib
 
   - _self_
 
@@ -48,9 +48,9 @@ pipeline_order:
 # Dataset
 dataset:
   video_path: ${data_dir}/kang/xian.mp4 # The SoccerNet videos are located under the data path (defined above) in the 'SoccerNet' folder
-  start_frame: 30000  # Frame number to start processing from (0-based)
+  start_frame: 20000  # Frame number to start processing from (0-based)
   nvid: 1 # For a quick first inference, only the first video is processed. Use "-1" to process all the videos.
-  nframes: 1000 # Reduce frames to avoid memory issues
+  nframes: 5000 # Reduce frames to avoid memory issues
 
 
 # Machine configuration

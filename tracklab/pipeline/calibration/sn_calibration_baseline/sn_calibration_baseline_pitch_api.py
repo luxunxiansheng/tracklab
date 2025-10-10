@@ -26,7 +26,7 @@ from tracklab.pipeline import ImageLevelModule
 
 class BaselinePitch(ImageLevelModule):
     input_columns = []
-    output_columns = []
+    output_columns = {"image": ["lines"]}
 
     def __init__(
         self,
