@@ -57,12 +57,15 @@ class ExternalVideo(TrackingDataset):
         and tracking engine should adapt its batch loop accordingly.
     """
 
-    def __init__(self, dataset_path: str, video_path: str, *args, **kwargs) -> None:
+    def __init__(
+        self, dataset_path: str, video_path: str, start_frame: int = 0, *args, **kwargs
+    ) -> None:
         """Initialize ExternalVideo dataset.
 
         Args:
             dataset_path: Path to the dataset.
             video_path: Path to the video file or directory.
+            start_frame: Frame number to start processing from (0-based).
             *args: Additional arguments.
             **kwargs: Additional keyword arguments.
         """
@@ -84,22 +87,30 @@ class ExternalVideo(TrackingDataset):
                 mime_type = mimetypes.guess_type(str(video_file_path))[0]
                 if mime_type is None or not mime_type.startswith("video"):
                     continue
-                nframes = self.get_frame_count(video_file_path)
+                total_frames = self.get_frame_count(video_file_path)
+                nframes = (
+                    min(
+                        total_frames - start_frame,
+                        kwargs.get("nframes", total_frames - start_frame),
+                    )
+                    if "nframes" in kwargs and kwargs["nframes"] > 0
+                    else total_frames - start_frame
+                )
                 video_name = video_file_path.stem
                 video_id = video_name
                 image_metadata.extend(
                     [
                         {
-                            "id": j
+                            "id": (j - start_frame)
                             + 100_000
                             * i,  # TODO: read the number of frames to get the right factor
-                            "name": f"{video_name}_{j}",
-                            "frame": j,
+                            "name": f"{video_name}_{j - start_frame}",
+                            "frame": j - start_frame,
                             "nframes": nframes,
                             "video_id": video_id,
                             "file_path": f"vid://{video_file_path}:{j}",
                         }
-                        for j in range(nframes)
+                        for j in range(start_frame, start_frame + nframes)
                     ]
                 )
                 video_names.append(video_id)
@@ -107,19 +118,27 @@ class ExternalVideo(TrackingDataset):
             image_metadata_df = pd.DataFrame(image_metadata)
             video_metadata_df = pd.DataFrame(video_metadata, index=video_names)
         else:
-            nframes = self.get_frame_count(self.video_path)
+            total_frames = self.get_frame_count(self.video_path)
+            nframes = (
+                min(
+                    total_frames - start_frame,
+                    kwargs.get("nframes", total_frames - start_frame),
+                )
+                if "nframes" in kwargs and kwargs["nframes"] > 0
+                else total_frames - start_frame
+            )
             video_id = 0
             image_metadata_df = pd.DataFrame(
                 [
                     {
-                        "id": i,
-                        "name": f"{video_name}_{i}",
-                        "frame": i,
+                        "id": i - start_frame,
+                        "name": f"{video_name}_{i - start_frame}",
+                        "frame": i - start_frame,
                         "nframes": nframes,
                         "video_id": video_id,
                         "file_path": f"vid://{self.video_path}:{i}",
                     }
-                    for i in range(nframes)
+                    for i in range(start_frame, start_frame + nframes)
                 ]
             )
 
