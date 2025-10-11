@@ -1,5 +1,5 @@
 # Experiment name
-experiment_name: "kang_pnlcalib"
+experiment_name: "kang_tvcalib"
 
 # Path definitions
 home_dir: "${oc.env:HOME}"
@@ -22,10 +22,13 @@ defaults:
   - pipeline/team: kmeans_embeddings
   - pipeline/team_side: mean_position
   - pipeline/tracklet_agg: voting_role_jn
-  - pipeline/pitch: pnlcalib
-  - pipeline/calibration: pnlcalib
+  - pipeline/pitch: tvcalib
+  - pipeline/calibration: tvcalib
 
   - _self_
+
+
+
 
 # Pipeline execution order:
 # - Defines the order in which the pipeline modules will be executed
@@ -72,15 +75,9 @@ pipeline:
   pitch:
     image_width: 1280
     image_height: 720
-    batch_size: 4  # Increased from default 256 for better GPU utilization
-    refine_lines: True  # Enable line refinement for better accuracy
   calibration:
     image_width: 1280
     image_height: 720
-    batch_size: 4  # Increased batch size for better throughput
-    use_prev_homography: True  # Reuse previous frame's homography for faster convergence
-    refine_lines: True  # Enable line refinement for improved accuracy
-    ransac_iter: 600
 
 # Tracker state (save computation time by dumping tracking results on disk for later re-use)
 # Dump tracking results to a .pcklz file to save computation time on the next run. Have a look at TrackLab tutorials for more details.
