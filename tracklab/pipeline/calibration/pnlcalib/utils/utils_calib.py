@@ -858,21 +858,34 @@ class FramebyFrameCalib:
                     if refine_lines:
                         self.lines_consensus_ground()
                         vector = H.flatten()[:-1]
-                        res = least_squares(
-                            self.line_optimizer_ground,
-                            vector,
-                            verbose=0,
-                            ftol=1e-4,
-                            x_scale="jac",
-                            method="lm",
-                            args=(img_pts, obj_pts),
-                        )
 
-                        vector_opt = res["x"]
-                        if not any(np.isnan(vector_opt)):
-                            H = np.append(vector_opt, 1).reshape(3, 3)
-                            self.homography = H
-                            rep_err = self.reproj_err_ground(obj_pts, img_pts)
+                        # Check if initial residuals are finite
+                        try:
+                            initial_residuals = self.line_optimizer_ground(
+                                vector, img_pts, obj_pts
+                            )
+                            if not np.all(np.isfinite(initial_residuals)):
+                                # Skip optimization if initial residuals are not finite
+                                pass
+                            else:
+                                res = least_squares(
+                                    self.line_optimizer_ground,
+                                    vector,
+                                    verbose=0,
+                                    ftol=1e-4,
+                                    x_scale="jac",
+                                    method="lm",
+                                    args=(img_pts, obj_pts),
+                                )
+
+                                vector_opt = res["x"]
+                                if not any(np.isnan(vector_opt)):
+                                    H = np.append(vector_opt, 1).reshape(3, 3)
+                                    self.homography = H
+                                    rep_err = self.reproj_err_ground(obj_pts, img_pts)
+                        except (ValueError, RuntimeError):
+                            # Skip optimization if there are numerical issues
+                            pass
                 if inverse:
                     H_inv = np.linalg.inv(H)
                     return H_inv / H_inv[-1, -1], rep_err

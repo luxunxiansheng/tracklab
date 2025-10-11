@@ -50,7 +50,7 @@ dataset:
   video_path: ${data_dir}/kang/xian_clip.mp4 # The SoccerNet videos are located under the data path (defined above) in the 'SoccerNet' folder
   #start_frame: 30000  # Frame number to start processing from (0-based)
   nvid: 1 # For a quick first inference, only the first video is processed. Use "-1" to process all the videos.
-  #nframes: 1000 # Reduce frames to avoid memory issues
+  #nframes: 100 # Reduce frames to avoid memory issues
 
 
 # Machine configuration
@@ -72,9 +72,14 @@ pipeline:
   pitch:
     image_width: 1280
     image_height: 720
+    batch_size: 4  # Increased from default 256 for better GPU utilization
+    refine_lines: True  # Enable line refinement for better accuracy
   calibration:
     image_width: 1280
     image_height: 720
+    batch_size: 4  # Increased batch size for better throughput
+    use_prev_homography: True  # Reuse previous frame's homography for faster convergence
+    refine_lines: True  # Enable line refinement for improved accuracy
     ransac_iter: 600
 
 # Tracker state (save computation time by dumping tracking results on disk for later re-use)

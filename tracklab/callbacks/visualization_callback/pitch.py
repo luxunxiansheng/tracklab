@@ -132,7 +132,7 @@ def draw_pitch(
     line_thickness=3,
 ) -> None:
     # Draw the lines on the image pitch
-    if "lines" in image_pred:
+    if "lines" in image_pred and isinstance(image_pred["lines"], dict):
         image_height, image_width, _ = patch.shape
         for name, line in image_pred["lines"].items():
             if name == "Circle central" and len(line) > 4:
