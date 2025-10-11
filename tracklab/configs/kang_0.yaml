@@ -47,10 +47,10 @@ pipeline_order:
 
 # Dataset
 dataset:
-  video_path: ${data_dir}/kang/xian.mp4 # The SoccerNet videos are located under the data path (defined above) in the 'SoccerNet' folder
-  start_frame: 20000  # Frame number to start processing from (0-based)
+  video_path: ${data_dir}/kang/xian_clip.mp4 # The SoccerNet videos are located under the data path (defined above) in the 'SoccerNet' folder
+  #start_frame: 13000  # Frame number to start processing from (0-based)
   nvid: 1 # For a quick first inference, only the first video is processed. Use "-1" to process all the videos.
-  nframes: 5000 # Reduce frames to avoid memory issues
+  #nframes: 5000 # Reduce frames to avoid memory issues
 
 
 # Machine configuration

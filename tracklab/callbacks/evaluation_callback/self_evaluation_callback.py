@@ -205,6 +205,8 @@ class SelfEvaluationCallback(Callback):
                 isinstance(bp, dict)
                 and "x_bottom_middle" in bp
                 and "y_bottom_middle" in bp
+                and bp["x_bottom_middle"] is not None
+                and bp["y_bottom_middle"] is not None
             ):
                 pitch_coords.append((bp["x_bottom_middle"], bp["y_bottom_middle"]))
 
@@ -284,6 +286,8 @@ class SelfEvaluationCallback(Callback):
                         isinstance(bp, dict)
                         and "x_bottom_middle" in bp
                         and "y_bottom_middle" in bp
+                        and bp["x_bottom_middle"] is not None
+                        and bp["y_bottom_middle"] is not None
                     ):
                         coords.append((bp["x_bottom_middle"], bp["y_bottom_middle"]))
 
