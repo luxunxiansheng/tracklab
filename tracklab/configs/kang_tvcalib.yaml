@@ -1,0 +1,105 @@
+# Experiment name
+experiment_name: "kang_tvcalib_52"
+
+# Path definitions
+home_dir: "${oc.env:HOME}"
+data_dir: "${project_dir}/data"
+model_dir: "${project_dir}/pretrained_models"
+
+defaults:
+  - dataset: video
+
+  - engine: offline
+
+  - callbacks/export_callback: gs  # Export tracking results in game state format
+  - callbacks/eval_callback: self_evaluation  # Self-evaluation without ground truth
+  - callbacks/visualization_callback: gamestate
+
+  - pipeline/bbox_detector: yolo_ultralytics_11_soccernet_finetune
+  - pipeline/reid: bpbreid
+  - pipeline/track: bpbreid_strong_sort
+  - pipeline/jersey_number_detect: mmocr
+  - pipeline/team: kmeans_embeddings
+  - pipeline/team_side: mean_position
+  - pipeline/tracklet_agg: voting_role_jn
+  - pipeline/pitch: tvcalib
+  - pipeline/calibration: tvcalib
+
+  - _self_
+
+
+
+# Pipeline execution order:
+# - Defines the order in which the pipeline modules will be executed
+# - If loading a tracking state from disk, remove modules whose outputs are already provided in the loaded state
+# Use 'pipeline_order: []' for an empty pipeline (e.g. when loading all tracking results from a saved .pklz tracker state)
+pipeline_order:
+  - bbox_detector
+  - reid
+  - track
+  - pitch
+  - calibration
+  #- jersey_number_detect
+  - tracklet_agg
+  - team
+  - team_side
+
+
+
+
+# Dataset
+dataset:
+  video_path: ${data_dir}/kang/00052.mov # The SoccerNet videos are located under the data path (defined above) in the 'SoccerNet' folder
+  #start_frame: 30000  # Frame number to start processing from (0-based)
+  nvid: 1 # For a quick first inference, only the first video is processed. Use "-1" to process all the videos.
+  nframes: 5000 # Reduce frames to avoid memory issues
+
+
+# Machine configuration
+num_cores: 8 # Set to 0 to completely disable multiprocessing
+use_wandb: False
+use_rich: True
+
+# Flags
+infer_tracking: True
+print_config:  False
+
+# Pipeline configuration overrides for 720p video
+pipeline:
+  bbox_detector:
+    batch_size: 1  # Reduce batch size to minimize memory usage
+    cfg:
+      min_confidence: 0.1  # Lower threshold to detect balls
+
+  pitch:
+    image_width: 1920
+    image_height: 1080
+  calibration:
+    image_width: 1920
+    image_height: 1080
+
+# Tracker state (save computation time by dumping tracking results on disk for later re-use)
+# Dump tracking results to a .pcklz file to save computation time on the next run. Have a look at TrackLab tutorials for more details.
+state:
+  #save_file: null # "states/${experiment_name}.pklz"  # 'null' to disable saving. This is the save path for the tracker_state object that contains all modules outputs (bboxes, reid embeddings, jersey numbers, roles, teams, etc)
+  load_file: null  # 'null' to disable loading. Load a file that was saved with the 'state.save_file' option above. Don't forget to remove from the pipeline all modules that should not be run again, but loaded from the saved tracker state.
+
+# Visualization callback configuration (overrides defaults from gamestate.yaml)
+callbacks:
+  export_callback:
+    save_path: "exports"  # Path where tracking results are exported
+
+  visualization_callback:
+    save_videos: True  # Disable video saving to reduce memory usage
+
+
+# and set up the output directory according to experiment_name
+project_dir: "${hydra:runtime.cwd}"
+hydra:
+  output_subdir: "configs"
+  job:
+    chdir: True
+  run:
+    dir: "outputs/${experiment_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}"
+  sweep:
+    dir: "multirun_outputs/${experiment_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}"
