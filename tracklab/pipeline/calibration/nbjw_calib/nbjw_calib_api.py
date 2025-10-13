@@ -88,10 +88,14 @@ class NBJW_Calib_Keypoints(ImageLevelModule):
         device,
         cfg,
         cfg_l,
+        kp_threshold=0.1449,
+        line_threshold=0.2983,
         **kwargs,
     ):
         super().__init__(batch_size)
         self.device = device
+        self.kp_threshold = kp_threshold
+        self.line_threshold = line_threshold
 
         self.cfg = cfg
         self.cfg_l = cfg_l
@@ -140,8 +144,8 @@ class NBJW_Calib_Keypoints(ImageLevelModule):
         line_coords = get_keypoints_from_heatmap_batch_maxpool_l(
             heatmaps_l[:, :-1, :, :]
         )
-        kp_dict = coords_to_dict(kp_coords, threshold=0.1449)
-        lines_dict = coords_to_dict(line_coords, threshold=0.2983)
+        kp_dict = coords_to_dict(kp_coords, threshold=self.kp_threshold)
+        lines_dict = coords_to_dict(line_coords, threshold=self.line_threshold)
 
         image_width = batch.size()[-1]
         image_height = batch.size()[-2]
