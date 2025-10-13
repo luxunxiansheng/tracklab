@@ -1,5 +1,5 @@
 # Experiment name
-experiment_name: "kang_nbjw_52"
+experiment_name: "kang_tvcalib"
 
 # Path definitions
 home_dir: "${oc.env:HOME}"
@@ -22,8 +22,8 @@ defaults:
   - pipeline/team: kmeans_embeddings
   - pipeline/team_side: mean_position
   - pipeline/tracklet_agg: voting_role_jn
-  - pipeline/pitch: nbjw_calib
-  - pipeline/calibration: nbjw_calib
+  - pipeline/pitch: tvcalib
+  - pipeline/calibration: tvcalib
 
   - _self_
 
@@ -52,7 +52,7 @@ dataset:
   video_path: ${data_dir}/kang/00052.mov # The SoccerNet videos are located under the data path (defined above) in the 'SoccerNet' folder
   #start_frame: 30000  # Frame number to start processing from (0-based)
   nvid: 1 # For a quick first inference, only the first video is processed. Use "-1" to process all the videos.
-  nframes: 5000 # Reduce frames to avoid memory issues
+  nframes: 3000 # Reduce frames to avoid memory issues
 
 
 # Machine configuration
@@ -72,11 +72,11 @@ pipeline:
       min_confidence: 0.1  # Lower threshold to detect balls
 
   pitch:
-    image_width: 1920
-    image_height: 1080
+    resolution_width: 1920
+    resolution_height: 1280
   calibration:
-    image_width: 1920
-    image_height: 1080
+    resolution_width: 1920
+    resolution_height: 1280
 
 # Tracker state (save computation time by dumping tracking results on disk for later re-use)
 # Dump tracking results to a .pcklz file to save computation time on the next run. Have a look at TrackLab tutorials for more details.
