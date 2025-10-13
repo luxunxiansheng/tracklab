@@ -44,10 +44,16 @@ class VideoReader:
     def __getitem__(self, idx):
         assert self.filename is not None, "You should first set the filename"
         cap = cv2.VideoCapture(self.filename)
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         cap.set(cv2.CAP_PROP_POS_FRAMES, idx)
         ret, image = cap.read()
         cap.release()
-        assert ret, "Read past the end of the video file"
+        if not ret:
+            log.warning(
+                f"Failed to read frame {idx} from {self.filename}, returning black frame"
+            )
+            return np.zeros((height, width, 3), dtype=np.uint8)
         return image
 
 
