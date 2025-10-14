@@ -5,7 +5,7 @@
 # the first element in the file.
 defaults:
   - dataset: video  # Back to video dataset
-  # - eval: trackeval
+  - eval: null  # No evaluation
   - engine: offline
   - callbacks/visualization_callback: keypoints
   - pipeline/bbox_detector: yolo_ultralytics
@@ -20,14 +20,25 @@ defaults:
 # Use 'pipeline_order: []' for an empty pipeline
 pipeline_order:
   - bbox_detector
-  #- pose_estimator
+  - pose_estimator
   #- reid
   #- track
+
+
+
+# Dataset
+dataset:
+  video_path: ${data_dir}/kang/bdj_1.mp4 # The SoccerNet videos are located under the data path (defined above) in the 'SoccerNet' folder
+  #start_frame: 30000  # Frame number to start processing from (0-based)
+  nvid: 1 # For a quick first inference, only the first video is processed. Use "-1" to process all the videos.
+  #nframes: 3000 # Reduce frames to avoid memory issues
+
+
 
 num_cores: 4
 
 # Logging
-experiment_name: "tracklab"
+experiment_name: "bdj"
 print_config: false
 use_wandb: false
 
@@ -48,7 +59,12 @@ use_rich: true
 
 # Callback configuration overrides
 callbacks:
-  eval_callback:
+  export_callback:
+    save_path: "exports"  # Path where tracking results are exported
+
+  visualization_callback:
+    save_videos: True  # Disable video saving to reduce memory usage
+
 
 # configure Hydra to use the current working directory
 # and set up the output directory according to experiment_name
