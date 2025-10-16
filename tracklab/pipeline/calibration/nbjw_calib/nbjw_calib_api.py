@@ -90,39 +90,47 @@ class NBJW_Calib_Keypoints(ImageLevelModule):
         cfg_l,
         kp_threshold=0.1449,
         line_threshold=0.2983,
+        training_enabled=False,
         **kwargs,
     ):
         super().__init__(batch_size)
         self.device = device
         self.kp_threshold = kp_threshold
         self.line_threshold = line_threshold
+        self.training_enabled = training_enabled
+        self.checkpoint_kp = checkpoint_kp
+        self.checkpoint_l = checkpoint_l
 
         self.cfg = cfg
         self.cfg_l = cfg_l
 
-        if not os.path.isfile(checkpoint_kp):
-            download_file(
-                "https://zenodo.org/records/12626395/files/SV_kp?download=1",
-                checkpoint_kp,
-            )
-
-        if not os.path.isfile(checkpoint_l):
-            download_file(
-                "https://zenodo.org/records/12626395/files/SV_lines?download=1",
-                checkpoint_l,
-            )
-
-        loaded_state = torch.load(checkpoint_kp, map_location=device)
         self.model = get_cls_net(self.cfg)
-        self.model.load_state_dict(loaded_state)
-        self.model.to(device)
-        self.model.eval()
-
-        loaded_state_l = torch.load(checkpoint_l, map_location=device)
         self.model_l = get_cls_net_l(self.cfg_l)
-        self.model_l.load_state_dict(loaded_state_l)
+
+        if not self.training_enabled:
+            if not os.path.isfile(checkpoint_kp):
+                download_file(
+                    "https://zenodo.org/records/12626395/files/SV_kp?download=1",
+                    checkpoint_kp,
+                )
+
+            if not os.path.isfile(checkpoint_l):
+                download_file(
+                    "https://zenodo.org/records/12626395/files/SV_lines?download=1",
+                    checkpoint_l,
+                )
+
+            loaded_state = torch.load(checkpoint_kp, map_location=device)
+            self.model.load_state_dict(loaded_state)
+            self.model_l.load_state_dict(torch.load(checkpoint_l, map_location=device))
+            self.model.eval()
+            self.model_l.eval()
+        else:
+            self.model.train()
+            self.model_l.train()
+
+        self.model.to(device)
         self.model_l.to(device)
-        self.model_l.eval()
 
         self.tfms_resize = T.Compose([T.Resize((540, 960)), T.ToTensor()])
 
@@ -167,6 +175,118 @@ class NBJW_Calib_Keypoints(ImageLevelModule):
             )
 
         return pd.DataFrame(), pd.DataFrame(output_pred)
+
+    def train(self, tracking_dataset, pipeline, dataset_config):
+        """Train the NBJW calibration models."""
+        import logging
+
+        log = logging.getLogger(__name__)
+        log.info("Starting NBJW calibration training...")
+
+        # Import training components
+        from .model.dataloader import SoccerNetCalibrationDataset as DatasetKP
+        from .model.dataloader_l import SoccerNetCalibrationDataset as DatasetL
+        from .model.losses import HeatmapWeightingMSELoss
+        from .model.transforms import transforms as transforms_kp
+        from .model.transforms_l import transforms as transforms_l
+        from torch.utils.data import DataLoader
+        import torch.optim as optim
+
+        # Training config
+        train_cfg = getattr(self.cfg, "training", {})
+        epochs = train_cfg.get("epochs", 10)
+        batch_size = train_cfg.get("batch_size", 4)
+        lr = train_cfg.get("lr", 1e-4)
+        data_path = train_cfg.get("data_path", "data/SoccerNetGS")
+
+        # Prepare datasets
+        train_dataset_kp = DatasetKP(data_path, "train", transforms_kp)
+        val_dataset_kp = DatasetKP(data_path, "valid", transforms_kp)
+        train_dataset_l = DatasetL(data_path, "train", transforms_l)
+        val_dataset_l = DatasetL(data_path, "valid", transforms_l)
+
+        train_loader_kp = DataLoader(
+            train_dataset_kp, batch_size=batch_size, shuffle=True
+        )
+        val_loader_kp = DataLoader(val_dataset_kp, batch_size=batch_size, shuffle=False)
+        train_loader_l = DataLoader(
+            train_dataset_l, batch_size=batch_size, shuffle=True
+        )
+        val_loader_l = DataLoader(val_dataset_l, batch_size=batch_size, shuffle=False)
+
+        # Optimizers
+        optimizer = optim.Adam(self.model.parameters(), lr=lr)
+        optimizer_l = optim.Adam(self.model_l.parameters(), lr=lr)
+
+        # Losses
+        criterion = HeatmapWeightingMSELoss()
+        criterion_l = HeatmapWeightingMSELoss()
+
+        for epoch in range(epochs):
+            self.model.train()
+            self.model_l.train()
+            train_loss_kp = 0.0
+            train_loss_l = 0.0
+
+            # Train keypoints
+            for batch in train_loader_kp:
+                images, targets, masks = batch
+                images = images.to(self.device)
+                targets = targets.to(self.device)
+                masks = masks.to(self.device)
+
+                optimizer.zero_grad()
+                outputs = self.model(images)
+                loss = criterion(outputs, targets, masks)
+                loss.backward()
+                optimizer.step()
+                train_loss_kp += loss.item()
+
+            # Train lines
+            for batch in train_loader_l:
+                images, targets, masks = batch
+                images = images.to(self.device)
+                targets = targets.to(self.device)
+                masks = masks.to(self.device)
+
+                optimizer_l.zero_grad()
+                outputs = self.model_l(images)
+                loss = criterion_l(outputs, targets, masks)
+                loss.backward()
+                optimizer_l.step()
+                train_loss_l += loss.item()
+
+            # Validation
+            self.model.eval()
+            self.model_l.eval()
+            val_loss_kp = 0.0
+            val_loss_l = 0.0
+            with torch.no_grad():
+                for batch in val_loader_kp:
+                    images, targets, masks = batch
+                    images = images.to(self.device)
+                    targets = targets.to(self.device)
+                    masks = masks.to(self.device)
+                    outputs = self.model(images)
+                    loss = criterion(outputs, targets, masks)
+                    val_loss_kp += loss.item()
+                for batch in val_loader_l:
+                    images, targets, masks = batch
+                    images = images.to(self.device)
+                    targets = targets.to(self.device)
+                    masks = masks.to(self.device)
+                    outputs = self.model_l(images)
+                    loss = criterion_l(outputs, targets, masks)
+                    val_loss_l += loss.item()
+
+            log.info(
+                f"Epoch {epoch+1}/{epochs}, KP Train: {train_loss_kp/len(train_loader_kp):.4f}, Val: {val_loss_kp/len(val_loader_kp):.4f}, L Train: {train_loss_l/len(train_loader_l):.4f}, Val: {val_loss_l/len(val_loader_l):.4f}"
+            )
+
+        # Save models
+        torch.save(self.model.state_dict(), self.checkpoint_kp)
+        torch.save(self.model_l.state_dict(), self.checkpoint_l)
+        log.info("Training completed. Models saved.")
 
     def flatten_dict(self, d):
         flat_dict = {}

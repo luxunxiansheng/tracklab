@@ -1,4 +1,5 @@
 _target_: tracklab.pipeline.calibration.NBJW_Calib_Keypoints
+training_enabled: false
 checkpoint_kp: ${model_dir}/calibration/SV_kp
 checkpoint_l: ${model_dir}/calibration/SV_lines
 image_width: 1920
