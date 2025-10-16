@@ -22,7 +22,7 @@ pipeline_order:
   - bbox_detector
   - pose_estimator
   #- reid
-  #- track
+  - track
 
 
 
@@ -59,8 +59,9 @@ use_rich: true
 
 # Callback configuration overrides
 callbacks:
-  export_callback:
-    save_path: "exports"  # Path where tracking results are exported
+  export_callback: null
+  # export_callback:
+  #   save_path: "exports"  # Path where tracking results are exported
 
   visualization_callback:
     save_videos: True  # Disable video saving to reduce memory usage
