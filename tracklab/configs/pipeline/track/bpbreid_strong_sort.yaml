@@ -22,3 +22,4 @@ cfg:
   use_only_foreground_embedding: False
   disable_gating: False
   disable_second_stage: False
+  min_hits: 5  # Minimum number of hits (detections) required to keep a track

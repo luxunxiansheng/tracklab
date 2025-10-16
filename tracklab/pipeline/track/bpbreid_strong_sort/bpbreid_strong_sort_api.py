@@ -53,6 +53,7 @@ class BPBReIDStrongSORT(ImageLevelModule):
         super().__init__(batch_size=1)
         self.cfg = cfg
         self.device = device
+
         self.reset()
 
     def reset(self) -> None:
@@ -161,9 +162,9 @@ class BPBReIDStrongSORT(ImageLevelModule):
             batch["frame"][0],
             batch["keypoints"][0] if "keypoints" in batch else None,
         )
-        # Filter out short tracks (less than 5 hits)
+        # Filter out short tracks (less than min_hits hits)
         if not results.empty:
-            results = results[results["hits"] >= 5]
+            results = results[results["hits"] >= getattr(self.cfg, "min_hits", 5)]
 
         # Post-processing: merge tracks with high overlap and similar appearance
         def iou(bbox1: np.ndarray, bbox2: np.ndarray) -> float:

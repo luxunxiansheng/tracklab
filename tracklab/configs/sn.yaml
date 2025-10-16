@@ -25,7 +25,7 @@ defaults:
   - callbacks/visualization_callback: gamestate  # Save tracking results as a .mp4 video in the run directory specified below (sn-gamestate/outputs/...)
   
   - pipeline/bbox_detector: yolo_ultralytics_11_soccernet_finetune
-  - pipeline/reid: bpbreid
+  - pipeline/reid: prtreid
   - pipeline/track: bpbreid_strong_sort
   - pipeline/jersey_number_detect: mmocr
   - pipeline/team: kmeans_embeddings
@@ -62,7 +62,7 @@ dataset:
 
 
 # Machine configuration
-num_cores: 32 # Set to 1 to avoid multiprocessing pickling issues
+num_cores: 16 # Set to 1 to avoid multiprocessing pickling issues
 use_wandb: False
 use_rich: True
 
@@ -78,7 +78,7 @@ callbacks:
     export_path: "${callbacks.export_callback.save_path}"  # Use same path as export callback
   
   visualization_callback:
-    #save_images: True  # Save a .mp4 video on disk with the game state reconstruction output (see 'tracklab/tracklab/configs/visualization' for more options)
+    save_images: True  # Save a .mp4 video on disk with the game state reconstruction output (see 'tracklab/tracklab/configs/visualization' for more options)
 
 
 
