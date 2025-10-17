@@ -11,7 +11,8 @@ defaults:
 
   - engine: offline
 
-  - callbacks/export_callback: structured # Export tracking results in game state format
+  #- callbacks/export_callback: structured # Export tracking results in game state format
+  - callbacks/export_callback: gs
   - callbacks/eval_callback: self_evaluation  # Self-evaluation without ground truth
   - callbacks/visualization_callback: gamestate
 
@@ -47,11 +48,11 @@ pipeline_order:
 dataset:
   video_path: ${data_dir}/SoccerNet/england_epl/2014-2015/2015-02-21 - 18-00 Chelsea 1 - 1 Burnley/1_720p.mkv  # The SoccerNet videos are located under the data path (defined above) in the 'SoccerNet' folder
   nvid: 1 # For a quick first inference, only the first video is processed. Use "-1" to process all the videos.
-  nframes: 10000 # Reduced for faster testing (was 10000). Set to -1 for full video processing.
+  nframes: 100 # Reduced for faster testing (was 10000). Set to -1 for full video processing.
 
 
 # Machine configuration
-num_cores: 8 # Set to 1 to avoid multiprocessing pickling issues
+num_cores: 1 # Set to 1 to avoid multiprocessing pickling issues
 use_wandb: False
 use_rich: True
 
@@ -87,7 +88,7 @@ callbacks:
     save_path: "exports"  # Path where tracking results are exported
 
   visualization_callback:
-    save_videos: True
+    save_images: True
 
 
 # and set up the output directory according to experiment_name

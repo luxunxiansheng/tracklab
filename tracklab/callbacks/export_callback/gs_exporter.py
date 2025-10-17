@@ -108,7 +108,13 @@ class GSExporter(BaseExporter):
             ].copy()
 
             if not video_predictions_df.empty:
-                video_predictions_df.sort_values(by="id", inplace=True)
+                video_predictions_df["image_id_int"] = video_predictions_df[
+                    "image_id"
+                ].astype(int)
+                video_predictions_df.sort_values(
+                    by=["image_id_int", "id"], inplace=True
+                )
+                video_predictions_df.drop(columns=["image_id_int"], inplace=True)
                 video_predictions = [
                     {
                         k: int(v) if k == "track_id" else v
