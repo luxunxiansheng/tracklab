@@ -47,7 +47,7 @@ pipeline_order:
 dataset:
   video_path: ${data_dir}/SoccerNet/england_epl/2014-2015/2015-02-21 - 18-00 Chelsea 1 - 1 Burnley/1_720p.mkv  # The SoccerNet videos are located under the data path (defined above) in the 'SoccerNet' folder
   nvid: 1 # For a quick first inference, only the first video is processed. Use "-1" to process all the videos.
-  nframes: 1500 # Reduced for faster testing (was 10000). Set to -1 for full video processing.
+  nframes: 10000 # Reduced for faster testing (was 10000). Set to -1 for full video processing.
 
 
 # Machine configuration
