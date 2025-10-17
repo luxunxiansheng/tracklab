@@ -47,7 +47,7 @@ pipeline_order:
 dataset:
   video_path: ${data_dir}/SoccerNet/england_epl/2014-2015/2015-02-21 - 18-00 Chelsea 1 - 1 Burnley/1_720p.mkv  # The SoccerNet videos are located under the data path (defined above) in the 'SoccerNet' folder
   nvid: 1 # For a quick first inference, only the first video is processed. Use "-1" to process all the videos.
-  nframes: 10000 # For testing on only a few frames, set to a positive number. Will disable evaluation !
+  nframes: 1500 # Reduced for faster testing (was 10000). Set to -1 for full video processing.
 
 
 # Machine configuration
@@ -63,7 +63,9 @@ print_config:  False
 pipeline:
   bbox_detector:
     cfg:
-      min_confidence: 0.1  # Lower threshold to detect balls
+      min_confidence: 0.3  # Increased threshold to reduce false positives (was 0.1)
+      # Note: Players typically have higher confidence than balls
+      # Consider using category-specific thresholds if supported
 
   pitch:
     image_width: 1280
@@ -76,7 +78,7 @@ pipeline:
 # Tracker state (save computation time by dumping tracking results on disk for later re-use)
 # Dump tracking results to a .pcklz file to save computation time on the next run. Have a look at TrackLab tutorials for more details.
 state:
-  save_file: null # "states/${experiment_name}.pklz"  # 'null' to disable saving. This is the save path for the tracker_state object that contains all modules outputs (bboxes, reid embeddings, jersey numbers, roles, teams, etc)
+  save_file: "states/${experiment_name}.pklz"  # Enable saving for faster re-runs
   load_file: null  # 'null' to disable loading. Load a file that was saved with the 'state.save_file' option above. Don't forget to remove from the pipeline all modules that should not be run again, but loaded from the saved tracker state.
 
 # Visualization callback configuration (overrides defaults from gamestate.yaml)

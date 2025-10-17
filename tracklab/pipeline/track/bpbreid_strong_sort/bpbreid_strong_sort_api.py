@@ -155,7 +155,8 @@ class BPBReIDStrongSORT(ImageLevelModule):
         Returns:
             DataFrame with tracking results after track merging or empty list.
         """
-        if len(detections) == 0:
+        # Check if batch is empty (can happen when all detections are filtered out, e.g., only balls)
+        if len(batch["id"]) == 0:
             return []
         results = self.model.update(
             batch["id"][0],
