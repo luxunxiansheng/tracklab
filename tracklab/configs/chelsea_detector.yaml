@@ -11,7 +11,7 @@ model_dir: "${project_dir}/pretrained_models"
 defaults:
   - dataset: video
   - engine: offline
-  - callbacks/export_callback: gs
+  - callbacks/export_callback: structured
   - callbacks/visualization_callback: bbox
   - pipeline/bbox_detector: yolo_ultralytics_11_soccernet_finetune
   - _self_

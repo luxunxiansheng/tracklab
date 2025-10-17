@@ -153,7 +153,7 @@ class GSExporter(BaseExporter):
         if supercategory == "object":
             # Remove detections that don't have mandatory columns
             # Detections with no track_id will therefore be removed and not count as FP at evaluation
-            # Exception: Balls (category_id=2) are kept even without track_id
+            # Exception: Balls (category_id=0) are kept even without track_id
             mandatory_columns: List[str] = []
             if "bbox_ltwh" in dataframe.columns:
                 mandatory_columns.append("bbox_ltwh")
@@ -165,10 +165,10 @@ class GSExporter(BaseExporter):
                 # Create mask for rows to keep: either has track_id OR is a ball
                 if "category_id" in dataframe.columns:
                     keep_mask = dataframe["track_id"].notna() | (
-                        dataframe["category_id"] == 2
+                        dataframe["category_id"] == 0
                     )
                     # For balls without track_id, assign a unique negative ID
-                    ball_no_track = (dataframe["category_id"] == 2) & dataframe[
+                    ball_no_track = (dataframe["category_id"] == 0) & dataframe[
                         "track_id"
                     ].isna()
                     if ball_no_track.any():
