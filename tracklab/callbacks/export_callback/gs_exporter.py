@@ -147,13 +147,35 @@ class GSExporter(BaseExporter):
         if supercategory == "object":
             # Remove detections that don't have mandatory columns
             # Detections with no track_id will therefore be removed and not count as FP at evaluation
+            # Exception: Balls (category_id=2) are kept even without track_id
             mandatory_columns: List[str] = []
             if "bbox_ltwh" in dataframe.columns:
                 mandatory_columns.append("bbox_ltwh")
-            if "track_id" in dataframe.columns:
-                mandatory_columns.append("track_id")
             if "bbox_pitch" in dataframe.columns:
                 mandatory_columns.append("bbox_pitch")
+
+            # For track_id: keep balls even if untracked
+            if "track_id" in dataframe.columns:
+                # Create mask for rows to keep: either has track_id OR is a ball
+                if "category_id" in dataframe.columns:
+                    keep_mask = dataframe["track_id"].notna() | (
+                        dataframe["category_id"] == 2
+                    )
+                    # For balls without track_id, assign a unique negative ID
+                    ball_no_track = (dataframe["category_id"] == 2) & dataframe[
+                        "track_id"
+                    ].isna()
+                    if ball_no_track.any():
+                        # Assign unique negative track IDs to untracked balls
+                        ball_indices = dataframe[ball_no_track].index
+                        dataframe.loc[ball_indices, "track_id"] = -(
+                            ball_indices.values + 1
+                        )
+                    # Keep only rows in keep_mask
+                    dataframe = dataframe[keep_mask]
+                else:
+                    mandatory_columns.append("track_id")
+
             if mandatory_columns:
                 dataframe.dropna(
                     subset=mandatory_columns,
@@ -177,6 +199,7 @@ class GSExporter(BaseExporter):
             dataframe["attributes"] = [
                 {
                     "role": x.get("role")
+                    or x.get("role_detection")  # Use role_detection if role is None/NaN
                     or (
                         "ball"
                         if x.get("category_id") == 2

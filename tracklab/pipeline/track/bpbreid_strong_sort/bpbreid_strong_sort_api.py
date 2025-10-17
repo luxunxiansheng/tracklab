@@ -109,6 +109,11 @@ class BPBReIDStrongSORT(ImageLevelModule):
         Returns:
             Dictionary containing processed detection inputs.
         """
+        # Filter out balls (category_id=2) from person tracking
+        # Balls should not be tracked with persons due to different motion/appearance characteristics
+        if "category_id" in detections.columns:
+            detections = detections[detections["category_id"] != 2]
+
         if len(detections) == 0:
             return {
                 "id": [],

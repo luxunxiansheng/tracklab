@@ -63,9 +63,10 @@ def draw_radar_view_minimap(radar_img, detections, scale=8) -> None:
     radar_center_x = int(pitch_width * scale / 2)
     radar_center_y = int(pitch_height * scale / 2)
     for name, detection in detections.iterrows():
+        # Set color based on role/team
         if "role" in detection and detection.role == "ball":
-            continue
-        if "role" in detection and "team" in detection:
+            color = (0, 255, 255)  # Yellow for ball
+        elif "role" in detection and "team" in detection:
             color = (0, 0, 255) if detection.team == "left" else (255, 0, 0)
         else:
             color = (0, 0, 0)
@@ -88,7 +89,9 @@ def draw_radar_view_minimap(radar_img, detections, scale=8) -> None:
                     cat = f"{int(detection.jersey_number)}"
 
         if "role" in detection:
-            if detection.role == "goalkeeper":
+            if detection.role == "ball":
+                cat = "B"  # Ball marker
+            elif detection.role == "goalkeeper":
                 cat = "GK"
             elif detection.role == "referee":
                 cat = "RE"
@@ -249,9 +252,10 @@ def draw_radar_view(patch, detections, scale=4, delta=32, group="Ground Truth") 
         alignV="t",
     )
     for name, detection in detections.iterrows():
+        # Set color based on role/team
         if "role" in detection and detection.role == "ball":
-            continue
-        if "role" in detection and "team" in detection:
+            color = (0, 255, 255)  # Yellow for ball
+        elif "role" in detection and "team" in detection:
             color = (0, 0, 255) if detection.team == "left" else (255, 0, 0)
         else:
             color = (0, 0, 0)
@@ -274,7 +278,9 @@ def draw_radar_view(patch, detections, scale=4, delta=32, group="Ground Truth") 
                     cat = f"{int(detection.jersey_number)}"
 
         if "role" in detection:
-            if detection.role == "goalkeeper":
+            if detection.role == "ball":
+                cat = "B"  # Ball marker
+            elif detection.role == "goalkeeper":
                 cat = "GK"
             elif detection.role == "referee":
                 cat = "RE"

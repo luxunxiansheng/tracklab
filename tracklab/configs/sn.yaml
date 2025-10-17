@@ -79,6 +79,13 @@ callbacks:
   
   visualization_callback:
     save_images: True  # Save a .mp4 video on disk with the game state reconstruction output (see 'tracklab/tracklab/configs/visualization' for more options)
+    visualizers:
+      balls:
+        _target_: tracklab.callbacks.visualization_callback.BallCircle
+        print_id: True
+        print_confidence: False
+        circle_color: [0, 255, 255]  # Yellow in BGR
+        circle_thickness: 2
 
 
 
