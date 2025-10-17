@@ -208,7 +208,7 @@ class GSExporter(BaseExporter):
                     or x.get("role_detection")  # Use role_detection if role is None/NaN
                     or (
                         "ball"
-                        if x.get("category_id") == 2
+                        if x.get("category_id") == 0  # Ball is category_id 0
                         else "person" if x.get("category_id") == 1 else None
                     ),
                     "jersey": x.get("jersey"),

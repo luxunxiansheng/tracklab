@@ -167,9 +167,13 @@ class YOLOUltralytics(ImageLevelModule):
                         detections, tuple(shape)
                     )  # Convert to TrackLab format
                 for detection in detections:
+                    # Map YOLO classes to TrackLab categories:
+                    # YOLO class 0 (person) -> category_id 1
+                    # YOLO class 1 (ball) -> category_id 0
                     category_id = (
-                        1 if detection["cls"] == 0 else 2
-                    )  # 1 for person, 2 for ball
+                        1 if detection["cls"] == 0 else 0
+                    )  # 1 for person, 0 for ball
+
                     detections_out.append(
                         pd.Series(
                             dict(
@@ -261,7 +265,9 @@ class YOLOUltralytics(ImageLevelModule):
                     bbox[3] - bbox[1]
                 )  # (x2-x1) * (y2-y1)
 
-                if bbox_area >= min_area:
+                # Always keep balls (class 1) regardless of size
+                # Only apply size filter to persons (class 0)
+                if det["cls"] == 1 or bbox_area >= min_area:
                     filtered_detections.append(det)
 
             log.debug(

@@ -236,7 +236,7 @@ class StructuredExporter(BaseExporter):
 
         # Determine type based on category_id
         category_id = detection.get("category_id", 1)
-        if category_id == 2 or detection.get("role") == "ball":
+        if category_id == 0 or detection.get("role") == "ball":  # Ball is category_id 0
             det_dict["type"] = "ball"
             det_dict["team"] = None
         else:
