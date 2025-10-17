@@ -219,7 +219,8 @@ class YOLOUltralytics(ImageLevelModule):
             # Apply soft NMS
             if soft_nms is not None:
                 try:
-                    boxes, scores = soft_nms(
+                    # soft_nms returns (dets, indices) where dets has shape (N, 5) with [x1, y1, x2, y2, score]
+                    dets, indices = soft_nms(
                         boxes=boxes.astype(np.float32),  # Ensure float32 type
                         scores=scores.astype(np.float32),  # Ensure float32 type
                         iou_threshold=0.5,  # Standard IoU threshold
@@ -228,15 +229,16 @@ class YOLOUltralytics(ImageLevelModule):
                     )
 
                     # Update detections with soft NMS results
+                    # dets[:, :4] are the boxes, dets[:, 4] are the updated scores
                     filtered_detections = []
-                    for i, (box, score) in enumerate(zip(boxes, scores)):
+                    for i, (det_result, orig_idx) in enumerate(zip(dets, indices)):
+                        box = det_result[:4]  # Extract box coordinates
+                        score = det_result[4]  # Extract updated score from 5th column
                         if (
                             score > self.cfg.min_confidence
                         ):  # Re-apply confidence threshold
-                            det = detections[i].copy()
-                            det["bbox"] = box[
-                                :4
-                            ]  # Only take the first 4 elements (coordinates)
+                            det = detections[orig_idx].copy()  # Use original index
+                            det["bbox"] = box
                             det["conf"] = score
                             filtered_detections.append(det)
 

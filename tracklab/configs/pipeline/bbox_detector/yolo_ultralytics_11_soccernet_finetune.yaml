@@ -16,7 +16,8 @@ cfg:
   save_path: "${project_dir}/pretrained_models/yolo/yolo11x_finetuned_soccernet_v2.pt"
 
   # Detector-level minimum confidence used by the wrapper
-  min_confidence: 0.6
+  # Lower threshold to detect balls which typically have lower confidence than people
+  min_confidence: 0.1  # Changed from 0.6 to 0.1 to capture ball detections
 
 
   # Optional offline-only hints (not strictly required by the YOLO API)

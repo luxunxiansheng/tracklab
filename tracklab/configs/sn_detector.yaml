@@ -1,0 +1,64 @@
+# TrackLab SoccerNet Detector Test Config
+
+# Experiment name
+experiment_name: "sn_detector_test"
+
+# Path definitions
+home_dir: "${oc.env:HOME}"
+data_dir: "${project_dir}/data"
+model_dir: "${project_dir}/pretrained_models"
+
+defaults:
+  - dataset: soccernet_gs
+  - engine: offline
+  - callbacks/export_callback: gs
+  - callbacks/visualization_callback: bbox  # Use bbox visualization to show detections
+  - pipeline/bbox_detector: yolo_ultralytics_11_soccernet_finetune
+  - _self_
+
+pipeline_order:
+  - bbox_detector
+
+dataset:
+  eval_set: "valid"
+  dataset_path: ${data_dir}/SoccerNetGS
+  vids_dict:
+    valid: ["SNGS-022"]
+
+num_cores: 16
+use_wandb: False
+use_rich: True
+infer_tracking: True
+print_config: False
+
+callbacks:
+  export_callback:
+    save_path: "exports"
+  visualization_callback:
+    save_images: True
+    visualizers:
+      detections:
+        _target_: tracklab.callbacks.visualization_callback.DefaultDetection
+      balls:
+        _target_: tracklab.callbacks.visualization_callback.BallCircle
+        print_id: True
+        print_confidence: True
+        circle_color: [0, 255, 255]  # Yellow
+        circle_thickness: 2
+
+state:
+  save_file: "states/${experiment_name}.pklz"
+  load_file: null
+
+pipeline:
+  bbox_detector:
+    cfg:
+      min_confidence: 0.1
+
+project_dir: "${hydra:runtime.cwd}"
+hydra:
+  output_subdir: "configs"
+  job:
+    chdir: True
+  run:
+    dir: "outputs/${experiment_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}"
