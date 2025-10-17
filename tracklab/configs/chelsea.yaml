@@ -11,12 +11,12 @@ defaults:
 
   - engine: offline
 
-  - callbacks/export_callback: gs  # Export tracking results in game state format
+  - callbacks/export_callback: structured # Export tracking results in game state format
   - callbacks/eval_callback: self_evaluation  # Self-evaluation without ground truth
   - callbacks/visualization_callback: gamestate
 
   - pipeline/bbox_detector: yolo_ultralytics_11_soccernet_finetune
-  - pipeline/reid: bpbreid
+  - pipeline/reid: prtreid
   - pipeline/track: bpbreid_strong_sort
   - pipeline/jersey_number_detect: mmocr
   - pipeline/team: kmeans_embeddings

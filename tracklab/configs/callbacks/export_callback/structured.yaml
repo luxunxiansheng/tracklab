@@ -1,0 +1,10 @@
+_target_: tracklab.callbacks.ExporterCallback
+exporter:
+  _target_: tracklab.callbacks.export_callback.structured_exporter.StructuredExporter
+  include_pitch_coords: true  # Include pitch coordinates (x, y) in the output
+  fps: 25.0  # Frames per second for time calculation
+save_path: "exports"
+export_per_video: false
+bbox_column: "bbox_ltwh"
+save_classes: false
+is_ground_truth: false
