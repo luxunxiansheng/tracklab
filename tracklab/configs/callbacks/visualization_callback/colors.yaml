@@ -2,7 +2,7 @@ video_fps: 25
 
 colors:
   default:
-    no_id: [255, 0, 0]  # Red color for objects with no ID (detection-only mode)
+    no_id: [0, 255, 255]  # Yellow (BGR) for objects with no ID (e.g., balls without tracking)
     prediction: "track_id"
     ground_truth: [0,255,0]
   bbox:

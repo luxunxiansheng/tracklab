@@ -236,7 +236,7 @@ class PRTReId(DetectionLevelModule):
         # Override role for balls based on category_id (balls should not be classified by visual ReID)
         if "category_id" in detections.columns:
             for idx, (det_idx, detection) in enumerate(detections.iterrows()):
-                if detection.get("category_id") == 2:  # category_id 2 is ball
+                if detection.get("category_id") == 0:  # category_id 0 is ball
                     if idx < len(roles):
                         roles[idx] = "ball"
                         role_confidence[idx] = (

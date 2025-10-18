@@ -108,7 +108,7 @@ def draw_radar_view_minimap(radar_img, detections, scale=8) -> None:
                     radar_center_y + int(y_middle * scale),
                 ),
                 1,
-                int(0.2 * scale),
+                int(0.3 * scale),  # Increased ball size from 0.2 to 0.3
                 color_txt=(255, 255, 255),
                 color_bg=color,
                 alignH="c",
@@ -297,7 +297,7 @@ def draw_radar_view(patch, detections, scale=4, delta=32, group="Ground Truth") 
                     radar_center_y + int(y_middle * scale),
                 ),
                 1,
-                0.2 * scale,
+                0.3 * scale,  # Increased ball size from 0.2 to 0.3
                 1,
                 color_txt=color,
                 color_bg=None,

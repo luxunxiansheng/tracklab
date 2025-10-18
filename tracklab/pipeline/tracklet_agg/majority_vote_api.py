@@ -38,24 +38,45 @@ class MajorityVoteTracklet(VideoLevelModule):
 
         detections[self.output_columns] = np.nan
 
-        if "track_id" not in detections.columns:
-            return detections
-        for track_id in detections.track_id.unique():
-            tracklet = detections[detections.track_id == track_id]
-            for attribute in self.attributes:
-                det_col = f"{attribute}_detection"
-                conf_col = f"{attribute}_confidence"
-                if (
-                    det_col not in detections.columns
-                    or conf_col not in detections.columns
-                ):
+        # First, handle detections WITH track_ids (tracklets)
+        if "track_id" in detections.columns:
+            for track_id in detections.track_id.unique():
+                if pd.isna(track_id):
+                    continue  # Skip NaN track_ids for now, handle them separately
+                tracklet = detections[detections.track_id == track_id]
+                for attribute in self.attributes:
+                    det_col = f"{attribute}_detection"
+                    conf_col = f"{attribute}_confidence"
+                    if (
+                        det_col not in detections.columns
+                        or conf_col not in detections.columns
+                    ):
+                        continue
+                    attribute_detection = tracklet[det_col]
+                    attribute_confidence = tracklet[conf_col]
+                    attribute_value = [
+                        select_highest_voted_att(
+                            attribute_detection, attribute_confidence
+                        )
+                    ] * len(tracklet)
+                    detections.loc[tracklet.index, attribute] = attribute_value
 
-                    continue
-                attribute_detection = tracklet[det_col]
-                attribute_confidence = tracklet[conf_col]
-                attribute_value = [
-                    select_highest_voted_att(attribute_detection, attribute_confidence)
-                ] * len(tracklet)
-                detections.loc[tracklet.index, attribute] = attribute_value
+        # Second, handle detections WITHOUT track_ids (e.g., untracked balls)
+        # For these, use the detection-level attribute directly (no voting needed)
+        for attribute in self.attributes:
+            det_col = f"{attribute}_detection"
+            if det_col in detections.columns:
+                # Find detections without track_id or with NaN track_id
+                if "track_id" in detections.columns:
+                    no_track = detections["track_id"].isna()
+                else:
+                    no_track = pd.Series(
+                        [True] * len(detections), index=detections.index
+                    )
+
+                # For detections without track_id, copy the detection value directly to the output attribute
+                detections.loc[no_track & detections[det_col].notna(), attribute] = (
+                    detections.loc[no_track & detections[det_col].notna(), det_col]
+                )
 
         return detections

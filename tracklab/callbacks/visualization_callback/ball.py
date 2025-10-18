@@ -12,7 +12,7 @@ class BallCircle(DetectionVisualizer):
 
     def __init__(
         self,
-        print_id: bool = True,
+        print_id: bool = False,
         print_confidence: bool = False,
         circle_color: tuple = (0, 255, 255),  # Yellow in BGR
         circle_thickness: int = 2,
@@ -48,9 +48,9 @@ class BallCircle(DetectionVisualizer):
         """
         for detection, is_pred in zip([detection_pred, detection_gt], [True, False]):
             if detection is not None:
-                # Only draw if this is a ball (category_id == 2 or role == "ball")
+                # Only draw if this is a ball (category_id == 0 or role == "ball")
                 is_ball = False
-                if hasattr(detection, "category_id") and detection.category_id == 2:
+                if hasattr(detection, "category_id") and detection.category_id == 0:
                     is_ball = True
                 elif hasattr(detection, "role") and detection.role == "ball":
                     is_ball = True
@@ -150,9 +150,9 @@ class BallBBox(DetectionVisualizer):
         """
         for detection, is_pred in zip([detection_pred, detection_gt], [True, False]):
             if detection is not None:
-                # Only draw if this is a ball (category_id == 2 or role == "ball")
+                # Only draw if this is a ball (category_id == 0 or role == "ball")
                 is_ball = False
-                if hasattr(detection, "category_id") and detection.category_id == 2:
+                if hasattr(detection, "category_id") and detection.category_id == 0:
                     is_ball = True
                 elif hasattr(detection, "role") and detection.role == "ball":
                     is_ball = True

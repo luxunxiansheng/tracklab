@@ -14,6 +14,8 @@ visualizers:
     _target_: tracklab.callbacks.visualization_callback.pitch.Pitch
   players:
     _target_: tracklab.callbacks.visualization_callback.players.CompletePlayerEllipse
+  ball:
+    _target_: tracklab.callbacks.visualization_callback.ball.BallCircle
   radar:
     _target_: tracklab.callbacks.visualization_callback.pitch.Radar
 
@@ -26,7 +28,7 @@ colors:
   # - team: A color based on the assigned team (left or right - can be modified in colors_gs file).
   # - track_id: A color based on the tracking ID (for prediction or ground_truth only).
   default:
-    no_id: null  # Color setting for objects with no ID (null means no display).
+    no_id: [0, 255, 255]  # Yellow (BGR) for objects with no ID (e.g., balls without tracking).
     prediction: "team"  # Color setting for tracked predictions, based on team.
     ground_truth: null  # Color setting for ground truth, specified as an RGB value.
   # Estimated number of objects to track to generate colors that are visually

@@ -5,6 +5,7 @@ import cv2
 import pandas as pd
 
 from distinctipy import get_rgb256
+from regex import F
 
 from .visualizer import Visualizer, get_fixed_colors
 from .detection import DefaultDetection, EllipseDetection
@@ -97,8 +98,8 @@ class CompletePlayerEllipse(TeamVisualizer, EllipseDetection):
     def __init__(
         self,
         display_track_id: bool = True,
-        display_jersey: bool = True,
-        display_role: bool = True,
+        display_jersey: bool = False,
+        display_role: bool = False,
         display_team: bool = False,
     ) -> None:
         """Initialize the complete player ellipse visualizer.
